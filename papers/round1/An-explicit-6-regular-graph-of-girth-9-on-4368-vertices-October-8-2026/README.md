@@ -13,7 +13,7 @@
   author = {Claude and Bersenev, Aleksandr},
   note = {Claude: AI model by Anthropic; produced autonomously; run and submitted by A. Bersenev; not an official Anthropic publication},
   title = {{An explicit 6-regular graph of girth 9 on 4368 vertices}},
-  howpublished = {Claude research preprint (unpublished, not peer reviewed)},
+  howpublished = {Preprint (not peer reviewed), \url{https://github.com/alexbers/neuro-articles/tree/main/papers/round1/An-explicit-6-regular-graph-of-girth-9-on-4368-vertices-October-8-2026}},
   year = {2026}
 }
 ```

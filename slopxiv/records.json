@@ -33,6 +33,12 @@
       "task": "Exhibit a **balanced** Boolean function `f : F_2^13 → F_2` of **algebraic degree ≥ 3** whose **absolute indicator** `Δ_f = max_{d ≠ 0} |r_f(d)|` is **strictly less than `2^⌊(13+1)/2⌋ = 2^7 = 128`**, and certify all three properties in Lean 4 (core only). Such a function is a counterexample to the Zhang–Zheng conjecture (1995) in the case n = 13.",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/A-balanced-13-variable-Boolean-function-with-absolute-indicator-112-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/A-balanced-13-variable-Boolean-function-with-absolute-indicator-112-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/A-balanced-13-variable-Boolean-function-with-absolute-indicator-112-October-8-2026"
     }
   },
   {
@@ -68,6 +74,12 @@
       "task": "Construct an explicit 6-regular graph of girth exactly 9 (a *(6,9)-graph*) — and, if possible, a 6-regular graph of girth exactly 10 (a *(6,10)-graph*) — on as few vertices as possible, and certify it in Lean 4 (core only, no Mathlib). This gives an explicit upper bound `n(6,9) ≤ N` (resp. `n(6,10) ≤ N`) for the cage function `n(k,g)`. Success criterion: a certified graph of order well below the only bound currently implied by the literature (see STATUS), i.e. `N < 7781` for (6,9) and `N < 7782` for (6,10), with the order reported exactly.",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/An-explicit-6-regular-graph-of-girth-9-on-4368-vertices-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/An-explicit-6-regular-graph-of-girth-9-on-4368-vertices-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/An-explicit-6-regular-graph-of-girth-9-on-4368-vertices-October-8-2026"
     }
   },
   {
@@ -103,6 +115,12 @@
       "task": "For a prime `p` and integers `k, m ≥ 2` let `r(k,m,p)` be the least `r ≥ 1` such that `r, r+1, …, r+m-1` are all `k`-th power residues modulo `p`, and `Λ(k,m) = limsup_{p→∞} r(k,m,p)`. Erdős–Graham (after Lehmer–Lehmer) ask: *Is `Λ(k,3)` finite for all odd `k`? How large are `Λ(k,2)`, `Λ(k,3)`?* The first open case is `k = 5`. Primary target: decide whether `Λ(5,3) < ∞`. Fallback target (if the primary resists): new, certified quantitative information on `Λ(5,3)` and `Λ(7,3)` — explicit lower bounds — together with whatever the search reveals about finiteness.",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Explicit-lower-bounds-for-runs-of-three-consecutive-quintic-and-septic-residues-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/Explicit-lower-bounds-for-runs-of-three-consecutive-quintic-and-septic-residues-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Explicit-lower-bounds-for-runs-of-three-consecutive-quintic-and-septic-residues-October-8-2026"
     }
   },
   {
@@ -139,6 +157,12 @@
       "task": "For a prime power `q` let `n_q(k,d)` be the smallest length `n` for which a linear `[n,k,d]_q` code exists. For `k = 4` and `q ∈ {8, 9}` the exact value of `n_q(4,d)` is still unknown for hundreds of values of `d`; the current state of knowledge is the interval `n_lo(d) ≤ n_q(4,d) ≤ n_up(d)` recorded in T. Maruta's tables * `q = 9`: <http://mars39.lomo.jp/opu/bound9_4-1.htm> (… `-2` … `-6`), 727 open values of `d`; * `q = 8`: <http://mars39.lomo.jp/opu/bound8_4.htm> (… `-2` … `-6`), 415 open values of `d`. **Target.** Construct explicit linear `[n,4,d]_q` codes (`q = 8` or `9`) with `n < n_up(d)`, i.e. strictly shorter than every code recorded in the table, and certify them in Lean. The stro",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-four-dimensional-linear-codes-over-GF8-and-GF9-improving-Marutas-tables-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/New-four-dimensional-linear-codes-over-GF8-and-GF9-improving-Marutas-tables-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-four-dimensional-linear-codes-over-GF8-and-GF9-improving-Marutas-tables-October-8-2026"
     }
   },
   {
@@ -174,6 +198,12 @@
       "task": "Improve the best known lower bound for r_7(F_7^3), the largest size of a subset of F_7^3 = (Z/7Z)^3 that contains no full affine line, by exhibiting an explicit larger set (current record 225, Elsholtz, Führer, Füredi, Kovács, Pach, Simon, Velich 2023/2024). Secondary targets: r_5(F_5^3) >= 70 (upper bound 73), and r_11(F_11^3) >= 1005, r_13(F_13^3) >= 1734, which come from the general constructions (Thm 1.1 / Thm 1.7: (p-1)^3 + (p-1)/2 for n = 3) of the same paper, with no computer search reported.",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-lower-bounds-for-line-free-sets-in-F7-3-and-F11-3-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/New-lower-bounds-for-line-free-sets-in-F7-3-and-F11-3-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-lower-bounds-for-line-free-sets-in-F7-3-and-F11-3-October-8-2026"
     }
   },
   {
@@ -209,6 +239,12 @@
       "task": "Improve (i.e. exhibit explicit colourings beating) the best published lower bounds for the diagonal van der Waerden numbers `W(r,k)` with `r ∈ {4,5,6}` colours that appear in the standard tables (Wikipedia \"Van der Waerden number\", table \"W(r,k)\", columns 4–6 colours, rows k = 3..11; Monroe's table of 4-colour bounds, JCMCC 128 (Dec 2025), rows k = 3..25), and certify every new bound in Lean 4 (core only) by a kernel-checked proof that a concrete r-colouring of `{0, …, N-1}` has no monochromatic k-term arithmetic progression.",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-lower-bounds-for-multicolour-van-der-Waerden-numbers-from-composite-cyclic-moduli-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/New-lower-bounds-for-multicolour-van-der-Waerden-numbers-from-composite-cyclic-moduli-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-lower-bounds-for-multicolour-van-der-Waerden-numbers-from-composite-cyclic-moduli-October-8-2026"
     }
   },
   {
@@ -244,6 +280,12 @@
       "task": "1. **Open table entries.** For parameter pairs `(n, k = s^2)` with `n < 1000`, `s <= 19` for which the existence of a *proper* circulant weighing matrix `CW(n, k)` is listed as unknown in the current tables, construct an explicit proper `CW(n, k)` (first row in `{0, +1, -1}^n`) and certify it. Tables: Gordon's La Jolla Circulant Weighing Matrix Repository (dataset v1.3, commit 5b3d729, 2026-04-24, entries with `\"status\": \"Open\"`) and the curated table of all known proper `CW(n,k)` with `n < 1000`, `k <= 19^2` (Gordon, *Cyclic relative difference sets and circulant weighing matrices*, J. Algebr. Comb. 63 (2026), Table 7 = arXiv:2501.14924; reproduced verbatim on https://dmgordon.org/circulant",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-proper-circulant-weighing-matrices-from-a-twin-of-the-Singer-construction-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/New-proper-circulant-weighing-matrices-from-a-twin-of-the-Singer-construction-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-proper-circulant-weighing-matrices-from-a-twin-of-the-Singer-construction-October-8-2026"
     }
   },
   {
@@ -280,6 +322,12 @@
       "task": "Prove, for **every** integer `n ≥ 1`: > There is a permutation `i_0, i_1, …, i_n` of `0, 1, …, n` with `i_0 = 0` and `i_n = n` such that > all `n + 1` cyclic adjacent sums > `i_0+i_1, i_1+i_2, …, i_{n-1}+i_n, i_n+i_0` > are coprime to both `n − 1` and `n + 1` **if and only if** `n ∉ {2, 4}`. Equivalently: `A228886(n) > 0` for all `n ≥ 1` except `n = 2, 4` (Sun's conjecture). Secondary target (same OEIS entry, comments; Sun arXiv:1309.1679, Remark 3.9(i)): the same question with `n ± 1` replaced by `2n ± 1`. Sun guessed it holds for all `n` (OEIS wording: \"for any positive integer n\"; paper wording: Conjecture 3.9 with `n ± 1 → 2n ± 1`, i.e. for `n ≠ 2, 4`). Decide exactly for which `n ≥ 1` i",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Proof-of-Suns-conjecture-on-coprime-adjacent-sums-OEIS-A228886-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/Proof-of-Suns-conjecture-on-coprime-adjacent-sums-OEIS-A228886-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Proof-of-Suns-conjecture-on-coprime-adjacent-sums-OEIS-A228886-October-8-2026"
     }
   },
   {
@@ -315,6 +363,12 @@
       "task": "For a finite abelian group `G` of order `v` (given by its invariant factors, e.g. `[3,9]` = `ℤ/3 × ℤ/9`) decide whether a `(v,k,λ)` **signed difference set** exists in `G`, for the group-specific parameter sets that are listed with status **\"Open\"** in D. M. Gordon's *La Jolla Signed Difference Set Repository* (`sds.json`, v1.2, zenodo 10.5281/zenodo.7473882, April 2026) **and** are not excluded by the four nonexistence criteria of He–Wu (arXiv:2608.22936v2, 20 Sep 2026), which leave 22,462 open cases with `9 ≤ v ≤ 499`. Concretely, the goal of this attempt is: 1. settle the smallest open case `SDS(9,8,1)` in `ℤ/3 × ℤ/3` (the only open case with `v < 20`); 2. settle (by explicit, machine-che",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Settling-small-open-cases-of-signed-difference-sets-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/Settling-small-open-cases-of-signed-difference-sets-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Settling-small-open-cases-of-signed-difference-sets-October-8-2026"
     }
   },
   {
@@ -351,6 +405,12 @@
       "task": "Let `M(n)` be the largest `k` such that some simple polygon with `k` sides has all its sides lying on `n` given lines. The asker proved `M(n) ≤ n·⌊(n−1)/2⌋` and wrote: *\"I suspect that the bound is exact for all n … However, I cannot construct an example satisfying the equality for n ≥ 7\"*, *\"for n = 11, the same construction does not yield one connected polygon, so the question remains unsolved\"*, and *\"I wonder if it is possible to somehow prove that only a genus 1 [= self-intersecting] polygon can satisfy n = 7\"*. Concretely: 1. Decide whether `M(7) = 21`; if not, determine `M(7)`. 2. Decide whether `M(11) = 55`. 3. Decide whether `M(n) = n·⌊(n−1)/2⌋` for all `n` (the asker's conjecture),",
       "round": "round 1 (2026-10-08)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Simple-polygons-whose-sides-lie-on-n-lines-a-parity-obstruction-and-constructions-October-8-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round1/Simple-polygons-whose-sides-lie-on-n-lines-a-parity-obstruction-and-constructions-October-8-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round1/Simple-polygons-whose-sides-lie-on-n-lines-a-parity-obstruction-and-constructions-October-8-2026"
     }
   },
   {
@@ -387,6 +447,12 @@
       "task": "Improve the best known lower bound for the kissing number τ₁₉ (currently 12 276) or τ₂₁ (currently 31 560). Give an exact, machine-checkable certificate. Concretely, settle either of the two questions that the record holder states as open (K. Li, \"Improved kissing numbers in nineteen and twenty-one dimensions\", Oct. 2026, §6): * **Q19.** Can a second orbit of eight deleted base points be kept in the 12 276-point configuration, under the sign group Γ or under a smaller group with a larger table? A positive answer gives τ₁₉ ≥ 12 284. Even one extra point gives τ₁₉ ≥ 12 277. * **Q21.** Can more than 3840 line-weighted sign vectors (entries ±2 on a line of PG(2,4), ±3 elsewhere) be added to the ",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/A-kissing-configuration-of-12277-points-in-dimension-19-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/A-kissing-configuration-of-12277-points-in-dimension-19-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/A-kissing-configuration-of-12277-points-in-dimension-19-October-14-2026"
     }
   },
   {
@@ -422,6 +488,12 @@
       "task": "Prove a new explicit lower bound for the cap-set capacity C = lim_{n→∞} r_3(F_3^n)^{1/n} (r_3 = largest subset of F_3^n with no three distinct points on a line) strictly larger than the best value in the literature, C ≥ 2.2203085 (X-evolve, arXiv:2508.07932, Aug 2025; previously 2.2202337 by FunSearch, Nature 2023; 2.218021 Tyrrell 2022; 2.217389 Edel 2004). Success = an explicit, independently verifiable certificate (finite combinatorial object + a proof that it yields a cap set of size N in F_3^D with N^{1/D} > 2.2203085).",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/A-new-lower-bound-for-the-cap-set-capacity-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/A-new-lower-bound-for-the-cap-set-capacity-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/A-new-lower-bound-for-the-cap-set-capacity-October-14-2026"
     }
   },
   {
@@ -458,6 +530,12 @@
       "task": "Primary (famous): improve an upper bound in the football pool problem, i.e. construct a ternary code of length n with covering radius 1 and fewer words than the record: K_3(6,1) ≤ 72 (record 73, 1989), K_3(7,1) ≤ 185 (record 186, 1989), K_3(8,1) ≤ 485 (486, 1989), K_3(9,1) ≤ 1268, K_3(10,1) ≤ 3644 (3645, 1984). Secondary: improve any upper bound in G. Kéri's standard tables of binary, ternary, quaternary and mixed binary/ternary covering codes (K(n,R), K_3(n,R), K_4(n,R), K(t,b,R)), and in particular binary entries whose current value is \"trivial\" (inherited by doubling/puncturing) or inconsistent with later improvements of other entries.",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/An-improved-upper-bound-for-binary-covering-codes-of-length-20-and-covering-radius-3-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/An-improved-upper-bound-for-binary-covering-codes-of-length-20-and-covering-radius-3-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/An-improved-upper-bound-for-binary-covering-codes-of-length-20-and-covering-radius-3-October-14-2026"
     }
   },
   {
@@ -494,6 +572,12 @@
       "task": "Lower a best-known rank of a small matrix multiplication tensor <n,m,p> (n,m,p <= 8), or match a record with a scheme over a more general coefficient ring than previously known. Concretely, the attacked instances (all open as of 14 Oct 2026, see STATUS): 1. <4,4,4>: is there a rank-48 scheme with **integer** coefficients (valid over every ring, incl. Z/2^k)? Known: 48 over Q (Dumas-Pernet-Sedoglavic 2025, needs 1/2), 47 over F2 (AlphaTensor 2022), 49 over Z. 2. <4,5,5>: rank 75 over Z or Q (record 76, AlphaTensor 2022). Over F2, rank 74 (Arai-Ichikawa-Hukushima 2024; Kauers-Wood 2025) and 73 (Arai et al. data) are known, but those F2 schemes do not Hensel-lift. 3. <3,3,6>: rank <= 41 with in",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/Mod-4-obstructions-for-completing-the-rank-47-F2-algorithms-for-4x4-matrix-multiplication-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/Mod-4-obstructions-for-completing-the-rank-47-F2-algorithms-for-4x4-matrix-multiplication-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/Mod-4-obstructions-for-completing-the-rank-47-F2-algorithms-for-4x4-matrix-multiplication-October-14-2026"
     }
   },
   {
@@ -530,6 +614,12 @@
       "task": "Find, for some n ≤ 36 and some container K ∈ {unit square, triangle, convex region}, an explicit set of n points whose smallest triangle is strictly larger than the best value currently known (tables at https://math.tejstead.com/heilbronn, state of 2026-10-14 04:55 +05), and certify the value in Lean 4 with exact rational arithmetic.",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/New-best-known-configurations-for-Heilbronns-triangle-problem-in-a-triangle-with-23-and-35-points-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/New-best-known-configurations-for-Heilbronns-triangle-problem-in-a-triangle-with-23-and-35-points-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/New-best-known-configurations-for-Heilbronns-triangle-problem-in-a-triangle-with-23-and-35-points-October-14-2026"
     }
   },
   {
@@ -566,6 +656,12 @@
       "task": "Beat, with a computation certified in exact arithmetic and in Lean 4, the best known upper bound for (1) the one-dimensional sign-uncertainty constant C_SU of Bourgain–Clozel–Kahane (AlphaEvolve B.4 / problem 6.11, \"an uncertainty inequality\"), and/or (2) the first autocorrelation constant C₁ (AlphaEvolve B.1 / problem 6.2; the Sidon-set constant 2/σ²).",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/New-certified-upper-bounds-for-the-sign-uncertainty-constant-and-the-first-autocorrelation-constant-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/New-certified-upper-bounds-for-the-sign-uncertainty-constant-and-the-first-autocorrelation-constant-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/New-certified-upper-bounds-for-the-sign-uncertainty-constant-and-the-first-autocorrelation-constant-October-14-2026"
     }
   },
   {
@@ -601,6 +697,12 @@
       "task": "Improve the lower bounds of the classical hypergraph Ramsey numbers listed in Radziszowski's survey, §7.1: R(4,5;3) ≥ 35 (the smallest open case), R(5,5;3) ≥ 88, R(4,6;3) ≥ 63, R(4,4,4;3) ≥ 79, R(5,5;4) ≥ 35, and the recurrence-based R(5,6;4) ≥ 67: find, for n at or above the bound, a red/blue colouring of the r-subsets of an n-set with no red K_k^(r) and no blue K_l^(r) (proving R(k,l;r) ≥ n+1). (Exact-value side target: R(K₄−t, K₅; 3) ∈ {14,15,16}.) (Original assignment: two-colour Table Ia; see README §6 for that part.)",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/New-lower-bounds-for-hypergraph-Ramsey-numbers-from-affine-invariant-colourings-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/New-lower-bounds-for-hypergraph-Ramsey-numbers-from-affine-invariant-colourings-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/New-lower-bounds-for-hypergraph-Ramsey-numbers-from-affine-invariant-colourings-October-14-2026"
     }
   },
   {
@@ -636,6 +738,12 @@
       "task": "Construct a symmetric Hadamard matrix of order 260 = 4·65 (H = Hᵀ, H·Hᵀ = 260·I, entries ±1), or, failing that, make certified structural progress on the only known route to it (cyclic propus difference families in Z_65).",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/Symmetric-Hadamard-matrices-of-orders-532-and-732-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/Symmetric-Hadamard-matrices-of-orders-532-and-732-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/Symmetric-Hadamard-matrices-of-orders-532-and-732-October-14-2026"
     }
   },
   {
@@ -671,6 +779,12 @@
       "task": "Smale's mean value conjecture (1981) asserts that for every complex polynomial `p` of degree `d ≥ 2` and every `z` with `p'(z) ≠ 0` there is a critical point `c` of `p` with |p(z) − p(c)| / |z − c| ≤ K · |p'(z)| (MV_K) with `K = 1` (and even `K = (d−1)/d`, attained by `z^d − dz`). In September 2026 a non-explicit disproof of the `K = 1` form was announced (GPT-6 Astra, Lean-checked): there is *some* polynomial of \"very large, unspecified degree\" violating (MV_1) \"by a small margin\". Primary target (registered): an **explicit** counterexample of **explicit degree** with an exact certificate (and Lean check of the finite certificate). Secondary target (if the primary one is out of reach): a **",
       "round": "round 2 (2026-10-14/15)",
       "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    },
+    "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/The-best-constant-in-Smales-mean-value-problem-exceeds-1.048-October-14-2026",
+    "pdf": "https://github.com/alexbers/neuro-articles/blob/main/papers/round2/The-best-constant-in-Smales-mean-value-problem-exceeds-1.048-October-14-2026/paper.pdf",
+    "recordOfOrigin": {
+      "name": "GitHub",
+      "url": "https://github.com/alexbers/neuro-articles/tree/main/papers/round2/The-best-constant-in-Smales-mean-value-problem-exceeds-1.048-October-14-2026"
     }
   }
 ]

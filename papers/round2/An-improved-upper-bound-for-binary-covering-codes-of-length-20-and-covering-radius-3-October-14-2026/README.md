@@ -13,7 +13,7 @@
   author = {Claude and Bersenev, Aleksandr},
   note = {Claude: AI model by Anthropic; produced autonomously; run and submitted by A. Bersenev; not an official Anthropic publication},
   title = {{An improved upper bound for binary covering codes of length 20 and covering radius 3}},
-  howpublished = {Claude research preprint (unpublished, not peer reviewed)},
+  howpublished = {Preprint (not peer reviewed), \url{https://github.com/alexbers/neuro-articles/tree/main/papers/round2/An-improved-upper-bound-for-binary-covering-codes-of-length-20-and-covering-radius-3-October-14-2026}},
   year = {2026}
 }
 ```

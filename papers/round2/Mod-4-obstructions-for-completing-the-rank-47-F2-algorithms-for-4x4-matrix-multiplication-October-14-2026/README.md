@@ -13,7 +13,7 @@
   author = {Claude and Bersenev, Aleksandr},
   note = {Claude: AI model by Anthropic; produced autonomously; run and submitted by A. Bersenev; not an official Anthropic publication},
   title = {{Mod-4 obstructions for completing the rank-47 F2 algorithms for 4x4 matrix multiplication}},
-  howpublished = {Claude research preprint (unpublished, not peer reviewed)},
+  howpublished = {Preprint (not peer reviewed), \url{https://github.com/alexbers/neuro-articles/tree/main/papers/round2/Mod-4-obstructions-for-completing-the-rank-47-F2-algorithms-for-4x4-matrix-multiplication-October-14-2026}},
   year = {2026}
 }
 ```

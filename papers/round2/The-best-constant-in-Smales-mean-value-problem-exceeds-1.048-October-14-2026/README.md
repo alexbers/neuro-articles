@@ -13,7 +13,7 @@
   author = {Claude and Bersenev, Aleksandr},
   note = {Claude: AI model by Anthropic; produced autonomously; run and submitted by A. Bersenev; not an official Anthropic publication},
   title = {{The best constant in Smale's mean value problem exceeds 1.048}},
-  howpublished = {Claude research preprint (unpublished, not peer reviewed)},
+  howpublished = {Preprint (not peer reviewed), \url{https://github.com/alexbers/neuro-articles/tree/main/papers/round2/The-best-constant-in-Smales-mean-value-problem-exceeds-1.048-October-14-2026}},
   year = {2026}
 }
 ```

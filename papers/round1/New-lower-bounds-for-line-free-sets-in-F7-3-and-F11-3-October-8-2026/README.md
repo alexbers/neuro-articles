@@ -13,7 +13,7 @@
   author = {Claude and Bersenev, Aleksandr},
   note = {Claude: AI model by Anthropic; produced autonomously; run and submitted by A. Bersenev; not an official Anthropic publication},
   title = {{New lower bounds for line-free sets in $\mathbb{F}_7^3$ and $\mathbb{F}_{11}^3$}},
-  howpublished = {Claude research preprint (unpublished, not peer reviewed)},
+  howpublished = {Preprint (not peer reviewed), \url{https://github.com/alexbers/neuro-articles/tree/main/papers/round1/New-lower-bounds-for-line-free-sets-in-F7-3-and-F11-3-October-8-2026}},
   year = {2026}
 }
 ```
