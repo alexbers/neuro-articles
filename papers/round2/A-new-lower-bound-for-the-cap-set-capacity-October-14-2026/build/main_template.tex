@@ -1,0 +1,241 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[expansion=false]{microtype}
+\usepackage{booktabs,array}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\F}{\mathbb F}
+\newcommand{\N}{\mathbb N}
+\DeclareMathOperator{\wt}{wt}
+\DeclareMathOperator{\orb}{orb}
+% ---- final numbers ----
+\newcommand{\NROWS}{NROWSVAL}
+\newcommand{\NWNINE}{NW19VAL}
+\newcommand{\NWOTHER}{NWOTHERVAL}
+\newcommand{\NEFF}{NEFFVAL}
+\newcommand{\NBOUND}{NBOUNDVAL}
+\newcommand{\NLEAN}{NLEANVAL}
+\newcommand{\NLNUM}{NLNUMVAL}
+\newcommand{\NLDEN}{NLDENVAL}
+\title{A new lower bound for the cap set capacity}
+\author{Claude\\ \small Anthropic}
+\date{October 14, 2026}
+\hypersetup{pdftitle={A new lower bound for the cap set capacity},pdfauthor={Claude (Anthropic)}}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $C=\lim_{n\to\infty} r_3(\F_3^n)^{1/n}$ be the cap set capacity, where $r_3(\F_3^n)$ is the
+largest size of a subset of $\F_3^n$ without three distinct points on a line.  We show
+$C> \NLEAN$; the explicit construction gives $C\ge\NBOUND$.  This improves the bound
+$2.2203085$ obtained in 2025 with the LLM-guided search X-evolve and the bound $2.2202337$ of
+FunSearch (2023).  The improvement is small (in the sixth significant digit) but explicit and
+machine-checked: we construct a new symmetric admissible set in $\{0,1,2\}^{27}$ in the sense of
+Edel and Tyrrell, which contains vectors of two different weights, and feed it into Edel's
+extended product construction.  The set was found without language models, by an exact
+large-neighbourhood search with a CP-SAT solver started from an evolved version of the published
+X-evolve greedy construction, followed by a mixed-weight augmentation.  The resulting statement ---
+an explicit cap set in $\F_3^{648}$ of size larger than $\NLEAN^{648}$ --- is verified in Lean~4
+with Mathlib, including Edel's lemmas and the reduction from symmetric rows to admissible vectors;
+the large finite checks use \texttt{native\_decide}.
+\end{abstract}
+
+\section{Introduction}
+A \emph{cap set} is a set $A\subseteq\F_3^n$ such that $x+y+z=0$ with $x,y,z\in A$ forces $x=y=z$;
+equivalently $A$ contains no three distinct collinear points.  The sequence $r_3(\F_3^n)$ is
+supermultiplicative, so the \emph{capacity} $C=\lim_n r_3(\F_3^n)^{1/n}$ exists, and Ellenberg and
+Gijswijt proved $C\le 2.7552$ \cite{EG}.  All known lower bounds come from explicit constructions:
+Calderbank and Fishburn \cite{CF} obtained $2.2101$; Edel \cite{Edel} $2.217389$ with his
+\emph{extended product} construction; Tyrrell \cite{Tyrrell} $2.218021$ using SAT-solver searches for
+\emph{admissible sets}; FunSearch \cite{FunSearch} $2.2202337$, with large language models evolving
+greedy priority programs that build symmetric admissible sets ($I(15,10)$, and $A(24,17)$ of size
+$237\,984$); and X-evolve \cite{Xevolve} $2.2203085$ with a symmetric admissible set $A(27,19)$ of
+size $1\,270\,863$.  The problem has become a standard benchmark for AI-assisted mathematical discovery.
+
+\begin{theorem}\label{thm:main}
+There is a cap set $A\subseteq \F_3^{648}$ with $|A|>\NLEAN^{648}$; more precisely
+$|A|^{1/648}=\NBOUND\ldots$.  Consequently $C\ge\NBOUND>2.2203085$.
+\end{theorem}
+
+\paragraph{Ingredients.}  (i) A fast exact reimplementation of the FunSearch/X-evolve greedy, which
+makes thousands of evaluations affordable; (ii) parameter evolution of the X-evolve priority function;
+(iii) an exact large-neighbourhood search (LNS): neighbourhoods of $20$--$100$ rows are removed and
+re-inserted optimally with a CP-SAT model; (iv) the observation that admissible sets need not have
+constant weight --- in the final count a vector of weight $w+1$ is worth $112/48$ vectors of weight
+$w$; (v) a Lean formalisation of the whole chain.
+
+\section{Extended products and admissible sets}
+A triple $(a,b,c)\in\{0,1,2\}^3$ is \emph{good} if as a multiset it equals $\{0,1,2\}$, $\{0,0,1\}$
+or $\{0,0,2\}$.
+\begin{definition}[{\cite[Def.~2.5]{Tyrrell}}]
+$S\subseteq\{0,1,2\}^n$ is \emph{admissible} if (i) for distinct $s,s'\in S$ there are $i,j$ with
+$s_i=0\ne s'_i$ and $s_j\ne0=s'_j$, and (ii) for distinct $s,s',s''\in S$ some coordinate
+$(s_k,s'_k,s''_k)$ is good.
+\end{definition}
+\begin{definition}[{\cite[Def.~2.4]{Tyrrell}}]
+Caps $A_0,A_1,A_2\subseteq\F_3^d$ form an \emph{extendable collection} if $x+y+z\ne0$ whenever
+$x,y\in A_0$, $z\in A_1\cup A_2$, and whenever $x\in A_0,y\in A_1,z\in A_2$.
+\end{definition}
+For $s\in\{0,1,2\}^n$ let $s(A)=A_{s_1}\times\dots\times A_{s_n}\subseteq\F_3^{dn}$ and
+$S(A)=\bigcup_{s\in S}s(A)$.
+\begin{lemma}[Edel {\cite[Lemma 10]{Edel}}, {\cite[Lemmas 2.7, 2.11]{Tyrrell}}]\label{lem:ext}
+If $(A_0,A_1,A_2)$ is extendable and $S$ is admissible, then $S(A)$ is a cap.  If $|A_1|=|A_2|$, the
+blocks $s(A)$, $s\in S$, are pairwise disjoint and
+$|S(A)|=\sum_{s\in S}|A_0|^{\,n-|s|}|A_1|^{\,|s|}$, where $|s|$ is the number of nonzero entries.
+\end{lemma}
+\begin{proof}[Sketch]
+Let $x\in s(A)$, $y\in s'(A)$, $z\in s''(A)$ with $x+y+z=0$.  If $s=s'=s''$ the blocks are caps and
+$x=y=z$.  If exactly two labels coincide, say $s=s'\ne s''$, condition (i) gives a block with labels
+$(0,0,\ne0)$, contradicting extendability; if all three differ, (ii) gives a block with labels
+$\{0,0,\ne 0\}$ or $\{0,1,2\}$, again a contradiction.  Disjointness follows from (i) and
+$A_0\cap(A_1\cup A_2)=\emptyset$ (extendability with $x=y=z$, using $3x=0$).  Constant weight is not
+needed for the count.
+\end{proof}
+\begin{lemma}[Edel; {\cite[Lemmas 2.9, 2.12]{Tyrrell}}]\label{lem:rec}
+Let $\tilde I(m,m-1)$ consist of the $m$ vectors with exactly one zero, entries before the zero equal
+to $1$ and after it equal to $2$.  If $(A_0,A_1,A_2)$ is extendable, so is
+$(\tilde I(m,m-1)(A),A_1^m,A_2^m)$.
+\end{lemma}
+With the Calderbank--Fishburn collection in $\F_3^6$ of sizes $(12,112,112)$
+\cite[Lemma 2.14]{Tyrrell} and $m=4$ we obtain an extendable collection in $\F_3^{24}$ with sizes
+$b_0=4\cdot12\cdot112^3$ and $b_1=b_2=112^4$.  An admissible $S\subseteq\{0,1,2\}^{27}$ then gives a
+cap in $\F_3^{648}$ of size
+\begin{equation}\label{eq:size}
+M(S)=\sum_{s\in S} b_0^{\,27-|s|}\,b_1^{\,|s|}.
+\end{equation}
+For constant weight $w$ this is $|S|\,b_0^{27-w}b_1^{w}$, the formula used in
+\cite{FunSearch,Xevolve}; $m=4$ is the best choice for $w=19$.
+
+\section{Symmetric admissible sets}
+Following \cite{FunSearch} we split the $27$ coordinates into $9$ groups of $3$ and use the seven block
+types $000,001,002,012,021,111,222$, numbered $0,\dots,6$, of weights $0,1,1,2,2,3,3$.  A \emph{row}
+$t\in\{0,\dots,6\}^9$ stands for the set $E(t)$ of all vectors whose $i$-th block is a cyclic rotation
+of the block of type $t_i$; $|E(t)|=3^{k(t)}$, where $k(t)$ is the number of groups of weight $1$ or
+$2$.  The \emph{profile} of $t$ is its vector of block weights.  A type triple $(a,b,c)$ is
+\emph{always good} if every choice of rotations of the three blocks has a good coordinate (exactly
+$103$ of the $343$ ordered type triples are not).
+\begin{theorem}[type-level criterion]\label{thm:red}
+Let $R$ be a set of rows such that
+\textup{(P)} the profiles of distinct rows are incomparable in the componentwise order, and
+\textup{(T)} any three distinct rows have a group in which their types form an always-good triple.
+Then $S=\bigcup_{t\in R}E(t)$ is admissible, the sets $E(t)$ are pairwise disjoint, and
+$|S|=\sum_{t\in R}3^{k(t)}$.
+\end{theorem}
+\begin{proof}
+We use four finite facts about single blocks, verified by exhaustion:
+(a) two different rotations of one type have a coordinate where the first is $0$ and the second is not;
+(b) three rotations of one type, not all equal, have a good coordinate;
+(c) if $\wt b<\wt a$, any rotation of $a$ has a nonzero coordinate where any rotation of $b$ is zero;
+(d) if $\wt a<\wt b$, then two (possibly equal) rotations of $a$ and any rotation of $b$ have a good coordinate.
+Let $v\ne v'$ in $S$ come from rows $t,t'$.  If $t=t'$, the vectors differ in some group and (a) gives
+condition (i).  If $t\ne t'$, (P) gives groups $i,j$ with $\wt t_i>\wt t'_i$ and $\wt t_j<\wt t'_j$,
+and (c) gives (i).  Now let $u,v,w\in S$ be distinct, from rows $t,t',t''$.  If $t=t'=t''$, use (b)
+in a group where $u,v,w$ are not all equal.  If exactly two rows coincide, (P) yields a group where the
+third row is heavier, and (d) applies (the good property is symmetric).  If the rows are distinct,
+(T) applies.  Vectors of $E(t)\cap E(t')$ would have equal profiles, contradicting (P).
+\end{proof}
+For constant weight, (P) says only that distinct rows have distinct profiles (the setting of
+\cite{FunSearch,Xevolve}).  Allowing different weights is new here; by \eqref{eq:size} a vector of
+weight $20$ counts $b_1/b_0=112/48$ times as much as one of weight $19$.
+
+\begin{remark}[a tempting but invalid shortcut]
+Tyrrell's ``meta-extension'' \cite[\S3]{Tyrrell} combines admissible sets $S_0,S_1,S_2$.  With
+$S_2=S_1$ and $S_0$ of weight $w-1$ it looks very profitable, but its condition~(3) must also hold for
+$y=z\in S_1$, which forces $\operatorname{supp}x\not\subseteq\operatorname{supp}y$ for $x\in S_0$, i.e.\
+the same antichain condition as in Theorem~\ref{thm:red}; the meta product is then worse than using
+$S_0\cup S_1$ directly.  With $S_2$ the $1\leftrightarrow2$ swap of $S_1$ condition~(3) leaves almost
+no candidates of weight $w-1$.
+\end{remark}
+
+\section{The search}
+\paragraph{Fast greedy.}  FunSearch and X-evolve build sets greedily: rows are sorted by a priority
+function and added when compatible.  We reimplemented the greedy in C with a bitmap over the $7^9$ type
+codes that marks rows blocked by a pair of chosen rows (the blocked rows of a pair $(x,y)$ form a box
+$\prod_i B(x_i,y_i)$ intersected with the weight condition).  It reproduces FunSearch's $A(24,17)$ of size
+$237\,984$ in $1.5$\,s and X-evolve's $A(27,19)$ of size $1\,270\,863$ in about $15$\,s from the
+published priority program (scores rounded to single precision, as in X-evolve's C++ helper).
+\paragraph{Parameter evolution.}  A $(1+1)$ evolution strategy over the coefficients of the X-evolve
+priority plus pairwise correction terms gave $1\,272\,537$.
+\paragraph{Large-neighbourhood search.}  From there we repeatedly remove $20$--$100$ rows --- either
+rows with nearby profiles, or a vertex cover of the pairs of chosen rows that block a promising unused
+row (preferably of high value $3^k$) --- list all rows that become insertable, and solve the
+re-insertion problem exactly with OR-tools CP-SAT: binary variables for candidate rows, at most one row
+per profile, pairwise conflicts induced by bad triples with a fixed row, and triple conflicts among
+candidates added lazily; the move is accepted if the total does not decrease.  Since the X-evolve set is almost invariant under cyclic shifts of the $9$ groups, every improving move is also tried in its $8$ shifted versions.  About $10^4$ neighbourhoods were solved in total (roughly 20 CPU hours over two days).
+\paragraph{Mixed weights.}  Finally rows of weight $18$ and $20$ whose profiles are incomparable with
+all chosen profiles and which create no bad triple are added greedily, followed by a short iterated
+local search on the mixed objective \eqref{eq:size}.
+
+\section{The new set}
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+construction & $|S|$ (or weighted) & bound on $C$ & source\\
+\midrule
+$A(24,17)$ & $237\,984$ & $2.2202337$ & FunSearch \cite{FunSearch}\\
+$A(27,19)$ & $1\,270\,863$ & $2.2203085$ & X-evolve \cite{Xevolve}\\
+$A(27,19)$ + weight $20$ & $1\,271\,409$ (weighted) & $2.2203100$ & this paper, Sec.~3\\
+LNS + mixed weights & \NEFF\ (weighted) & \NBOUND & this paper\\
+\bottomrule
+\end{tabular}
+\end{center}
+The final row set has $\NROWS$ rows; its expansion has $\NWNINE$ vectors of weight $19$ and \NWOTHER.
+The weighted size is $\sum_{s} (b_1/b_0)^{|s|-19}$.  The rows are listed in
+\texttt{data/rows.txt} (one row of $9$ types per line) and, base-7 encoded, in the Lean file.
+
+\section{Verification}
+\paragraph{Independent checks.}  A Python script recomputes the always-good table from scratch (by brute
+force over rotations), checks (P) and (T) with bitsets, and recomputes \eqref{eq:size}; the C search code
+re-inserts every row through its own conflict structures; and Theorem~\ref{thm:red} was compared with the
+definition on expanded vectors for all pairs of rows and $3000$ random row sets with at most $3$ groups.
+\paragraph{Lean.}  The file \texttt{lean/Main.lean} (Lean 4.35.0, Mathlib) proves
+\begin{verbatim}
+theorem main_cap_648 : exists A : Finset (Fin 648 -> ZMod 3),
+    IsCap A /\ (NUM : Real) ^ 648 < (A.card : Real) * (DEN : Real) ^ 648
+
+theorem main_capacity (k : Nat) (hk : 1 <= k) :
+    exists B : Finset (Fin k -> Fin 9 x Fin 3 -> Fin 4 -> Fin 6 -> ZMod 3),
+      IsCap B /\ (NUM : Real) ^ (648 * k)
+                  < (B.card : Real) * (DEN : Real) ^ (648 * k)
+\end{verbatim}
+with $\mathrm{NUM}/\mathrm{DEN}=\NLNUM/\NLDEN$, where \texttt{IsCap A} means
+$\forall x,y,z\in A,\ x+y+z=0\Rightarrow x=y\wedge y=z$.  Lemmas~\ref{lem:ext} and~\ref{lem:rec}, the
+count \eqref{eq:size}, Theorem~\ref{thm:red} and the soundness of a bitset checker for (P) and (T) are
+proved in Lean.  The checker runs on the explicit rows, and the facts about the explicit
+Calderbank--Fishburn collection are evaluated, by \texttt{native\_decide} (about two minutes); hence the
+trusted base includes Lean's compiler and interpreter.  The final inequality between integers with about
+$3900$ digits is checked by the kernel.  \texttt{\#print axioms} lists \texttt{propext},
+\texttt{Classical.choice}, \texttt{Quot.sound} and the auxiliary axioms produced by \texttt{native\_decide}.
+
+\section{Limitations and outlook}
+The gain over X-evolve is in the sixth significant digit: it shows that exact neighbourhood search
+improves greedy constructions of symmetric admissible sets and that mixed weights are available, but the
+gap to the limit $124^{1/6}\approx2.2331$ of the method \cite{Tyrrell} (if all admissible sets
+$I(m,w)$ existed) remains.  The last steps --- monotonicity of $r_3$ in $n$ and the existence of $C$ ---
+are standard and not formalised; Lean gives caps in all dimensions $648k$.  We did not try other base
+collections beyond a small SAT search in $\F_3^4$, nor other symmetry groups.
+
+\begin{thebibliography}{9}
+\bibitem{CF} A.~R.~Calderbank and P.~C.~Fishburn, Maximal three-independent subsets of $\{0,1,2\}^n$,
+\emph{Des. Codes Cryptogr.} 4 (1994), 203--211.
+\bibitem{Edel} Y.~Edel, Extensions of generalized product caps, \emph{Des. Codes Cryptogr.} 31 (2004), 5--14.
+\bibitem{EG} J.~S.~Ellenberg and D.~Gijswijt, On large subsets of $\F_q^n$ with no three-term arithmetic
+progression, \emph{Ann. of Math.} 185 (2017), 339--343.
+\bibitem{FunSearch} B.~Romera-Paredes et al., Mathematical discoveries from program search with large
+language models, \emph{Nature} 625 (2024), 468--475; data at
+\url{https://github.com/google-deepmind/funsearch}.
+\bibitem{Tyrrell} F.~Tyrrell, New lower bounds for cap sets, \emph{Discrete Analysis} 2023:20;
+arXiv:2209.10045.
+\bibitem{Xevolve} Y.~Zhai et al., X-evolve: solution space evolution powered by large language models,
+arXiv:2508.07932 (2025); code at \url{https://github.com/zhaiyi000/x-evolve}.
+\end{thebibliography}
+\end{document}

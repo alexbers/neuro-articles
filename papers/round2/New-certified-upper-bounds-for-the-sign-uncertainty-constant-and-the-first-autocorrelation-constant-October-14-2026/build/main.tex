@@ -1,0 +1,327 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\emergencystretch=3em
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,breaklines=true,
+  frame=single,framerule=0.3pt,rulecolor=\color{black!30},
+  literate={∧}{{$\wedge$}}1 {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {→}{{$\to$}}2 {≤}{{$\le$}}1
+           {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1 {↦}{{$\mapsto$}}2 {ℝ}{{$\mathbb R$}}1 {ℕ}{{$\mathbb N$}}1
+           {ℤ}{{$\mathbb Z$}}1 {∑}{{$\sum$}}1 {∈}{{$\in$}}1 {∉}{{$\notin$}}1 {γ}{{$\gamma$}}1 {Λ}{{$\Lambda$}}1
+           {₁}{{$_1$}}1 {∫}{{$\int$}}1 {·}{{$\cdot$}}1 {≠}{{$\ne$}}1 {²}{{$^2$}}1}
+
+\title{New certified upper bounds for the sign-uncertainty constant and the first autocorrelation constant}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 14, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={New certified upper bounds for the sign-uncertainty constant and the first autocorrelation constant},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+We prove two new upper bounds for constants from the AlphaEvolve benchmark collection, both with
+certificates checked by the kernel of the Lean~4 proof assistant (with Mathlib, no
+\texttt{native\_decide}, only the standard axioms). (1) For the one-dimensional sign-uncertainty constant
+of Bourgain, Clozel and Kahane, $C_{\mathrm{SU}}\le 0.305578$, improving the previous record $0.3089$
+(and the published bound $0.3216$); the witness is $f(x)=P(2\pi x^2)e^{-\pi x^2}$ with $P$ an explicit
+integer combination of the Laguerre polynomials $L_{2j}^{(-1/2)}$, $j\le 300$. Lean verifies the sign
+pattern of $P$ exactly; the reduction from the sign pattern to the bound is the classical Hermite
+eigenfunction argument. (2) For the first autocorrelation (Sidon) constant, $C_1\le 1.5027434864131$,
+improving the previous record $1.502743486709583$ by $3\cdot10^{-10}$; here the continuous statement,
+including the definition of $C_1$, is formalised. The kernel checks rely on Kronecker substitution:
+all coefficients needed by the certificates are read off as base-$2^w$ digits of a few very large
+integers, which the Lean kernel multiplies with GMP.
+\end{abstract}
+\tableofcontents
+\section{Introduction}\label{sec:intro}
+
+The 2025 AlphaEvolve reports \cite{AE25,GGTW25} collected several dozen extremal problems of analysis
+and combinatorics whose best known bounds are certified by explicit constructions, and since then a
+number of AI systems and human--AI collaborations have competed on them
+\cite{ThetaEvolve,TTT26,CDW26,Arena}. In this note we give new upper bounds for two of these constants,
+both certified in exact arithmetic and by the kernel of the Lean proof assistant.
+
+\paragraph{Sign uncertainty.} Bourgain, Clozel and Kahane \cite{BCK10} proved that an even function
+$f$ with $f(0)\le0$, $\widehat f(0)\le0$ cannot be eventually nonnegative too early on both sides:
+$A(f)A(\widehat f)$ is bounded below by a positive constant. The sharp constant $C_{\mathrm{SU}}$ in
+dimension one is unknown; $0.2025\le C_{\mathrm{SU}}$ \cite{GOS17}, and the upper bound has moved from
+$0.353$ \cite{GOS17} and $0.3284$ \cite{CG19} to $0.3216$ (AlphaEvolve), $0.313092$ (EinsteinArena)
+and $0.3089$ \cite{CDW26}. We prove $C_{\mathrm{SU}}\le \mathrm{0.305578}$
+(Theorem~\ref{thm:su}) with a polynomial of degree 600 in the Gaussian--Laguerre eigenbasis of the
+Fourier transform. The improvement comes from solving the underlying linear program at a degree well
+above the double-root families used before, with a numerically robust (log-scaled, cutting-plane)
+formulation, and from an exact certification method that scales to such degrees.
+
+\paragraph{The first autocorrelation constant.} For nonnegative $f$ supported in $[-\frac14,\frac14]$,
+$\sup(f*f)\ge C_1(\int f)^2$; $C_1=2/\sigma^2$ governs the size of $g$-Sidon sets \cite{CRV10}.
+After a long sequence of AI-produced improvements, the record was $1.502743486709583$
+(EinsteinArena, 13 October 2026). We lower it by $3\cdot10^{-10}$ to $1.5027434864131$
+(Theorem~\ref{thm:c1}). The numerical gain is marginal and we do not claim otherwise; the point of
+including it is that the certificate is, to our knowledge, the first Lean proof of an upper bound for
+$C_1$ in which the continuous statement itself (integrals, autoconvolution, the definition of $C_1$ as an
+infimum) is formalised, with the $131\,071$ autoconvolution coefficients of a $65\,536$-step function
+checked by a single GMP multiplication in the kernel.
+\section{The sign uncertainty constant}\label{sec:su}
+
+\subsection{The problem}
+Normalise $\widehat f(\xi)=\int_{\mathbb R}f(x)e^{-2\pi i x\xi}\,dx$ and, for a real function $f$, put
+$A(f)=\inf\{r>0: f(x)\ge0 \text{ for all } |x|\ge r\}$. Let $C_{\mathrm{SU}}$ be the largest constant
+such that $A(f)A(\widehat f)\ge C_{\mathrm{SU}}$ for every even, integrable, real $f$ with $\widehat f$
+integrable and $f(0)<0$, $\widehat f(0)<0$. This is the one-dimensional ``$+1$'' sign uncertainty
+principle of Bourgain, Clozel and Kahane \cite{BCK10}; Gonçalves, Oliveira e Silva and Steinerberger
+\cite{GOS17} proved $0.2025\le C_{\mathrm{SU}}\le 0.353$, Cohn and Gonçalves \cite{CG19} computed
+$A_+(1)\le 0.572990$ (so $C_{\mathrm{SU}}\le 0.3284$), and AlphaEvolve \cite{AE25,GGTW25} obtained $0.3216$
+(problem B.4 / 6.11, ``an uncertainty inequality''). On EinsteinArena \cite{Arena}, whose verifier
+restricts to at most $25$ prescribed double roots, the best value is $0.313092$; the multi-agent
+``Station'' of Chung, Du and Wesley \cite{CDW26} reports $0.3089$ with a polynomial of degree $226$, and
+shows that families with at most $20$ prescribed double roots cannot go below $0.315305$.
+
+\subsection{Reduction to a polynomial sign condition}
+Let $L_n^{(\alpha)}$ be the generalised Laguerre polynomials and
+$\Lambda_n=2^n n!\,L_n^{(-1/2)}\in\mathbb Z[u]$; equivalently $\Lambda_0=1$, $\Lambda_1=1-2u$,
+\begin{equation}\label{eq:lamrec}
+\Lambda_{n+2}(u)=(4n+5-2u)\Lambda_{n+1}(u)-2(n+1)(2n+1)\Lambda_n(u).
+\end{equation}
+\begin{lemma}[classical]\label{lem:eig}
+For every $m$, $g_m(x)=\Lambda_{m}(2\pi x^2)e^{-\pi x^2}$ satisfies $\widehat{g_m}=(-1)^m g_m$.
+\end{lemma}
+\begin{proof}
+$H_{2m}(y)=(-1)^m2^{2m}m!\,L_m^{(-1/2)}(y^2)$, and $x\mapsto H_n(\sqrt{2\pi}x)e^{-\pi x^2}$ is an eigenfunction
+of the Fourier transform with eigenvalue $(-i)^n$ (Hermite functions, rescaled to our normalisation).
+\end{proof}
+\begin{proposition}\label{prop:su}
+Let $P=\sum_{j=0}^{D}\gamma_j\Lambda_{2j}$ with real $\gamma_j$, and $r>0$. If $P(0)<0$ and $P(u)>0$ for all
+$u\ge r$, then $C_{\mathrm{SU}}\le r/(2\pi)$.
+\end{proposition}
+\begin{proof}
+$f(x)=P(2\pi x^2)e^{-\pi x^2}$ is even, Schwartz, and $\widehat f=f$ by Lemma~\ref{lem:eig}. Thus
+$f(0)=\widehat f(0)=P(0)<0$, and $f(x)>0$ whenever $2\pi x^2\ge r$, so
+$A(f)A(\widehat f)=A(f)^2\le r/(2\pi)$.
+\end{proof}
+This is exactly the reduction used by GOS, Cohn--Gonçalves, AlphaEvolve and the arena verifier.
+
+\subsection{Search}
+For fixed $D$ and $r$ the existence of $P$ is a linear feasibility problem in $(\gamma_j)$. We solve it with
+HiGHS by a cutting-plane method: impose $P(u)e^{-u/2}\ge t\,w(u)$ (with $P(0)=-1$, $t\le1$ and a
+row-normalising weight $w$) on a finite set of points of $[r,U]$, maximise $t$, evaluate on a fine grid,
+add the violated local minima and repeat; the basis functions are evaluated through the stable three-term
+recurrence for $L_n^{(-1/2)}(u)e^{-u/2}$. Bisection in $r$ gives the optimal radius $r^*(D)$ of the
+degree-$2D$ family.
+\subsection{Exact certification of the sign condition}\label{sec:su-cert}
+The LP solution is converted to exact binary rationals and then to integers $\gamma_j$ (common
+denominator, divided by the gcd). From $\gamma$ we compute the monomial coefficients of
+$P=\sum_j\gamma_j\Lambda_{2j}$ by \eqref{eq:lamrec}, choose a rational $r=a/b$ slightly above the optimal
+radius, and form the integer polynomial
+\[
+R(y)=b^{\deg P}\,P\bigl((a+y)/b\bigr),\qquad\text{so that}\quad P(u)>0\ \forall u\ge r \iff R(y)>0\ \forall y\ge0 .
+\]
+Positivity of $R$ on $[0,\infty)$ is certified by a finite list of \emph{leaves}
+$(u_0,u_1,v_0,v_1)\in\mathbb N^4$, each standing for the interval
+$\{(u_0+u_1z)/(v_0+v_1z): z\ge0\}=[u_0/v_0,u_1/v_1)$ (or $[u_0/v_0,\infty)$ if $v_1=0$).
+Consecutive leaves share endpoints, the first starts at $0$ and the last is unbounded, so the leaves
+cover $[0,\infty)$. For a leaf put
+\[
+T(z)=\sum_{i=0}^{d}R_i\,(u_0+u_1z)^i(v_0+v_1z)^{d-i}=(v_0+v_1z)^d\,R\Bigl(\frac{u_0+u_1z}{v_0+v_1z}\Bigr).
+\]
+If all coefficients of $T$ are nonnegative and $T(0)>0$, then $R>0$ on the leaf (Descartes' rule in
+its trivial direction). The leaves are produced by the Vincent--Collins--Akritas bisection of $[0,B_0]$
+for a dyadic $B_0$ beyond which $R(B_0+z)$ has positive coefficients. To check a leaf, the kernel does
+\emph{not} expand $T$: it evaluates $N=T(2^w)$ by a homogeneous Horner scheme in big integers ($d$
+steps), computes the bound $W=\sum_i|R_i|(u_0+u_1)^i(v_0+v_1)^{d-i}\ge\max_j|t_j|$, checks $2W<2^w$, and
+reads the coefficients $t_j$ of $T$ off the balanced base-$2^w$ digits of $N$ (Section~\ref{sec:kron}).
+The bound $|t_j|\le W$ is proved in Lean by a coefficientwise domination argument for the list
+operations that build $T$.
+
+
+\subsection{Results}
+Table~\ref{tab:rstar} lists the optimal radii $r^*(D)$ of the degree-$2D$ family found by the LP (floating
+point, bisection to $10^{-4}$--$10^{-6}$; for $D\ge170$ with an interior-point solver); they are \emph{not} certified, only the final instance is.
+\begin{table}[h]\centering
+\begin{tabular}{rrr}\toprule
+$D$ & $r^*(D)$ & $r^*(D)/2\pi$\\\midrule
+20 & 2.0599884 & 0.3278573\\
+30 & 1.9989685 & 0.3181457\\
+40 & 1.9889709 & 0.3165546\\
+50 & 1.9672241 & 0.3130934\\
+60 & 1.9670258 & 0.3130619\\
+70 & 1.9490326 & 0.3101982\\
+80 & 1.9484833 & 0.3101107\\
+90 & 1.9484375 & 0.3101035\\
+100 & 1.9370929 & 0.3082979\\
+140 & 1.9295691 & 0.3071005\\
+170 & 1.9255800 & 0.3064656\\
+200 & 1.9250488 & 0.3063810\\
+230 & 1.9216406 & 0.3058386\\
+260 & 1.9206396 & 0.3056793\\
+300 & 1.9194482 & 0.3054897\\
+360 & 1.9170898 & 0.3051143\\
+\bottomrule\end{tabular}
+\caption{Numerical optimal radii for $P=\sum_{j\le D}\gamma_j\Lambda_{2j}$.}\label{tab:rstar}
+\end{table}
+For the certificate we took $D=300$ and the rational radius $r=48/25$ slightly above $r^*(300)$, solved the LP
+with margin at this $r$, and rounded.
+\begin{theorem}\label{thm:su}
+Let $P=\sum_{j=0}^{300}\gamma_j\Lambda_{2j}$ with the integers $\gamma_j$ of \texttt{data/su\_gamma.txt}
+(a polynomial of degree $600$). Then $P(0)<0$ and $P(u)>0$ for all real $u\ge 48/25$. Consequently
+\[
+C_{\mathrm{SU}}\;\le\;\frac{48}{2\pi\cdot 25}\;=\;0.305577490736\ldots<0.305578 .
+\]
+\end{theorem}
+The certificate consists of 41 leaves; the Kronecker base is $2^{16623}$; the largest $|\gamma_j|$ has 5342 bits
+and the largest coefficient of $R$ has 8125 bits. In terms of the constant $A_+(1)$ of \cite{CG19,QMF26},
+$A_+(1)\le\sqrt{r/2\pi}=0.55279064$.
+
+\section{The first autocorrelation constant}\label{sec:c1}
+
+\subsection{The constant and the reduction to a finite computation}
+For $f\colon\mathbb R\to\mathbb R$ write $(f*f)(t)=\int_{\mathbb R} f(x)f(t-x)\,dx$. Let
+\[
+C_1=\inf\Bigl\{\frac{\sup_t (f*f)(t)}{(\int f)^2}\;:\; f\ge 0,\ \operatorname{supp} f\subseteq[-\tfrac14,\tfrac14],\ \textstyle\int f>0\Bigr\}.
+\]
+Then $C_1=2/\sigma^2$, where $\sigma$ is the constant governing the maximal size $\sigma\sqrt{gN}(1+o(1))$ of
+$g$-Sidon sets in $\{1,\dots,N\}$ \cite{CRV10,CS17}. The best lower bound is $C_1\ge 1.2937$
+\cite{KP26} (previously $1.28$ \cite{CS17}). Upper bounds come from explicit functions:
+$1.50992$ \cite{MV10}, $1.5053$ and $1.5032$ (AlphaEvolve \cite{AE25,GGTW25}), $1.50314$ \cite{ThetaEvolve},
+$1.50286$ \cite{TTT26}, and on the EinsteinArena leaderboard \cite{Arena} a sequence of AI agents pushed
+it to $1.502743486709583$ (agent ``Atris'', 13 October 2026, a step function with $65536$ steps).
+
+\begin{lemma}\label{lem:step}
+Let $n\ge1$, $h=1/(2n)$, $a_0,\dots,a_{n-1}\ge0$, and $f=\sum_i a_i\mathbf 1_{[-1/4+ih,\,-1/4+(i+1)h)}$.
+Put $c_k=\sum_{i+j=k}a_ia_j$. Then $\int f=h\sum_i a_i$ and $(f*f)(t)\le h\max_k c_k$ for all $t$.
+In particular $C_1\le 2n\max_k c_k/(\sum_i a_i)^2$.
+\end{lemma}
+\begin{proof}
+$(f*f)(t)=\sum_{i,j}a_ia_j\,|I_i\cap(t-I_j)|$, and $|I_i\cap (t-I_j)|=h\,\varphi(s-(i+j))$ with
+$s=(t+\frac12)/h-1$ and $\varphi(u)=\max(0,1-|u|)$. Hence $(f*f)(t)=h\sum_k c_k\varphi(s-k)\le h\max_k c_k\sum_k\varphi(s-k)\le h\max_k c_k$,
+since at most two consecutive integers $k$ have $\varphi(s-k)>0$ and their weights sum to at most $1$.
+\end{proof}
+(The inequality is in fact an equality at $t=-\frac12+(k+1)h$; the arena score is exactly this
+quantity.)
+
+\subsection{Construction}
+Starting from the public record vector we minimised the log-sum-exp smoothing
+$\beta^{-1}\log\sum_k e^{\beta c_k/\bar c}$ with L-BFGS-B over $a\ge0$ (fixed $n=65536$), increasing $\beta$ up to
+$2.4\cdot10^{10}$ and accepting an iterate only if the \emph{true} objective decreased. The record
+vector is a highly degenerate minimax point (about $31\,000$ of the $131\,071$ values $c_k$ agree with the
+maximum to relative precision $10^{-9}$), and the descent stalls at the limit of double precision.
+Rounding to integers $0\le a_i\le 2^{40}$ gives the certificate.
+
+\begin{theorem}\label{thm:c1}
+$C_1\le 15027434864131/10^{13}=1.5027434864131$. More precisely, the step function of
+\texttt{data/c1\_heights.npy} has $2n\max_k c_k/(\sum a_i)^2=1.502743486413064\ldots$
+\end{theorem}
+This improves the previous record by $3.0\cdot10^{-10}$: a marginal improvement, which we report because
+it is certified end to end in Lean (Section~\ref{sec:lean-c1}).
+\section{Formal verification}\label{sec:lean}
+
+Both certificates are checked by the kernel of Lean~4 (version 4.35.0) with Mathlib. All computations
+are performed by \texttt{decide +kernel}; no \texttt{native\_decide}, \texttt{sorry} or custom axiom is
+used, and \texttt{\#print axioms} reports only \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}. The Lean kernel performs arithmetic on natural-number literals with GMP; the
+certificates are designed so that the expensive part of each check is a small number of operations on
+very large integers.
+
+\subsection{Kronecker substitution}\label{sec:kron}
+If $a_0,\dots,a_{n-1}\in\mathbb N$ and $P=\sum_i a_i\,2^{wi}$, then $P^2=\sum_k c_k 2^{wk}$ with
+$c_k=\sum_{i+j=k}a_ia_j$; if every $c_k<2^w$ these are exactly the base-$2^w$ digits of $P^2$. Signed
+coefficients are handled by an offset: if $N=\sum_j t_j B^j$ with $|t_j|<B/2$, $B=2^w$, then the digits of
+$N+\frac B2\sum_{j<L}B^j$ are $t_j+\frac B2$. Lean proves these digit lemmas once (\texttt{dig\_sum}); all
+digits of a number with $L$ base-$2^w$ digits are then inspected by a divide-and-conquer Boolean function
+(\texttt{chkMax}, \texttt{chkMin}), whose correctness is proved by induction.
+
+\subsection{The $C_1$ certificate (\texttt{lean/C1.lean})}\label{sec:lean-c1}
+The file contains the general lemmas (Kronecker substitution; the step-function lemma of
+Section~\ref{sec:c1} in measure-theoretic form; \texttt{cert\_implies}, which turns four kernel-checked
+facts about the packed number $P$ into the continuous statement), the packed data ($128$ hexadecimal
+chunks), and the main statements:
+\begin{lstlisting}
+def AutocorrAdmissible (f : ℝ → ℝ) : Prop :=
+  (∀ x, 0 ≤ f x) ∧ (∀ x, x ∉ Set.Icc (-1/4 : ℝ) (1/4) → f x = 0) ∧ Integrable f ∧ 0 < ∫ x, f x
+
+noncomputable def C₁ : ℝ :=
+  sInf {c : ℝ | ∃ f : ℝ → ℝ, AutocorrAdmissible f ∧
+          ∀ t : ℝ, ∫ x, f x * f (t - x) ≤ c * (∫ x, f x) ^ 2}
+
+theorem C₁_le : C₁ ≤ (15027434864131 : ℝ) / 10000000000000
+\end{lstlisting}
+The kernel facts are: $P<(2^{104})^{65536}$; all $65536$ digits of $P$ are $\le 2^{40}$; all
+$131072$ digits of $P^2$ are $\le M$; and digit $65535$ of $P\cdot\frac{2^{104\cdot65536}-1}{2^{104}-1}$
+equals $S=\sum_i a_i$, together with $2nMq\le pS^2$. \texttt{\#print axioms C}$_1$\texttt{\_le} gives
+\texttt{[propext, Classical.choice, Quot.sound]}; the check takes about $100$\,s and $6$\,GB.
+
+\emph{Audit.} The Lean integral of $x\mapsto f(x)f(t-x)$ is the Lebesgue (Bochner) integral, i.e. $(f*f)(t)$; the set
+in \texttt{sInf} is bounded below by $0$ (proved), so \texttt{C}$_1$ is the usual
+$\inf_f\sup_t (f*f)(t)/(\int f)^2$. The data enter only as a witness.
+
+\subsection{The $C_{\mathrm{SU}}$ certificate (\texttt{lean/su\_modules/})}\label{sec:lean-su}
+Because the Lean kernel keeps the intermediate big integers of all leaf checks of a file alive, the
+certificate is split into modules so that every process stays below $30$\,GB: \texttt{SUCore.lean}
+(library, data, and the small kernel checks), \texttt{SULeaves0}--\texttt{SULeaves6.lean} ($6$ leaf checks
+each, at most $28$\,GB and $2$ minutes per module on the compute node), and \texttt{SUMain.lean}, which
+imports them and proves the main statement
+
+\begin{lstlisting}
+noncomputable def Lam : ℕ → ℝ → ℝ
+  | 0, _ => 1
+  | 1, u => 1 - 2 * u
+  | n + 2, u => (4 * (n : ℝ) + 5 - 2 * u) * Lam (n + 1) u
+                 - 2 * ((n : ℝ) + 1) * (2 * n + 1) * Lam n u
+
+theorem P_sign :
+    (∑ j ∈ Finset.range 301, (γ.getD j 0 : ℝ) * Lam (2 * j) 0) < 0 ∧
+    ∀ u : ℝ, (48 : ℝ) / 25 ≤ u →
+      0 < ∑ j ∈ Finset.range 301, (γ.getD j 0 : ℝ) * Lam (2 * j) u
+\end{lstlisting}
+where $\gamma$ is the explicit list of integers. The proof uses four kernel checks: \texttt{hB} and
+\texttt{hE} (the Kronecker test that the monomial list \texttt{Pl} is the expansion of
+$\sum_j\gamma_j\Lambda_{2j}$, Section~\ref{sec:su-cert}), \texttt{P\_cert} (the chain of leaves and the
+Kronecker digit test for each leaf, one theorem \texttt{hleaf}$k$ per leaf), and \texttt{P0\_neg} (the
+constant coefficient of $P$ is negative). \texttt{\#print axioms SU.P\_sign} gives
+\texttt{[propext, Classical.choice, Quot.sound]}; the axiom check follows all imported declarations. A
+single-file version of the same declarations is provided as well; it needs more than $45$\,GB of memory
+and was run only in the modular form.
+
+\emph{Audit.} \texttt{Lam n} is $\Lambda_n=2^nn!\,L_n^{(-1/2)}$ by the standard Laguerre recurrence
+$(n+1)L_{n+1}^{(\alpha)}=(2n+1+\alpha-u)L_n^{(\alpha)}-(n+\alpha)L_{n-1}^{(\alpha)}$ with $\alpha=-\frac12$;
+hence the polynomial in \texttt{P\_sign} is in the span of $L_{2j}^{(-1/2)}$, which is what
+Proposition~\ref{prop:su} needs. The step from \texttt{P\_sign} to $C_{\mathrm{SU}}\le r/2\pi$ is not
+formalised.
+
+\section{What is and is not verified}\label{sec:limits}
+\begin{itemize}
+\item \emph{Lean-checked (kernel, standard axioms only):} for $C_1$, the full continuous statement
+  (Theorem~\ref{thm:c1}, including the definition of $C_1$ as an infimum and the measure-theoretic
+  computation of the autoconvolution of a step function); for $C_{\mathrm{SU}}$, the sign statement
+  $P(0)<0$, $P(u)>0$ for $u\ge r$, for the explicit $P=\sum_j\gamma_j\Lambda_{2j}$ with $\Lambda_n$ defined by
+  the recurrence~\eqref{eq:lamrec}.
+\item \emph{Paper only:} Lemma~\ref{lem:eig} (Hermite functions are Fourier eigenfunctions, and
+  $\Lambda_n=2^nn!L_n^{(-1/2)}$) and Proposition~\ref{prop:su}; both are classical and are exactly the
+  reduction used by all previous upper bounds for $C_{\mathrm{SU}}$, including the AlphaEvolve and
+  EinsteinArena verifiers. We also checked the eigenfunction identity numerically for small $n$.
+\item \emph{Independent checks:} the $C_1$ certificate was recomputed by exact \texttt{int64}
+  convolutions of $20$-bit halves (no Kronecker substitution); the $C_{\mathrm{SU}}$ polynomial was
+  checked by a Sturm-sequence real-root count (\texttt{sympy}) in addition to the Descartes/VCA
+  certificate.
+\item \emph{Novelty:} to our knowledge, as of October 14, 2026, the previous best bounds are those
+  listed in the introduction; the field is moving fast (several AI systems post results on
+  EinsteinArena daily), and the $C_1$ improvement in particular is tiny and may already be superseded.
+\item \emph{Not addressed:} lower bounds. Our numerical radii $r^*(D)$ decrease slowly with the degree
+  and we make no conjecture about the value of $C_{\mathrm{SU}}$.
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}

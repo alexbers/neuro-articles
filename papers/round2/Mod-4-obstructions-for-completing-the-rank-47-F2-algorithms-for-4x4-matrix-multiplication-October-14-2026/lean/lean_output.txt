@@ -1,0 +1,27 @@
+~/claude_math/agents/B01/work/lean/Main.lean:69:13: warning: This simp argument is unused:
+  Fin.val_mk
+
+
+~/claude_math/agents/B01/work/lean/Main.lean:294:18: warning: `if_true` has been deprecated: Use `ite_true` instead
+
+  i̵f̵_̵t̵r̵u̵e̵i̲t̲e̲_̲t̲r̲u̲e̲
+'AT47.F0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'AT47.no_Z4_completion' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ AT47.F1_all._native.native_decide.ax_1_1,
+ AT47.F2_all._native.native_decide.ax_1_1,
+ AT47.F3_all._native.native_decide.ax_1_1,
+ AT47.F4_all._native.native_decide.ax_1_1,
+ AT47.F5a_all._native.native_decide.ax_1_1,
+ AT47.F5b._native.native_decide.ax_1_1]
+'AT47.no_rank48' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ AT47.F1_all._native.native_decide.ax_1_1,
+ AT47.F2_all._native.native_decide.ax_1_1,
+ AT47.F3_all._native.native_decide.ax_1_1,
+ AT47.F4_all._native.native_decide.ax_1_1,
+ AT47.F5a_all._native.native_decide.ax_1_1,
+ AT47.F5b._native.native_decide.ax_1_1]
+leancheck: wall=1833.93s maxrss=13242592kB exit=0

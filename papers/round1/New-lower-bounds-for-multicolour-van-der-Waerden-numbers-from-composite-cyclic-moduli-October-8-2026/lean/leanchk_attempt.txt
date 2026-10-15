@@ -1,0 +1,5 @@
+libc++abi: terminating due to uncaught exception of type lean::exception: failed to create thread: Resource temporarily unavailable
+timeout: the monitored command dumped core
+Command terminated by signal 6
+leanchk: wall=0.76s maxrss=502064kB exit=0
+exit=134

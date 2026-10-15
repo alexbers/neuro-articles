@@ -1,0 +1,273 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\F}{\mathbb F}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\C}{\mathbb C}
+\newcommand{\T}{\mathcal T}
+\newcommand{\im}{\operatorname{im}}
+\title{Mod-4 obstructions for completing the rank-47 $\F_2$ algorithms\\ for $4\times 4$ matrix multiplication}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 14, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={Mod-4 obstructions for completing the rank-47 F2 algorithms for 4x4 matrix multiplication},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+The best known bilinear algorithms for multiplying two $4\times4$ matrices use $47$ multiplications
+over fields of characteristic two (AlphaTensor, 2022; Kauers--Moosbauer, 2023) and $48$ multiplications over
+rings containing $\tfrac12$ (AlphaEvolve, 2025; Dumas--Pernet--Sedoglavic, 2025), while every known algorithm
+that is valid over all rings, for instance over $\Z/2^{64}\Z$, uses $49$.
+It is known that the two rank-$47$ schemes over $\F_2$ do not lift to characteristic zero.
+We show that they cannot be completed to rank-$48$ schemes over $\Z/4\Z$ either: there is no
+decomposition of the $4\times4\times4$ matrix multiplication tensor over $\Z/4\Z$ (hence none over $\Z$ or
+over the $2$-adic integers) consisting of $48$ rank-one terms of which $47$ reduce modulo $2$ to the
+AlphaTensor scheme and the remaining one vanishes modulo $2$. More generally, no correction of the form
+$2\,x\otimes M$, with an arbitrary $16\times16$ block $M$, can repair the mod-$4$ defect of the lifted scheme.
+The proof reduces the question to linear algebra over $\F_2$ and is certified by $1585$ explicit
+linear functionals. The reduction is formalised in Lean~4 with Mathlib; the finite checks on the explicit
+certificate are run with \texttt{native\_decide}; the link between the data and the matrix multiplication tensor is kernel-checked. The same statement holds, with its own certificate and the
+same formalisation, for the Kauers--Moosbauer scheme. Both schemes are rigid in the flip graph: an exhaustive
+exploration through rank $48$ (flips, plus transitions, reductions) reaches no other scheme of rank $\le47$.
+We also report the analogous computation for the rank-$73$
+$\F_2$ scheme of $\langle 4,5,5\rangle$ and $2$-adic integrality measurements for several rational records.
+\end{abstract}
+
+\section{Introduction}
+A bilinear algorithm (a \emph{scheme}) of rank $r$ for the product of an $n\times m$ matrix $A$ and an
+$m\times p$ matrix $B$ over a commutative ring $K$ consists of vectors $u_t\in K^{nm}$, $v_t\in K^{mp}$,
+$w_t\in K^{np}$ ($1\le t\le r$) with
+\begin{equation}\label{eq:brent}
+\sum_{t=1}^{r} u_t\otimes v_t\otimes w_t \;=\; \T_{n,m,p},\qquad
+(\T_{n,m,p})_{(i,j),(j',k),(i',k')}=\delta_{ii'}\delta_{jj'}\delta_{kk'} .
+\end{equation}
+Equivalently $C_{ik}=\sum_t w_t[i,k]\,(\sum u_t[i',j]A_{i'j})(\sum v_t[j',k']B_{j'k'})$, also for
+non-commuting matrix entries, so a scheme can be applied recursively. Over $K=\Z$ a scheme is valid in
+every ring.
+
+For $4\times4$ matrices, Strassen's algorithm applied twice gives $49$ multiplications over $\Z$.
+AlphaTensor~\cite{alphatensor} found a scheme of rank $47$ over $\F_2$, and Kauers and Moosbauer~\cite{kmflip}
+found another one with flip graphs. AlphaEvolve~\cite{alphaevolve} found rank $48$ over $\C$, and Dumas,
+Pernet and Sedoglavic~\cite{dps48,dps48b,dps48c} turned it into rational schemes; all of these use the
+coefficient $\tfrac12$. Whether rank $48$ is possible over $\Z$ (equivalently, over every ring) is open;
+it matters for exact integer arithmetic modulo $2^{64}$, where division by $2$ is not available.
+The rank-$47$ $\F_2$ schemes do not lift: their first Hensel step is obstructed, and in fact they lift to no
+finite extension of $\Z_2$~\cite{cloudroom}.
+
+A natural way around this is to allow \emph{defect terms}: a $2$-adic scheme of rank $48$ in which one term
+is divisible by $2$ reduces modulo $2$ to a scheme of rank $47$. So one may ask whether one of the known
+$\F_2$ schemes of rank $47$ is the reduction of such a scheme. We show that it is not, already modulo $4$.
+
+\paragraph{Main result.} Let $S=(u_t,v_t,w_t)_{t\le 47}$ be the AlphaTensor $\F_2$ scheme for
+$\T=\T_{4,4,4}$ (data in the Lean file).
+
+\begin{theorem}\label{thm:main}
+There are no $a_t,b_t,c_t\in(\Z/4)^{16}$ with $a_t\equiv u_t$, $b_t\equiv v_t$, $c_t\equiv w_t\pmod 2$
+($t=1,\dots,47$), $x\in(\Z/4)^{16}$ and $M\in(\Z/4)^{16\times16}$ such that
+\[ \sum_{t=1}^{47} a_t\otimes b_t\otimes c_t \;+\; 2\,(x\otimes M) \;=\; \T \quad\text{over } \Z/4. \]
+\end{theorem}
+
+\begin{corollary}\label{cor}
+There is no scheme of rank $48$ for $4\times4$ matrix multiplication over $\Z/4$, over $\Z$, over $\Z_2$,
+or over any subring of $\Q$ in which $2$ is not invertible, whose reduction modulo $2$ consists of the $47$
+terms of $S$ (in some order) and one term that is $0$ modulo $2$. The same holds for every image of $S$
+under the symmetry group of $\T$ over $\F_2$.
+\end{corollary}
+\begin{proof}
+Reduce such a scheme modulo $4$. A rank-one term $\alpha\otimes\beta\otimes\gamma$ that vanishes modulo $2$
+has a factor divisible by $2$, so it equals $2\,x\otimes M$ with $M$ the outer product of the other two
+factors (after moving the $2$ to the first factor). Over $\F_2$ a nonzero rank-one tensor determines its
+factors, so the other terms reduce factorwise to the terms of $S$. This contradicts \cref{thm:main}.
+For an image $g\cdot S$, $g=(P,Q,R)\in GL_4(\F_2)^3$ (or a cyclic/transposition symmetry), lift $g$ to
+$\tilde g$ over $\Z/4$ (determinants are odd); $\tilde g^{-1}$ maps a completion of $g\cdot S$ to one of $S$,
+because $\T$ is invariant and divisibility by $2$ is preserved.
+\end{proof}
+
+\Cref{thm:main} also excludes any number of extra $2$-divisible terms that share their first factor.
+By a further computation (not formalised) the same holds for extra terms sharing their second or their
+third factor; all formal statements also hold for the Kauers--Moosbauer scheme (\cref{sec:other}).
+
+\section{Reduction to linear algebra over $\F_2$}
+Write $\bar u_t\in\{0,1\}^{16}$ also for the integer lift of $u_t$, and define the integer tensor
+\[ \sum_t u_t\otimes v_t\otimes w_t = \T + 2R + 4(\ast),\qquad R\in\{0,1\}^{16\times16\times16}, \]
+which exists because $S$ is a scheme over $\F_2$. Let $J:\F_2^{3\cdot 47\cdot 16}\to\F_2^{4096}$ be the
+derivative of the Brent map at $S$,
+$J(\alpha,\beta,\gamma)=\sum_t \alpha_t\otimes v_t\otimes w_t+u_t\otimes\beta_t\otimes w_t+u_t\otimes v_t\otimes\gamma_t$.
+
+\begin{lemma}\label{lem:red}
+If $a,b,c,x,M$ are as in \cref{thm:main}, write $a_t=u_t+2\alpha_t$, $b_t=v_t+2\beta_t$, $c_t=w_t+2\gamma_t$.
+Then, over $\F_2$,
+\[ R + J(\bar\alpha,\bar\beta,\bar\gamma) + \bar x\otimes\bar M = 0 . \]
+\end{lemma}
+\begin{proof}
+$(u+2\alpha)(v+2\beta)(w+2\gamma)=uvw+2(\alpha vw+u\beta w+uv\gamma)$ in $\Z/4$. Summing over $t$ and using the
+hypothesis, $2\,(R+J(\alpha,\beta,\gamma)+x\otimes M)=0$ in $\Z/4$, i.e.\ the bracket is even.
+\end{proof}
+
+\begin{lemma}[witness]\label{lem:wit}
+Let $\ell:\F_2^{4096}\to\F_2$ be linear with (i) $\ell(R)=1$, (ii) $\ell\circ J=0$, and let
+$x\in\F_2^{16}$ satisfy (iii) $\sum_{p}x_p\,\ell(e_p\otimes e_q\otimes e_s)=0$ for all $q,s$. Then
+$R+J(d)+x\otimes M\neq0$ for all $d$ and all $M$.
+\end{lemma}
+\begin{proof}
+Apply $\ell$: $\ell(R)+\ell(J(d))+\sum_{q,s}M_{qs}\sum_p x_p\ell(e_p\otimes e_q\otimes e_s)=1+0+0$.
+\end{proof}
+
+Condition (iii) says that $x$ lies in the left kernel of the $16\times256$ matrix of $\ell$. A
+\emph{certificate} is a family of functionals $\ell_1,\dots,\ell_N$ satisfying (i), (ii), together with
+subspaces $L_i$ of their left kernels whose union is $\F_2^{16}$. By \cref{lem:red,lem:wit} a certificate
+proves \cref{thm:main}.
+
+\paragraph{Finding certificates.} The cokernel of $J$ has dimension $4096-\operatorname{rank}J=4096-2117=1979$
+(the kernel of $J$ has dimension $139$, in agreement with~\cite{cloudroom}, where it is identified with the
+tangent space of the symmetry action). For a single $x\ne0$ the obstruction $R\notin\im J+x\otimes\F_2^{256}$ is a linear
+algebra test; we first ran it for all $65535$ vectors $x$ (a C program, about $10$ seconds), and found no
+$x$ passing. To produce a compact certificate we grow subspaces $L$ greedily: a functional with
+(i), (ii) and $L\otimes\F_2^{256}\subseteq\ker\ell$ exists as long as $256\dim L$ is small compared with $1979$,
+and in practice up to $\dim L=7$. A greedy cover of $\F_2^{16}\setminus0$ by $1585$ such $7$-dimensional
+subspaces gives the certificate used in Lean ($1581$ for the Kauers--Moosbauer scheme).
+
+\section{Formal verification}
+The Lean file (\texttt{lean/Main.lean}, Lean 4.35.0 with Mathlib) contains
+\begin{itemize}
+\item a generic theorem \texttt{MM4.no\_Z4\_completion\_of\_facts}: for \emph{arbitrary} data
+$u,v,w,R$, functionals $\ell_i$, subspace bases and a selector, the finite facts
+F0 ($\sum_t u v w=\T+2R$ over $\Z/4$), F1--F4 (conditions (i), (ii) for every $\ell_i$),
+F5a (basis vectors lie in the left kernels) and F5b (every $x\in\F_2^{16}$ is a combination of the basis
+of the selected witness) imply the statement of \cref{thm:main}. Its proof (\cref{lem:red,lem:wit}) is a
+complete Lean proof using only Mathlib;
+\item the explicit data of $S$, of $R$ and of the certificate, and proofs of F0--F5b; and
+\item the main theorem
+{\small\begin{verbatim}
+theorem AT47.no_Z4_completion :
+  Not (exists (a b c : Fin 47 -> Fin 16 -> ZMod 4) (x : Fin 16 -> ZMod 4)
+        (M : Fin 16 -> Fin 16 -> ZMod 4),
+    (forall t s, (a t s).val % 2 = u t s) /\
+    (forall t s, (b t s).val % 2 = v t s) /\
+    (forall t s, (c t s).val % 2 = w t s) /\
+    forall p q s : Fin 16,
+      (Finset.univ.sum fun t : Fin 47 => a t p * b t q * c t s)
+        + 2 * (x p * M q s) = MM4.T4 p q s)
+\end{verbatim}}
+(written here in ASCII notation; the Lean file uses the usual Unicode symbols.)
+and the corollary \texttt{AT47.no\_rank48}: there are no $a,b,c:\texttt{Fin 48}\to(\Z/4)^{16}$ whose first
+$47$ terms reduce modulo $2$ to $S$, whose last term has a factor $\equiv0\pmod 2$, and with
+$\sum_{t<48}a_t\otimes b_t\otimes c_t=\T$ over $\Z/4$ (deduced from the main theorem by the generic
+lemma
+\texttt{MM4.no\_rank\_succ\_\allowbreak of\_no\_completion}). Here \texttt{MM4.T4 p q s} is $1$ if $\lfloor p/4\rfloor=\lfloor s/4\rfloor$, $p\bmod 4=\lfloor q/4\rfloor$,
+$q\bmod 4=s\bmod 4$ and $0$ otherwise (index $4i+j$ for
+entry $(i,j)$).
+\end{itemize}
+\textbf{Statement audit.} \texttt{u t s} is the $s$-th bit of the explicit $t$-th coefficient mask of the
+AlphaTensor scheme, read from \texttt{factorizations\_f2.npz} in the AlphaTensor repository and converted to
+our index convention (the C factor is transposed there); F0 shows that $(u,v,w)$ is indeed a scheme for
+$\T$ modulo $2$. The hypothesis \texttt{(a t s).val \% 2 = u t s} says exactly that $a_t\equiv u_t\pmod 2$.
+The conclusion is the negation of the existence of a mod-$4$ decomposition of the stated shape.
+\textbf{Axioms.} \texttt{\#print axioms} reports \texttt{propext}, \texttt{Classical.choice},
+\texttt{Quot.sound} and one auxiliary axiom \texttt{\dots\_native.native\_decide.ax\_1\_1} for each of
+the six certificate facts F1, F2, F3, F4, F5a, F5b, which are evaluated with \texttt{native\_decide}
+(so the compiled evaluation of these Boolean computations is trusted); the fact F0, which ties the data
+to the matrix multiplication tensor, is checked by the kernel (\texttt{decide +kernel}).
+See \texttt{lean/lean\_output.txt} (compilation about $31$ minutes and $13$\,GB of memory on one core;
+\texttt{lean/lean\_output\_KM47.txt} for the second scheme).
+To keep the computation small, the sums in F2--F5a run only over the supports of the (0/1) coefficient
+vectors; the equality with the full sums used in the generic theorem is proved in Lean. The certificate facts were also verified by an independent Python
+script (\texttt{verify\_cert.py}).
+
+\section{Other schemes and related computations}\label{sec:other}
+\paragraph{Kauers--Moosbauer $47$.} The scheme \texttt{444-47-mod2} of the flip-graph repository~\cite{kmflip}
+has the same Jacobian rank $2117$; no $x$ passes the test in any of the three modes. A certificate of
+$1581$ functionals proves the analogue of \cref{thm:main} and of \cref{cor} in Lean
+(\texttt{KM47.no\_Z4\_completion}, \texttt{KM47.no\_rank48}, file \texttt{lean/MainKM47.lean}, same axioms).
+
+\paragraph{Rigidity of the two schemes.} The two schemes are not equivalent under the symmetry group of $\T$: the multisets of triples
+$(\operatorname{rank}u_t,\operatorname{rank}v_t,\operatorname{rank}w_t)$ of the coefficient matrices differ,
+also after permuting the three modes (for instance, the numbers of factors of rank $1,2,3,4$ in the three
+modes are $(20,12,15,0)$, $(20,12,15,0)$, $(9,24,13,1)$ for AlphaTensor's scheme and $(20,12,15,0)$,
+$(11,24,11,1)$, $(19,12,16,0)$ for the Kauers--Moosbauer scheme). Neither scheme admits a flip: no two of its terms share a factor, so each is an isolated
+vertex of the rank-$47$ flip graph over $\F_2$. In fact rank $48$ does not help either: we applied each
+of the $47\cdot46\cdot3=6486$ split (``plus'') transitions to rank $48$, explored the complete rank-$48$ flip
+component of each result ($971$ components with $37{,}848$ schemes in total for AlphaTensor's scheme,
+$981$ components with $34{,}209$ schemes for the Kauers--Moosbauer scheme) and applied every possible
+reduction to every scheme met; the only scheme of rank at most $47$ obtained is the starting one. Hence
+other rank-$47$ schemes can be reached from these two only through rank $49$ or higher. (As a sanity
+check, the same program finds $143$ further rank-$23$ schemes around a rank-$23$ $\F_2$ scheme for
+$\langle3,3,3\rangle$ after exploring about $42{,}000$ rank-$24$ schemes; there a single rank-$24$ flip
+component already has more than $27{,}000$ elements.) None of the $37{,}848+34{,}209$ rank-$48$ $\F_2$
+schemes met in this exploration lifts to a rank-$48$ decomposition over $\Z/4$: for each of them the defect
+$(\T-\sum_t u_tv_tw_t)/2 \bmod 2$ is not in the image of its Jacobian (the same test confirms that
+Strassen's algorithm squared, reduced modulo $2$, does lift). Going one level up, we sampled $384$ (AlphaTensor) and $488$ (Kauers--Moosbauer) random splits of
+rank-$48$ schemes of these neighbourhoods to rank $49$ and explored their rank-$49$ flip components by
+breadth-first search (up to $10^5$ schemes each; about $2.2\cdot10^7$ rank-$49$ schemes per starting
+scheme, counted with repetition; about five core-hours): every reduction of a scheme met leads back into the explored rank-$48$
+neighbourhood (or to a trivial split of the starting scheme), so neither a further rank-$47$ scheme nor a
+new rank-$48$ flip component was found. Random flip-graph walks through
+ranks $\le 50$ (\texttt{find\_alternative\_schemes} of~\cite{perminov}, about five core-hours) did not
+produce another rank-$47$ scheme either. These searches are not exhaustive.
+
+\paragraph{$\langle 4,5,5\rangle$.} The best rank over $\Q$ is $76$, while Arai, Ichikawa and Hukushima
+found an $\F_2$ scheme of rank $73$~\cite{adap} (rank-$74$/$75$ $\F_2$ schemes do not lift~\cite{kw}). For this
+rank-$73$ scheme ($\operatorname{rank}J=4527$, cokernel $5473$) an exhaustive scan of all $2^{20}-1$ first
+factors shows that no completion to rank $74$ over $\Z/4$ by one $2$-divisible term exists. (Computational,
+C program validated on planted instances; no certificate file.)
+
+\paragraph{$2$-adic integrality of rational records.} For a rational scheme with $2$-power denominators
+we searched the product of the three Bruhat--Tits buildings of $GL_n,GL_m,GL_p$ over $\Q_2$ for a change of
+basis making all terms integral. The best total deficiency found ($0$ would give an integral scheme of the
+same rank) is $32$ for the Dumas--Pernet--Sedoglavic $48$ (sixteen terms keep a factor $\tfrac14$, also for
+all $552$ rational rank-$48$ schemes of~\cite{cloudroom}), $24$ for the AlphaEvolve $\langle2,4,5\rangle{:}32$,
+$30$ for $\langle 3,4,7\rangle{:}63$ and $88$ for Smirnov's $\langle 3,3,6\rangle{:}40$ (all terms
+non-integral). These are search results, not lower bounds.
+
+\section{Limitations and open questions}
+\begin{itemize}
+\item The theorem concerns the two known rank-$47$ $\F_2$ schemes (and their symmetry orbits). Other
+$\F_2$ schemes of rank $47$ (none is reachable from the two known ones through rank $\le 48$), rank-$48$ schemes over $\F_2$ that lift modulo $4$ (none among the $72{,}057$ near the two schemes), schemes with two or more
+defect terms with different factors, and lifts over ramified extensions of $\Z_2$ are not excluded.
+\item Whether $\langle4,4,4\rangle$ has rank $48$ over $\Z$ remains open, as do $\langle 4,5,5\rangle$ at
+rank $75$ and Kauers and Moosbauer's question whether $42$ is optimal for $\langle3,3,6\rangle$ in
+characteristic two.
+\item The finite facts are checked with \texttt{native\_decide}, which trusts the Lean compiler; the
+algebraic reduction is kernel-checked.
+\end{itemize}
+
+\begin{thebibliography}{99}
+\bibitem{alphatensor} A.~Fawzi et al., Discovering faster matrix multiplication algorithms with reinforcement
+learning, Nature 610 (2022) 47--53. Data: \url{https://github.com/google-deepmind/alphatensor}.
+\bibitem{kmflip} M.~Kauers, J.~Moosbauer, Flip graphs for matrix multiplication, ISSAC 2023, 381--388;
+data \url{https://github.com/jakobmoosbauer/flips}.
+\bibitem{alphaevolve} A.~Novikov et al., AlphaEvolve: a coding agent for scientific and algorithmic
+discovery, 2025.
+\bibitem{dps48} J.-G.~Dumas, C.~Pernet, A.~Sedoglavic, A non-commutative algorithm for multiplying $4\times4$
+matrices using $48$ non-complex multiplications, arXiv:2506.13242.
+\bibitem{dps48b} J.-G.~Dumas, C.~Pernet, A.~Sedoglavic, A more accurate rational non-commutative algorithm for
+multiplying $4\times4$ matrices using $48$ multiplications, arXiv:2603.18699.
+\bibitem{dps48c} J.-G.~Dumas, C.~Pernet, A.~Sedoglavic, J.~Stapleton, P.~Tichavsk\'y, Fast matrix multiplication
+via recursive $\langle4\times4\times4:48\rangle$ algorithms into practice, arXiv:2609.12027.
+\bibitem{cloudroom} Cloudroom Math Campaign, $\langle4,4,4\rangle$ in $47$ multiplications: exact obstructions and
+negative results, \url{https://github.com/matyasstoch/cloudroom-math} (October 2026).
+\bibitem{adap} Y.~Arai, Y.~Ichikawa, K.~Hukushima, Adaptive flip graph algorithm for matrix multiplication,
+ISSAC 2024; data \url{https://github.com/Yamato-Arai/adap}.
+\bibitem{kw} M.~Kauers, I.~Wood, Consequences of the Moosbauer--Poole algorithms, arXiv:2505.05896.
+\bibitem{perminov} A.~Perminov, \texttt{ternary\_flip\_graph} (flip-graph tools over $\F_2$, $\F_3$ and
+$\{-1,0,1\}$), \url{https://github.com/dronperminov/ternary_flip_graph}; scheme tables
+\url{https://github.com/dronperminov/FastMatrixMultiplication}.
+\bibitem{fmm} A.~Sedoglavic, Yet another catalogue of fast matrix multiplication algorithms,
+\url{https://fmm.univ-lille.fr/}.
+\end{thebibliography}
+\end{document}

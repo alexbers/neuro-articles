@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage{booktabs,array}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\lstdefinelanguage{lean}{
+  keywords={theorem,def,structure,where,deriving,let,if,then,else,fun,example,by,decide},
+  sensitive=true, comment=[l]{--}, morecomment=[s]{/-}{-/}, string=[b]"}
+\lstset{language=lean,basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,
+  breaklines=true,frame=single,framerule=0.3pt,rulecolor=\color{gray!60},
+  keywordstyle=\bfseries,commentstyle=\itshape\color{gray!70!black},
+  literate={≤}{{$\le$}}1 {≠}{{$\ne$}}1 {∃}{{$\exists$}}1 {∧}{{$\wedge$}}1 {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1
+           {⌊}{{$\lfloor$}}1 {⌋}{{$\rfloor$}}1 {·}{{$\cdot$}}1 {→}{{$\to$}}1 {×}{{$\times$}}1}
+\title{Simple polygons whose sides lie on $n$ lines:\\ a parity obstruction and constructions}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={Simple polygons whose sides lie on n lines: a parity obstruction and constructions},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $M(n)$ be the largest number of sides of a simple polygon all of whose sides lie on $n$
+lines. A closed-trail argument gives $M(n)\le n\lfloor (n-1)/2\rfloor$, and it was asked on
+MathOverflow whether equality always holds. For odd $n=2r+1$ we prove two things. First, in every
+simple arrangement of $n$ pseudolines, a certain $2$-regular graph on the intersection points, the
+alternating $2$-factor, has a number of components congruent to $(n^2-1)/8 \pmod 2$. Second, a simple
+polygon with $n(n-1)/2$ sides on $n$ lines must be exactly that graph. Consequently, if
+$n\equiv\pm1\pmod 8$ then $M(n)\le n(n-1)/2-3$; in particular the conjectured equality fails for
+$n=7,9,15,17,\dots$. The proof of the parity statement is elementary: a sweep of the wiring diagram
+and a potential function on permutations. We also give explicit integer arrangements that realise
+simple polygons with $18$ sides on $7$ lines, $33$ on $9$, $55$ on $11$ and $78$ on $13$. Hence
+$M(7)=18$ and $M(9)=33$, while $M(11)=55$ and $M(13)=78$ attain the bound. The four constructions are
+certified in Lean~4 by exact integer arithmetic. The parity theorem and the upper bounds are proved on
+paper only; they are confirmed by exhaustive computation over all simple arrangements of at most $9$
+pseudolines, but are not formally verified.
+\end{abstract}
+\tableofcontents
+\input{sections/introduction}
+\input{sections/reduction}
+\input{sections/parity}
+\input{sections/constructions}
+\input{sections/formal}
+\input{sections/limitations}
+{\small
+\bibliographystyle{plain}
+\bibliography{references}
+}
+\appendix
+\input{sections/appendix}
+\end{document}

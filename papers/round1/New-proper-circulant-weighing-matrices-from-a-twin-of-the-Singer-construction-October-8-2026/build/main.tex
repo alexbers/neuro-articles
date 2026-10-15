@@ -1,0 +1,557 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\F}{\mathbb F}
+\newcommand{\CW}{\mathrm{CW}}
+\newcommand{\ICW}{\mathrm{ICW}}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\Tr}{T}
+\DeclareMathOperator{\Nm}{N}
+\DeclareMathOperator{\PAF}{PAF}
+\lstdefinelanguage{lean}{morekeywords={def,theorem,instance,by,fun,if,then,else,let,example},sensitive=true,
+  morecomment=[l]{--},morecomment=[s]{/-}{-/},morestring=[b]"}
+\lstset{language=lean,basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,
+  keywordstyle=\bfseries,commentstyle=\itshape\color{black!60},breaklines=true,
+  literate={∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {∧}{{$\wedge$}}1 {∨}{{$\vee$}}1 {→}{{$\to$}}1
+           {≤}{{$\le$}}1 {≠}{{$\ne$}}1 {∣}{{$\mid$}}1 {∈}{{$\in$}}1 {¬}{{$\neg$}}1 {Σ}{{$\Sigma$}}1
+           {·}{{$\cdot$}}1 {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1}
+\title{New proper circulant weighing matrices\\ from a twin of the Singer construction}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={New proper circulant weighing matrices from a twin of the Singer construction},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+A circulant weighing matrix $\CW(n,k)$ is a circulant $n\times n$ matrix $W$ with entries in
+$\{0,\pm1\}$ and $WW^{\mathsf T}=kI$; it is proper if it is not the lift of a smaller one.
+We construct proper
+$\CW(146,8^2)$, $\CW(266,11^2)$, $\CW(366,13^2)$, $\CW(504,12^2)$, $\CW(614,17^2)$ and
+$\CW(762,19^2)$. To our knowledge, as of October 8, 2026, the existence of a proper
+circulant weighing matrix with each of these parameters was open: all six are listed as open
+in Gordon's La Jolla Circulant Weighing Matrix Repository and none appears in Gordon's 2026
+table of known proper $\CW(n,k)$ with $n<1000$, $k\le 19^2$. For $\CW(504,144)$ no circulant
+weighing matrix of any kind was known.
+All six first rows are explicit and are verified in Lean~4 (core library only) by kernel
+evaluation.
+Four of them come from a new ``twin'' of the classical Singer-complement construction.
+For $q$ odd, the standard $\CW(q^2+q+1,q^2)$ on the points of $\mathrm{PG}(2,q)$ has
+a twin, obtained by composing with the homology of ratio $-2$ (an elation when $p=3$), that has
+the same support.
+Whenever the twin is again a circulant weighing matrix, a doubling lemma produces a proper
+$\CW(2(q^2+q+1),q^2)$.
+We conjecture that this holds for every odd prime power $q$. It has been checked by computer for
+all odd prime powers $q\le251$, but we have no proof.
+The other two matrices come from a multiplier-restricted search ($n=146$) and from a product
+over non-coprime orders ($n=504$).
+\end{abstract}
+\tableofcontents
+
+\section{Introduction}\label{sec:intro}
+
+A \emph{circulant weighing matrix} $\CW(n,k)$ is an $n\times n$ circulant matrix with entries in
+$\{0,1,-1\}$ such that $WW^{\mathsf T}=kI_n$. It is determined by its first row
+$a=(a_0,\dots,a_{n-1})$, and the condition says exactly that $a$ is a \emph{perfect ternary
+sequence}: its periodic autocorrelation
+\[
+  \PAF_a(d)=\sum_{i=0}^{n-1}a_i\,a_{(i+d)\bmod n}
+\]
+equals $k$ for $d=0$ and $0$ for $0<d<n$. Necessarily $k=s^2$ is a square. If $W$ is a
+$\CW(m,k)$ and $m\mid n$, then spreading its first row out (the group-ring map $X\mapsto
+X^{n/m}$) gives a $\CW(n,k)$. Matrices that do not arise in this way are called
+\emph{proper}: the support of the first row is not contained in a coset of a proper subgroup of
+$\Z_n$.
+
+Strassler's 1997 table of existence results for $n\le200$, $k\le100$ was updated by Tan and
+reduced to 27 open cases by Arasu, Gordon and Zhang~\cite{AGZ}. Tan~\cite{Tan26} recently
+settled eight more cases (all nonexistence results).
+Gordon maintains the La Jolla Circulant Weighing Matrix Repository~\cite{GordonRepo}. It records
+the existence status of proper $\CW(n,s^2)$ for all $n\le1000$, $s\le19$, together with explicit
+matrices.
+Table~7 of~\cite{G26}, reproduced on the repository web page (last updated 2026-09-03), lists
+all \emph{known} proper $\CW(n,k)$ with $n<1000$ and $k\le19^2$. The web page remarks that for
+larger $k$ almost all entries come from the product or relative-difference-set (RDS)
+constructions, ``so presumably many others remain to be found''.
+For odd prime-power weight $k$, Leung and Schmidt~\cite{LS11} proved that only finitely many
+proper $\CW(n,k)$ exist (for $k=4$ there are infinitely many, so the parity condition is needed).
+Leung and Ma~\cite{Ma11} asked (open problem~7 in the slides of a 2011 talk): apart from the classical construction of proper
+$\CW((p^2+p+1)w/2,p^2)$ ($w\mid p-1$, $w\equiv2\pmod 4$), are there other (infinite)
+families of proper $\CW(v,p^2)$?
+
+A further piece of history is relevant here. Theorem~6.6 of~\cite{AGZ} asserted the existence of a
+proper $\CW((q^3-1)/n,q^2)$ for every divisor $n>1$ of $q-1$ when $q$ is odd. Its proof used an
+RDS-to-CW theorem (Theorem~6.4 there) which, as Gordon later pointed out~\cite[Theorem~12]{G26},
+needs both indices $m$ and $n$ of the $(m,2n,k,\lambda)$-RDS to be odd.
+Gordon's corrected version (Theorem~13 of~\cite{G26}) only yields orders $(q^2+q+1)n'$ with $n'$
+odd. Accordingly, the 2025/26 table no longer lists $366$ $(13^2)$, $614$ $(17^2)$ or $762$
+$(19^2)$, all of which were listed in Table~11 of~\cite{AGZ}. The case $n=(q-1)/2$ of the
+withdrawn claim is precisely the family $\CW(2(q^2+q+1),q^2)$ studied here.
+
+\paragraph{Results.} Table~\ref{tab:results} lists the six parameter pairs settled here.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+$(n,k)$ & repository~\cite{GordonRepo} & Table~7 of~\cite{G26} & non-proper CW known? & construction\\
+\midrule
+$(146,8^2)$  & Open & no & yes (lift of $\CW(73,8^2)$) & multiplier search, \S\ref{sec:146}\\
+$(266,11^2)$ & Open & no & yes (lift of $\CW(133,11^2)$) & twin, $q=11$, \S\ref{sec:twin}\\
+$(366,13^2)$ & Open & no (dropped) & yes (lift of $\CW(183,13^2)$) & twin, $q=13$\\
+$(504,12^2)$ & Open & no & no & product, \S\ref{sec:504}\\
+$(614,17^2)$ & Open & no (dropped) & yes (lift of $\CW(307,17^2)$) & twin, $q=17$\\
+$(762,19^2)$ & Open & no (dropped) & yes (lift of $\CW(381,19^2)$) & twin, $q=19$\\
+\bottomrule
+\end{tabular}
+\caption{The six parameter pairs. ``Open'' is the status in the repository data file (v1.3, commit
+5b3d729, 2026-04-24); the second parameter there is $s=\sqrt k$. ``Dropped'' means the entry
+appeared in~\cite[Table~11]{AGZ} but not in~\cite[Table~7]{G26}.}
+\label{tab:results}
+\end{table}
+
+\begin{theorem}[main theorem; Lean-certified]\label{thm:main}
+There exist proper circulant weighing matrices $\CW(146,64)$, $\CW(266,121)$, $\CW(366,169)$,
+$\CW(504,144)$, $\CW(614,289)$ and $\CW(762,361)$.
+\end{theorem}
+
+\begin{conjecture}[twin conjecture; Conjecture~\ref{conj:twin} below]
+For every odd prime power $q$ the twin $W_{1/2}$ of the classical $\CW(q^2+q+1,q^2)$ is again a
+circulant weighing matrix. Consequently a proper $\CW(2(q^2+q+1),q^2)$ exists for every odd
+prime power $q$.
+\end{conjecture}
+
+The conjecture has been verified for every odd prime power $q\le251$ (62 values; see
+Remark~\ref{rem:evidence}). For
+$q=3,5,7,9$ it recovers the orders $26,62,114,182$, which~\cite{G26} lists as sporadic (boxed)
+entries. If true, it would answer the question of Leung and Ma with a new infinite family. We stress that we do
+\emph{not} have a proof.
+
+\paragraph{Novelty and caveats.} We compared with~\cite{GordonRepo,G26,AGZ,Tan26,LS11,SS13} and
+with the perfect-ternary-sequence literature that we could access (Ipatov's construction as
+described in~\cite{HJ83}, and~\cite{HJ83} itself). We could \emph{not} check
+Krengel~\cite{Kr04}, which (according to its abstract) constructs almost-perfect ternary sequences
+of length $(p^n-1)/r$ and odd-perfect ternary sequences of half that length from $m$-sequences, in
+particular odd-perfect sequences of length $2(p^n-1)/(p^{n/3}-1)=2(q^2+q+1)$. Odd-perfect sequences
+are not perfect, so these are different objects from our $\CW(2(q^2+q+1),q^2)$; but a perfect
+sequence of odd length $m$ becomes odd-perfect after the sign change $i\mapsto(-1)^i$, so the twin
+$W_{1/2}$ itself might appear there in another guise. Our novelty claims are therefore ``to our
+knowledge, as of October 8, 2026''.
+
+\section{Preliminaries}\label{sec:prelim}
+
+We identify $\Z_n$ with the cyclic group $\langle X\rangle$, $X^n=1$, and a sequence $a$ with
+$A=\sum_i a_iX^i\in\Z[\Z_n]$. For $A=\sum_g a_g g$ in a group ring $\Z[G]$ of a finite abelian
+group $G$ we write $A^{(-1)}=\sum_g a_g g^{-1}$ and $\supp A=\{g:a_g\ne0\}$.
+Then $a$ is the first row of a $\CW(n,k)$ if and only if $a_i\in\{0,\pm1\}$ and
+$AA^{(-1)}=k$. We say $A$ is a $\CW$ in $G$ if this holds with $G$ in place of $\Z_n$.
+
+\begin{definition}
+$A\in\Z[G]$ is \emph{proper} if $\supp A$ is not contained in a coset $g+L$ of a proper
+subgroup $L<G$. For $G=\Z_n$ the subgroups are $e\Z_n$ ($e\mid n$), so $A$ is proper if and
+only if for every divisor $e>1$ of $n$ the support meets at least two residue classes modulo $e$.
+\end{definition}
+
+\begin{lemma}[Fourier criterion]\label{lem:fourier}
+For $A\in\Z[G]$ we have $AA^{(-1)}=k$ if and only if $|\chi(A)|^2=k$ for every character $\chi$
+of $G$.
+\end{lemma}
+This is standard: $\chi(AA^{(-1)})=|\chi(A)|^2$, and an element of $\mathbb C[G]$ is determined
+by its character values.
+
+\paragraph{Field notation.} Let $q$ be an odd prime power, $F=\F_q$, $K=\F_{q^3}$, and let
+$\Tr,\Nm\colon K\to F$ be the trace and norm. Let $\eta$ be the quadratic character of $F$
+(with $\eta(0)=0$) and $\eta_K=\eta\circ \Nm$; this is the quadratic character of $K$, because
+$\Nm\colon K^*\to F^*$ is onto. Put $m=q^2+q+1$ and $G=K^*/F^*$, a cyclic group of order $m$.
+Its elements are the points $[y]$ of $\mathrm{PG}(2,q)$, where $K$ is viewed as $F^3$.
+Fix a primitive element $\alpha$ of $K$ and identify $i\in\Z_m$ with $[\alpha^i]$; under this
+identification multiplication in $K^*$ becomes the Singer cycle.
+Let $L=\{[y]:\Tr(y)=0\}$, a line of $q+1$ points (the classical Singer difference set), and let
+$S=G\setminus L$, so $|S|=q^2$. Every point of $S$ has exactly one representative in the affine
+plane $P=\{y\in K:\Tr(y)=1\}$.
+
+\section{Three elementary lemmas}\label{sec:lemmas}
+
+\begin{lemma}[doubling]\label{lem:doubling}
+Let $m$ be odd. Identify $\Z_{2m}\cong\Z_m\times\Z_2$ by $x\mapsto(x\bmod m,\,x\bmod 2)$, and
+let $z$ be the element of order $2$. For $U,V\in\Z[\Z_m]$ put $A=U+zV$. Then $AA^{(-1)}=k$ if
+and only if $(U+V)(U+V)^{(-1)}=k$ and $(U-V)(U-V)^{(-1)}=k$.
+\end{lemma}
+\begin{proof}
+Every character of $\Z_m\times\Z_2$ is $\chi\otimes\epsilon$ with $\epsilon(z)=\pm1$, and
+$(\chi\otimes\epsilon)(A)=\chi(U\pm V)$. Apply Lemma~\ref{lem:fourier} in $\Z_{2m}$ and in
+$\Z_m$.
+\end{proof}
+
+\begin{corollary}\label{cor:samesupport}
+Let $m$ be odd and let $W,W'$ be first rows of two $\CW(m,k)$ with the same support. Define
+$A\in\{0,\pm1\}^{2m}$ by $A_x=\tfrac12(W+W')_{x\bmod m}$ for even $x$ and
+$A_x=\tfrac12(W-W')_{x\bmod m}$ for odd $x$. Then $A$ is a $\CW(2m,k)$.
+If in addition $W$ is proper and $W'\ne\pm W$, then $A$ is proper.
+\end{corollary}
+\begin{proof}
+Since $W'_i=\pm W_i$ on the common support, $U=\frac12(W+W')$ and $V=\frac12(W-W')$ have
+entries in $\{0,\pm1\}$ and disjoint supports. Under the identification of
+Lemma~\ref{lem:doubling}, $A=U+zV$, and $U\pm V\in\{W,W'\}$, so $A$ is a $\CW(2m,k)$.
+
+For properness, let $e\mid 2m$ with $e>1$ and suppose $\supp A\subseteq c+e\Z_{2m}$.
+If $e$ has an odd prime factor $p$, then $p\mid m$ and every $x\in\supp A$ satisfies
+$x\equiv c\pmod p$. Hence $x\bmod m$ lies in one residue class mod $p$, so $\supp W$ lies in a
+coset of $p\Z_m$, contradicting properness of $W$. Otherwise $e=2$ (as $4\nmid 2m$), so
+$\supp A$ lies in one parity class, i.e.\ $U=0$ or $V=0$, i.e.\ $W'=\pm W$.
+\end{proof}
+
+\begin{lemma}[product over non-coprime orders]\label{lem:product}
+Let $H,K'$ be subgroups of a finite abelian group $G$, and let $A\in\Z[H]$, $B\in\Z[K']$ be
+$\CW$s in $H$ and $K'$ of weights $k_1,k_2$. Assume
+\[
+(\supp A-\supp A)\cap(\supp B-\supp B)=\{0\}.
+\]
+Then $AB$ has coefficients in $\{0,\pm1\}$ and is a $\CW$ of weight $k_1k_2$ in $G$. If moreover
+$A$ is proper in $H$, $B$ is proper in $K'$ and $H+K'=G$, then $AB$ is proper in $G$.
+\end{lemma}
+\begin{proof}
+If $h+b=h'+b'$ with $h,h'\in\supp A$ and $b,b'\in\supp B$, then $h-h'=b'-b$ lies in both
+difference sets, so $h=h'$ and $b=b'$. Hence the $|\supp A|\cdot|\supp B|$ products are
+distinct, and every coefficient of $AB$ is $0$ or $\pm1$. Also
+$(AB)(AB)^{(-1)}=AA^{(-1)}BB^{(-1)}=k_1k_2$.
+
+Now suppose $\supp(AB)\subseteq c+L$ for some $L<G$. Fixing $b\in\supp B$ gives
+$\supp A\subseteq c-b+L$, hence $\supp A-\supp A\subseteq L\cap H$. Since $A$ is proper in $H$,
+this forces $L\cap H=H$, i.e.\ $H\le L$. Likewise $K'\le L$, so $L\supseteq H+K'=G$.
+\end{proof}
+
+For coprime orders, Lemma~\ref{lem:product} is the Kronecker product construction of Arasu and
+Seberry~\cite{AS98} (where $H\cap K'=0$). The version for non-coprime orders is elementary and
+may well be folklore. We do not claim it as new; we only note that it was not applied to
+$n=504$ in the tables.
+
+\section{The twin of the Singer-complement construction}\label{sec:twin}
+
+\begin{definition}\label{def:Wc}
+For $c\in F$ define $W_c\colon G\to\{0,\pm1\}$ by
+\[
+  W_c([y])=\eta\bigl(\Nm(c\,\Tr(y)-y)\cdot \Tr(y)\bigr).
+\]
+This is well defined: replacing $y$ by $\lambda y$ ($\lambda\in F^*$) multiplies the argument of
+$\eta$ by $\lambda^4$. As usual, $W_c$ also denotes $\sum_{g}W_c(g)\,g\in\Z[G]$ and, via
+$i\mapsto[\alpha^i]$, a sequence of length $m$.
+\end{definition}
+
+\begin{lemma}\label{lem:support}
+$\supp W_0=\supp W_{1/2}=S$.
+\end{lemma}
+\begin{proof}
+Both values vanish when $\Tr(y)=0$. Let $\Tr(y)\neq0$. Then $\Nm(-y)\neq0$. If
+$\tfrac12\Tr(y)-y=0$, then $y\in F^*$, so $\Tr(y)=3y$ and $\tfrac12\Tr(y)-y=\tfrac12y\ne0$, a
+contradiction.
+\end{proof}
+
+\begin{proposition}[classical]\label{prop:classical}
+$W_0$ is a proper $\CW(m,q^2)$.
+\end{proposition}
+\begin{proof}
+For $y\in P$ we have $W_0([y])=\eta(\Nm(-y))$. Let $\delta\in K^*\setminus F^*$. Using the
+homogeneous formula for $W_0([\delta y])$ we get
+\[
+\sum_{y\in P}W_0([y])W_0([\delta y])
+ =\sum_{y\in P}\eta(\Nm(-y))\,\eta\bigl(\Nm(-\delta y)\Tr(\delta y)\bigr)
+ =\eta(\Nm\delta)\sum_{y\in P}\eta(\Tr(\delta y)).
+\]
+The map $y\mapsto \Tr(\delta y)$ is affine on the affine plane $P$. It is not constant: otherwise
+$\Tr(\delta z)=0$ for all $z\in\ker \Tr$, so $\Tr(\delta\,\cdot)=\lambda \Tr$ for some
+$\lambda\in F$, and nondegeneracy of the trace form gives $\delta=\lambda\in F$. A
+nonconstant affine function on $\F_q^2$ takes every value exactly $q$ times, and
+$\sum_{t\in F}\eta(t)=0$. So all nontrivial autocorrelations vanish, and the trivial one equals
+$|S|=q^2$. Finally, a coset of a proper subgroup of $\Z_m$ has at most $m/3<q^2$ elements, so
+$W_0$ is proper.
+\end{proof}
+
+This is a standard construction of a $\CW(q^2+q+1,q^2)$; cf.~\cite[Theorem~4]{AS98} and the
+RDS constructions in~\cite{G26}. Our object of interest is $W_{1/2}$.
+
+\begin{remark}[geometry]\label{rem:geometry}
+Let $\psi(y)=\Tr(y)-2y$. This map is $F$-linear and invertible, with
+$\psi^{-1}(u)=\tfrac12(\Tr(u)-u)$; it satisfies $\Tr\circ\psi=\Tr$. On $\mathrm{PG}(2,q)$ it acts
+as the homology with axis $L$ ($\psi=-2\,\mathrm{id}$ on $\ker \Tr$) and centre $[1]$
+($\psi(1)=1$); for $p=3$ one has $-2=1$ and $[1]\in L$, so $\psi$ is then an elation. One checks
+that $W_{1/2}=\eta(-2)\cdot(W_0\circ\psi)$.
+In conjugate coordinates $(y,y^q,y^{q^2})$, the cubic $\Nm(y)$ vanishes on the ``Singer
+triangle'' of three conjugate lines. The map $\psi$ sends this triangle to its medial triangle,
+so $W_{1/2}$ is $\eta$ of the quartic $(a+b+c)(-a+b+c)(a-b+c)(a+b-c)$ (Heron's product), while
+$W_0$ is $\eta$ of $abc(a+b+c)$, up to constants.
+\end{remark}
+
+\begin{lemma}[Fourier form]\label{lem:jacobi}
+Let $\chi$ be a character of $K^*$ that is trivial on $F^*$, i.e.\ a character of $G$. Then
+\[
+\chi(W_0)=\eta(-1)\sum_{y\in P}\eta_K(y)\chi(y),\qquad
+\chi(W_{1/2})=\eta(2)\,J_P(\chi),
+\]
+where
+\[
+J_P(\chi):=\sum_{w\in K,\ \Tr(w)=1}\eta_K(w)\,\chi(1-w).
+\]
+Hence $W_{1/2}$ is a $\CW(m,q^2)$ if and only if $|J_P(\chi)|=q$ for every such $\chi$.
+\end{lemma}
+\begin{proof}
+Use the representatives $y\in P$, for which $\Tr(y)=1$. Then
+$W_{1/2}([y])=\eta(\Nm(\tfrac12-y))$. Substitute $w=1-2y$; this is a bijection of $P$ onto itself
+since $\Tr(1)=3$. Then $\tfrac12-y=\tfrac12w$ and $\Nm(\tfrac12 w)=\Nm(w)/8$, so
+$\eta(\Nm(\tfrac12w))=\eta(2)\eta_K(w)$. Moreover $\chi(y)=\chi(\tfrac12(1-w))=\chi(1-w)$,
+because $\chi$ is trivial on $F^*$. The formula for $W_0$ is immediate. Finally apply
+Lemma~\ref{lem:fourier}.
+\end{proof}
+
+The sum $J_P(\chi)$ is a Jacobi sum restricted to the hyperplane $\Tr=1$. The analogous
+restricted Gauss sum $\sum_{y\in P}\eta_K(y)\chi(y)$ has absolute value $q$ by
+Proposition~\ref{prop:classical}. We could not evaluate $J_P(\chi)$ in closed form. Numerically
+(for $q=7$), $\chi(W_{1/2})/q$ is neither a root of unity times a Galois conjugate of
+$\chi(W_0)$, nor a simple product or quotient of such values.
+
+\begin{conjecture}[twin conjecture]\label{conj:twin}
+For every odd prime power $q$, $W_{1/2}$ is a $\CW(q^2+q+1,q^2)$. Equivalently,
+$|J_P(\chi)|=q$ for every character $\chi$ of $K^*$ trivial on $F^*$.
+\end{conjecture}
+
+\begin{theorem}\label{thm:twin}
+Let $q$ be an odd prime power for which Conjecture~\ref{conj:twin} holds and $W_{1/2}\ne\pm
+W_0$. Define $A\in\{0,\pm1\}^{2m}$ by
+\[
+A_x=\begin{cases}\tfrac12\bigl(W_0(x\bmod m)+W_{1/2}(x\bmod m)\bigr), & x\text{ even},\\[2pt]
+\tfrac12\bigl(W_0(x\bmod m)-W_{1/2}(x\bmod m)\bigr), & x\text{ odd}.\end{cases}
+\]
+Then $A$ is a proper $\CW(2(q^2+q+1),q^2)$. The hypotheses hold, and hence such an $A$ exists,
+for every odd prime power $q\le251$. For $q=11,13,17,19$ the resulting matrices
+$\CW(266,11^2)$, $\CW(366,13^2)$, $\CW(614,17^2)$ and $\CW(762,19^2)$ are certified in Lean
+(\S\ref{sec:lean}).
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lem:support}, Proposition~\ref{prop:classical} and the hypothesis, $W_0$ and
+$W_{1/2}$ are $\CW(m,q^2)$s with the same support, and $W_0$ is proper. Now apply
+Corollary~\ref{cor:samesupport}. The verification for $q\le127$ is described in
+Remark~\ref{rem:evidence}.
+\end{proof}
+
+\begin{remark}[computational evidence]\label{rem:evidence}
+\leavevmode
+\begin{enumerate}
+\item For each of the 37 odd prime powers $q\le127$ we built $\F_{q^3}$ from a primitive
+polynomial and computed $W_0$, $W_{1/2}$ and $A$. All periodic autocorrelations were computed
+exactly. We used integer sequences and an FFT, checking that every value lay within $10^{-3}$ of
+an integer before rounding; for $q\le19$ we also used direct $O(k^2)$ integer summation.
+In every case $W_0$ and $W_{1/2}$ are $\CW(m,q^2)$s with the same support, $W_{1/2}\neq\pm W_0$,
+and $A$ is a proper $\CW(2m,q^2)$. A second, independently written implementation
+(\texttt{data/twin\_check\_gf.py}, which builds $\F_{q^3}$ as $\F_p[x]/(h)$ for every prime power
+$q=p^k$ and uses its own primitive polynomials) confirms all of this for the 62 odd prime powers
+$q\le251$ (\texttt{data/twin\_family\_check\_q\_le\_251.log}); for $q\le19$ its sequences are
+multiplier-equivalent to the certified ones, and $W_{1/2}$ is never of the form $\pm W_0(tx+s)$.
+\item For $q=3,5,7$, among all $\pm1$ sign patterns on $S$ that are constant on orbits of the
+Frobenius multiplier $y\mapsto y^q$, the only ones giving a $\CW$ are $\pm W_0$ and
+$\pm W_{1/2}$.
+\item Among the $W_c$, $c\in F$, only $c\in\{0,\frac12\}$ give a $\CW$ for $q=5,7,11,13$.
+\item For $q=5$, exactly $186$ of the $372000$ elements $g\in\mathrm{PGL}(3,5)$ make $W_0\circ g$
+a $\CW$. Every $g\in N(C)\cup\psi N(C)$ does so, where $N(C)$ is the normaliser of the Singer
+group $C$ ($|N(C)|=3m=93$). These two cosets are disjoint, because $\psi$ fixes all $q+1$ points of
+$L$ while every non-identity element of $N(C)$ fixes at most $3$ points. Hence the $186$ elements
+are exactly $N(C)\cup\psi N(C)$: up to the obvious symmetries, the twin is the only companion.
+\item For the even prime power $q=8$, no Frobenius-invariant same-support companion of the
+classical $\CW(73,64)$ exists (the construction needs $q$ odd).
+\item A naive quartic-character analogue, intended to give $\CW(t(q^2+q+1),q^2)$ for
+$t\mid q-1$ with $t>2$, fails for $t=4$ ($q=5,9,13$) and for $t=5,10$ ($q=11$).
+\end{enumerate}
+The certified rows for $q=11,13,17,19$ use primitive polynomials $x^3+10x^2+6x+9$,
+$x^3+12x^2+9x+2$, $x^3+7x^2+8x+14$ and $x^3+2x^2+18x+4$ respectively (with $\alpha=x$). The file
+\texttt{data/twin\_singer.py} rebuilds them from Definition~\ref{def:Wc} in pure Python and checks
+equality with the certificates.
+\end{remark}
+
+\begin{remark}
+For $q=3,5,7,9$, Theorem~\ref{thm:twin} produces proper $\CW(26,3^2)$, $\CW(62,5^2)$,
+$\CW(114,7^2)$ and $\CW(182,9^2)$. In~\cite{G26} these orders appear as sporadic entries found by
+earlier searches. We have not checked whether our matrices are equivalent to the tabulated ones.
+In terms of~\cite[Theorem~6.6]{AGZ}, $2(q^2+q+1)=(q^3-1)/n$ with $n=(q-1)/2$. So the twin
+construction re-establishes exactly this case of the withdrawn claim: unconditionally for the
+certified values of $q$, and conjecturally in general. The other withdrawn orders, for example
+$364=4\cdot91$ ($q=9$) and $732=4\cdot183$ ($q=13$), remain open.
+\end{remark}
+
+\section{A proper \texorpdfstring{$\CW(146,8^2)$}{CW(146,64)}}\label{sec:146}
+
+Here $146=2\cdot73$ with $73=8^2+8+1$, but $q=8$ is even and \S\ref{sec:twin} does not apply.
+Write a putative $\CW(146,64)$ as $A=U+zV$ as in Lemma~\ref{lem:doubling}. Then $B=U+V$ and
+$B'=U-V$ satisfy $BB^{(-1)}=B'B'^{(-1)}=64$ and have entries in $\{0,\pm1,\pm2\}$. In other words,
+they are integer weighing matrices $\ICW_2(73,64)$, with $B\equiv B'\pmod 2$ and
+$|B\pm B'|\le2$ entrywise. Conversely, any such pair gives a $\CW(146,64)$ by
+Lemma~\ref{lem:doubling}.
+
+By McFarland's multiplier theorem in the form used in~\cite[Theorem~4.1]{AGZ}
+($\gcd(73,64)=1$, $64=2^6$), $2$ is a multiplier of $B$ and of $B'$. We only used this to
+restrict the search: we required $B$ to be fixed by $x\mapsto2x$ and $B'$ to be a translate of
+a $2$-fixed element. The orbits of $x\mapsto2x$ on $\Z_{73}$ have sizes $1,9,9,\dots,9$.
+Exhaustive enumeration of orbit-constant $B$ with entries in $\{0,\pm1,\pm2\}$, augmentation $8$
+and $BB^{(-1)}=64$ gives $32$ solutions. Pairing them with all translates and signs and keeping
+$\{0,\pm1\}$ lifts gives $112$ $\CW(146,64)$, of which $96$ are proper. In the certified
+example, the positions where $B$ (respectively $B'$) equals $\pm2$ form a planar $(73,9,1)$
+difference set, i.e.\ a line of $\mathrm{PG}(2,8)$. Unlike in \S\ref{sec:twin}, the supports of
+$U$ and $V$ overlap. The first row is given in Appendix~\ref{app:data}.
+
+We ran the same search for every repository-open entry $n=2m$ ($m$ odd) whose McFarland multiplier
+group is nontrivial: $597$ entries, with at most $3\cdot10^5$ recursion nodes per entry. It found
+only $n=146$. For $375$ entries it found no solution of this restricted form; the other $221$
+entries (including $\CW(546,16^2)$, the $q=16$ analogue) reached the node limit. The negative
+outcomes are \emph{not} nonexistence proofs.
+
+\section{A proper \texorpdfstring{$\CW(504,12^2)$}{CW(504,144)}}\label{sec:504}
+
+Let $G=\Z_{504}$, $H=21\Z_{504}\cong\Z_{24}$ and $K'=8\Z_{504}\cong\Z_{63}$. Then $H\cap K'=168\Z_{504}$
+has order $3$ and $H+K'=G$. Take the proper $\CW(24,9)$ of the repository (due to Ang, Arasu, Ma and
+Strassler) with $P=\{1,5,12,13,17,18\}$ and $N=\{0,6,9\}$, placed on $H$ via $i\mapsto21i$.
+Take the proper $\CW(63,16)$ with $P=\{0,1,2,4,8,16,27,32,45,54\}$ and
+$N=\{5,10,17,20,34,40\}$, placed on $K'$ via $j\mapsto8j$. The difference condition of
+Lemma~\ref{lem:product} only needs checking inside $H\cap K'$; it holds there by direct
+inspection (and by machine). So the product $\sum a_ib_j X^{21i+8j}$ is a proper $\CW(504,144)$.
+Its divisors $d\ge144$ are $168$, $252$ and $504$. No proper $\CW(d,144)$ is known for any of
+them (the repository lists $168$ as open and $252$ as nonexistent), so this is the first
+$\CW(504,144)$ of any kind that we know of.
+Iterating Lemma~\ref{lem:product} (and a generalized doubling) over all explicit matrices of
+the repository produced no other pair $(n,k)$ missing from~\cite[Table~7]{G26}.
+
+\section{Formal verification}\label{sec:lean}
+
+The file \texttt{lean/Main.lean} (Lean~4.34.1, core library only, no Mathlib) contains the
+following definitions (verbatim, except that line breaks in \texttt{MainStatement} are adjusted and
+the two theorems are shown without their proofs). The statement uses the index form
+\texttt{pafIdx}; the proofs use the fast form \texttt{paf}.
+\begin{lstlisting}
+def dot : List Int → List Int → Int
+  | x :: xs, y :: ys => x * y + dot xs ys
+  | _, _ => 0
+def pafIdx (a : List Int) (d : Nat) : Int :=
+  ((List.range a.length).map (fun i => a.getD i 0 * a.getD ((i + d) % a.length) 0)).sum
+def paf (a : List Int) (d : Nat) : Int := dot a (a.rotateLeft d)
+def IsCW (n k : Nat) (a : List Int) : Prop :=
+  a.length = n ∧ (∀ x ∈ a, x = -1 ∨ x = 0 ∨ x = 1) ∧
+  ∀ d, d < n → pafIdx a d = if d = 0 then (k : Int) else 0
+def supp (a : List Int) : List Nat := (List.range a.length).filter (fun i => a.getD i 0 != 0)
+def IsProper (a : List Int) : Prop :=
+  ∀ e, e ≤ a.length → 1 < e → e ∣ a.length → ∃ i ∈ supp a, ∃ j ∈ supp a, i % e ≠ j % e
+def MainStatement : Prop :=
+    (∃ a, IsCW 146 64 a ∧ IsProper a) ∧ (∃ a, IsCW 266 121 a ∧ IsProper a) ∧
+    (∃ a, IsCW 366 169 a ∧ IsProper a) ∧ (∃ a, IsCW 504 144 a ∧ IsProper a) ∧
+    (∃ a, IsCW 614 289 a ∧ IsProper a) ∧ (∃ a, IsCW 762 361 a ∧ IsProper a)
+theorem paf_eq_pafIdx (a : List Int) (d : Nat) (hd : d < a.length) :
+    paf a d = pafIdx a d                      -- proved in general in the file
+theorem new_proper_circulant_weighing_matrices : MainStatement   -- proved at the end
+\end{lstlisting}
+{\sloppy Each witness \texttt{cwX} (an explicit list of integers) comes with
+\texttt{cwX\_isCW : IsCW n k cwX} and \texttt{cwX\_proper : IsProper cwX}. Both are proved by
+\texttt{decide +kernel}. For the autocorrelation, the shift range is split into blocks of $64$
+to bound kernel memory, the blocks are combined with \texttt{omega}, and the result is transported
+to \texttt{pafIdx} by the general lemma \texttt{paf\_eq\_pafIdx}. That lemma is proved from
+\texttt{dot\_eq\_sum} and \texttt{rotateLeft\_getD}. A second theorem,
+\texttt{twin\_singer\_family\_members}, certifies the eight explicit rows of
+Theorem~\ref{thm:twin} for $q=3,5,7,9,11,13,17,19$.\par}
+
+\paragraph{Statement audit.}
+\begin{itemize}
+\item Since $n=$ \texttt{a.length}, all indices in \texttt{pafIdx} are $<n$, so \texttt{getD}
+never returns its default. Thus \texttt{pafIdx a d} is literally
+$\sum_{i<n}a_ia_{(i+d)\bmod n}$, and \texttt{IsCW} quantifies over all shifts $0\le d<n$, with
+value $k$ at $d=0$ and $0$ otherwise. For the circulant matrix $W_{ij}=a_{(j-i)\bmod n}$ one has
+$(WW^{\mathsf T})_{ij}=\PAF_a((i-j)\bmod n)$, so this is exactly $WW^{\mathsf T}=kI$. (This last
+standard translation is not formalised.)
+\item \texttt{IsProper}: the subgroups of $\Z_n$ are $e\Z_n$ with $e\mid n$, proper exactly when
+$e>1$, and a set lies in a coset of $e\Z_n$ exactly when all its elements are congruent mod $e$.
+The bound $e\le n$ is automatic for divisors.
+\item The file contains sanity checks: $\CW(7,4)=-1+X+X^2+X^4$ satisfies
+\texttt{IsCW 7 4} and \texttt{IsProper}; its lift to $\Z_{14}$ satisfies \texttt{IsCW 14 4} but
+\emph{not} \texttt{IsProper}; and a corrupted sequence fails \texttt{IsCW}. So neither predicate
+is vacuous.
+\item The main statement has no hypotheses; it is a conjunction of closed existential claims with
+explicit witnesses in the file.
+\end{itemize}
+
+\paragraph{Axioms and resources.} \texttt{lean/lean\_output.txt} reports, for the main theorem and
+for every certificate theorem, dependence only on \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound} (the \texttt{\_proper} theorems use only \texttt{propext}). There is no
+\texttt{sorryAx} and no \texttt{native\_decide}. The full check took $491$\,s of wall time with a
+maximum resident memory of $2.1$\,GB. The certificates were also checked independently by a
+plain Python script (\texttt{data/verify\_certificates.py}).
+
+\section{What is not verified; open questions}\label{sec:limits}
+
+\begin{itemize}
+\item \textbf{Conjecture~\ref{conj:twin} is open.} It is verified for odd prime powers $q\le251$
+only, and the infinite family $\CW(2(q^2+q+1),q^2)$ is conditional on it. A proof would amount to
+evaluating, or at least bounding exactly, the restricted Jacobi sums $J_P(\chi)$. Several
+approaches failed for us: a direct Gauss-sum expansion leads to twisted character sums of cubic
+polynomials; we found no collineation symmetry beyond Remark~\ref{rem:evidence}(4); and the
+quartic analogue fails.
+\item \textbf{Novelty} is judged against~\cite{GordonRepo,G26,AGZ,Tan26} and a literature search
+on circulant weighing matrices and perfect ternary sequences. We could not consult
+Krengel~\cite{Kr04}. The repository data file contains some stale entries (for example, some
+orders covered by infinite families are still marked open), which is why we also compared with the
+curated Table~7 of~\cite{G26}.
+\item The finite-field constructions and the searches are not formalised. Lean certifies only the
+final explicit sequences, which is all the main theorem needs.
+\item Open: the even case ($q=16$ gives $\CW(546,16^2)$); the other withdrawn cases of
+\cite[Theorem~6.6]{AGZ} ($364$ for $q=9$, $732$ for $q=13$); and the remaining open entries of
+Strassler's table~\cite{AGZ,Tan26}, none of which is touched here.
+\end{itemize}
+
+\appendix
+\section{First rows of the six new matrices}\label{app:data}
+
+For each matrix we list $P=\{i:a_i=1\}$ and $N=\{i:a_i=-1\}$ (0-based positions in the first row
+of the circulant; all other entries are $0$). The same data, together with the four
+known-order family members, is in \texttt{data/certificates.json} and
+\texttt{data/certificates\_PN.txt}.
+
+\input{appendix_data}
+
+\begin{thebibliography}{99}
+\bibitem{AGZ} K.~T. Arasu, D.~M. Gordon, Y.~Zhang, \emph{New nonexistence results on circulant
+weighing matrices}, Cryptogr.\ Commun.\ 13 (2021) 775--789; \href{https://arxiv.org/abs/1908.08447}{arXiv:1908.08447}.
+\bibitem{AS98} K.~T. Arasu, J.~Seberry, \emph{On circulant weighing matrices}, Australas.\ J.\
+Combin.\ 17 (1998) 21--37.
+\bibitem{G26} D.~M. Gordon, \emph{Cyclic relative difference sets and circulant weighing
+matrices}, J.\ Algebr.\ Comb.\ 63 (2026), Article 24; \href{https://arxiv.org/abs/2501.14924}{arXiv:2501.14924}.
+\bibitem{GordonRepo} D.~M. Gordon, \emph{The La Jolla Circulant Weighing Matrix Repository},
+data v1.3, commit 5b3d729 (2026-04-24),
+\url{https://github.com/dmgordo/circulant-weighing-matrices};\\ table at
+\url{https://dmgordon.org/circulant-weighing-matrices/} (site updated 2026-09-03; accessed
+2026-10-08).
+\bibitem{HJ83} T.~H{\o}holdt, J.~Justesen, \emph{Ternary sequences with perfect periodic
+autocorrelation}, IEEE Trans.\ Inform.\ Theory 29 (1983) 597--600.
+\bibitem{Kr04} E.~I. Krengel, \emph{Almost-perfect and odd-perfect ternary sequences}, in:
+Sequences and Their Applications (SETA 2004), LNCS 3486, Springer, 2005, 197--207. (Not
+consulted; only the abstract was seen.)
+\bibitem{LS11} K.~H. Leung, B.~Schmidt, \emph{Finiteness of circulant weighing matrices of fixed
+weight}, J.\ Combin.\ Theory Ser.\ A 118 (2011) 908--919.
+\bibitem{Ma11} K.~H. Leung, S.~L. Ma, \emph{Proper circulant weighing matrices of weight $p^2$}, talk slides,
+Institute for Mathematical Sciences, National University of Singapore (2011),
+\url{https://imsarchives.nus.edu.sg/oldwww/Programs/011code/files/ma.pdf}.
+\bibitem{SS13} B.~Schmidt, K.~W. Smith, \emph{Circulant weighing matrices whose order and weight
+are products of powers of 2 and 3}, J.\ Combin.\ Theory Ser.\ A 120 (2013) 275--287.
+\bibitem{Tan26} M.~M. Tan, \emph{Character and multiplier obstructions for circulant weighing
+matrices}, \href{https://arxiv.org/abs/2608.18468}{arXiv:2608.18468} (2026).
+\end{thebibliography}
+\end{document}

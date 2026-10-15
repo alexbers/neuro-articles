@@ -1,0 +1,72 @@
+\section{Constructions}\label{sec:constructions}
+
+We write the line $\ell_m$ as $a_mx+b_my=c_m$ with integer coefficients. Each polygon is given by the
+cyclic sequence of its vertices, where the vertex ``$p/q$'' is $\ell_p\cap\ell_q$. Consecutive vertices
+share a line, which carries the side between them. All data, including vertex coordinates as exact
+rationals, are in \texttt{data/polyN.json} and \texttt{lean/Main.lean}.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}r>{\raggedright\arraybackslash}p{0.83\textwidth}@{}}
+\toprule
+$n$ & lines $(a_m,b_m,c_m)$, $m=1,\dots,n$\\
+\midrule
+$7$ & $(-6,17,-74)$, $(0,-19,-95)$, $(-19,14,-98)$, $(4,-7,8)$, $(-19,13,-44)$, $(8,11,41)$, $(-6,2,-41)$\\
+$9$ & $(-22,6,-118)$, $(-14,-23,103)$, $(18,-2,91)$, $(11,-6,-43)$, $(-24,1,-136)$, $(27,23,49)$,
+      $(-3,8,-149)$, $(14,-2,-14)$, $(16,21,-33)$\\
+$11$ & $(-39,31,-51)$, $(1,50,7)$, $(-22,45,-264)$, $(12,-49,-212)$, $(-10,-49,-25)$, $(-16,48,31)$,
+       $(48,-14,68)$, $(-19,46,-80)$, $(-50,3,89)$, $(17,47,93)$, $(15,48,37)$\\
+$13$ & $(5,-19,255)$, $(17,11,229)$, $(-4,20,-1118)$, $(14,-14,106)$, $(19,4,126)$, $(3,-20,-505)$,
+       $(-6,19,-402)$, $(10,17,78)$, $(20,-3,-68)$, $(-1,20,240)$, $(18,-8,29)$, $(7,-19,-397)$,
+       $(-20,-3,-59)$\\
+\bottomrule
+\end{tabular}
+\caption{The certified arrangements.}\label{tab:lines}
+\end{table}
+
+\paragraph{$n=7$, an $18$-gon.} The vertex cycle is
+\begin{center}\small
+1/2, 1/6, 6/7, 1/7, 1/3, 3/5, 1/5, 1/4, 4/5, 5/6, 2/6, 2/5, 5/7, 2/7, 2/3, 3/7, 4/7, 2/4.
+\end{center}
+It uses every intersection point except the three points of the triangle of lines $\{3,4,6\}$. Lines
+$3,4,6$ each carry $2$ sides and the other lines carry $3$. The line pairs used form $K_7$ minus a
+triangle, which is the extremal case of Proposition~\ref{prop:forced}(2).
+
+\paragraph{$n=9$, a $33$-gon.} This uses all intersection points except those of the triangle of lines
+$\{1,2,9\}$; the cycle is listed in \cref{app:cycles}.
+
+\paragraph{$n=11$ and $n=13$.} Here the polygon is the alternating $2$-factor $G$ itself, which is a
+single cycle of length $55$, respectively $78$; it is listed in \cref{app:cycles}. Each line carries
+$(n-1)/2$ sides.
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.48\textwidth}\centering\resizebox{\textwidth}{!}{\input{figures/poly7.tex}}\\[2pt]
+\small $18$ sides on $7$ lines\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}\centering\resizebox{\textwidth}{!}{\input{figures/poly11.tex}}\\[2pt]
+\small $55$ sides on $11$ lines\end{minipage}
+\caption{Two of the certified polygons, drawn to scale. The grey lines are the arrangement, clipped
+to a box around the polygon. Several sides are very short, so some corners are not resolved at this
+scale; exact coordinates are in the data files.}\label{fig:polys}
+\end{figure}
+
+\paragraph{How they were found.} For $n=11,13$ we ran a simulated-annealing search over random real
+arrangements, minimising the number of components of $G$. Theorem~\ref{thm:parity} predicts an odd number for
+these $n$, and the search eventually reaches one component. The resulting coefficients were rounded
+to small integers and re-checked with exact rational arithmetic.
+
+For $n=7,9$ we sampled random integer arrangements and, for each triangle $\{a,b,c\}$ of lines, formed
+the graph that pairs consecutive remaining intersection points on every line, leaving out
+$\ell_a\cap\ell_b$, $\ell_b\cap\ell_c$ and $\ell_a\cap\ell_c$. We kept the arrangement when this graph
+was a single cycle bounding a simple polygon.
+
+The search method plays no role in correctness. Every polygon is verified directly, as described in
+\cref{sec:formal}.
+
+\begin{proof}[Proof of Theorem~\ref{thm:constructions}]
+The four polygons are simple and have their sides on the listed lines; this is certified by the
+Lean theorems of \cref{sec:formal}. The lower bounds $M(n)\ge 18,33,55,78$ follow.
+
+For the matching upper bounds: $M(11)\le 55$ and $M(13)\le 78$ hold by the closed-trail bound
+$n\lfloor (n-1)/2\rfloor$. $M(7)\le 18$ and $M(9)\le 33$ hold by Corollary~\ref{cor:main}.
+\end{proof}

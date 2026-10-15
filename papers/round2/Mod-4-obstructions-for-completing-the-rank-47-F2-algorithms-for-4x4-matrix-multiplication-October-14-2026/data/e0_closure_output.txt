@@ -1,0 +1,6 @@
+# e0_closure.py: first-order Z/4 lift test for every F2 rank-48 scheme in the plus/flip closure
+# AT47 (data/at444_f2_r47.txt):
+DONE shard 0/1: components 971 (all), states tested 37848, first-order lifts 0, 878s
+# KM47 (data/at444_47_z2.txt):
+DONE shard 0/1: components 981 (all), states tested 34209, first-order lifts 0, 1866s
+# validation: e0_test(AT47)=False, e0_test(KM47)=False, e0_test(Strassen^2 49 mod 2, data/444_49_zt.txt)=True

@@ -1,0 +1,6 @@
+at444_f2_r47 mode 0: done x in [1,65536): inspected 65535, candidates 0
+at444_f2_r47 mode 1: done x in [1,65536): inspected 65535, candidates 0
+at444_f2_r47 mode 2: done x in [1,65536): inspected 65535, candidates 0
+at444_47_z2 mode 0: done x in [1,65536): inspected 65535, candidates 0
+at444_47_z2 mode 1: done x in [1,65536): inspected 65535, candidates 0
+at444_47_z2 mode 2: done x in [1,65536): inspected 65535, candidates 0

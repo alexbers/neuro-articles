@@ -1,0 +1,374 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\emergencystretch=3em
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\F}{\mathbb F}
+\newcommand{\Z}{\mathbb Z}
+\DeclareMathOperator{\wt}{wt}
+\DeclareMathOperator{\AGL}{AGL}
+\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,breaklines=true,
+  frame=single,framerule=0.3pt,rulecolor=\color{black!30},
+  literate={∧}{{$\wedge$}}1 {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {→}{{$\to$}}2 {≤}{{$\le$}}1
+           {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1 {↦}{{$\mapsto$}}2}
+\title{A balanced 13-variable Boolean function with absolute indicator 112}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={A balanced 13-variable Boolean function with absolute indicator 112},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+We exhibit an explicit balanced Boolean function $f\colon\F_2^{13}\to\F_2$ of algebraic degree $11$
+whose absolute indicator is $\Delta_f=\max_{d\neq 0}\bigl|\sum_{x}(-1)^{f(x)\oplus f(x\oplus d)}\bigr|=112$.
+Since $112<2^{\lfloor (13+1)/2\rfloor}=128$, this is a counterexample to the conjecture of Zhang and
+Zheng (1995) in the case $n=13$; to our knowledge, for odd $n$ the conjecture had previously been
+disproved only for $n\in\{9,11,15,21\}$. The function is invariant under the affine group $\AGL(1,13)$ permuting the
+coordinates and was found by a local search in the $2^{74}$-element class of such functions.
+Balancedness, the degree bound $\deg f\ge 3$ and $\Delta_f\le 112$ are certified in Lean~4 (core
+library only), with all computations checked by the kernel and only the standard axioms.
+\end{abstract}
+\tableofcontents
+
+\section{Introduction}\label{sec:intro}
+
+For a Boolean function $f\colon\F_2^n\to\F_2$ the \emph{autocorrelation} at $d\in\F_2^n$ is
+$r_f(d)=\sum_{x\in\F_2^n}(-1)^{f(x)\oplus f(x\oplus d)}$, and the \emph{absolute indicator} is
+$\Delta_f=\max_{d\neq0}|r_f(d)|$. Together with the sum-of-squares indicator, $\Delta_f$ was introduced by
+Zhang and Zheng~\cite{ZZ95} as a measure of global avalanche characteristics (GAC); a small $\Delta_f$
+means that every nontrivial derivative $x\mapsto f(x)\oplus f(x\oplus d)$ is close to balanced. Bent
+functions have $\Delta_f=0$ but are never balanced, and the problem of how small $\Delta_f$ can be for a
+balanced function has been studied for three decades. The original statement~\cite[Conjecture~1,
+p.~329]{ZZ95} reads: \emph{``Let $f$ be a balanced function on $V_n$, whose algebraic degree is at least
+three. Then $\Delta_f\ge2^{\frac12(n+1)}$.''} In the recent literature (we follow Tang and
+Maitra~\cite[Conjecture~1]{TM16}) the exponent is written with a floor, which gives a meaningful statement
+for even $n$ as well; for odd $n$, in particular for $n=13$, the two forms coincide:
+
+\begin{conjecture}[Zhang--Zheng]\label{conj:ZZ}
+The absolute indicator of any balanced Boolean function $f$ on $n$ variables of algebraic degree at
+least $3$ satisfies $\Delta_f\ge 2^{\lfloor (n+1)/2\rfloor}$.
+\end{conjecture}
+
+\paragraph{Prior counterexamples.} For odd $n$ the conjecture was disproved for $n=15$ by
+modifications of Patterson--Wiedemann functions (Maitra--Sarkar~\cite{MS02}, a balanced function with
+$\Delta_f=216<256$), for $n=21$ by Patterson--Wiedemann-type functions (Gangopadhyay--Keskar--Maitra~\cite{GKM06}; the
+absolute indicator computed there was corrected, and twenty further $21$-variable examples were given, by
+Kavut~\cite{Kav16}, see also~\cite{Tang18}), and for $n=9$ ($\Delta_f=24$) and
+$n=11$ ($\Delta_f=56$) by Kavut, Maitra and Y\"ucel through a steepest-descent-like search among
+rotation-symmetric functions~\cite{KMY06,KMY07}. For even $n$ the conjecture reads $\Delta_f\ge2^{n/2}$
+and was disproved for $n=14$ by Burnett, Millan, Dawson and Clark~\cite{BMDC04}, for $n=10$
+in~\cite{KMY07}, for $n\equiv 2\pmod 4$, $n\ge 46$ by the construction of Tang and Maitra~\cite{TM16}, and
+subsequently for all even $n\ge 12$ by constructions and searches~\cite{KMT19,ZPW21,OKK23}.
+The list ``$n=9,11,15,21$'' for odd $n$ is given as the state of the art in the introduction and in the
+concluding open problems of~\cite{TM16}, in~\cite[Sec.~1]{KMY07}, and in the survey talk~\cite{Tang18}
+(slide ``Some counterexamples on Zhang--Zheng conjecture'', listing $n=9,10,11,14,15,21$), and the same
+odd list $n\in\{9,11,15,21\}$ is repeated in the 2019 survey of known results by Canteaut, K\"olsch and
+Wiemer~\cite[Sec.~5]{CKW19}; the later papers~\cite{KMT19,ZPW21,OKK23} treat even $n$ only. The case
+$n=13$ is the smallest odd case left open. For $n=13$ the conjectured value $128$ is attained, e.g., by the
+construction of Zhang and Zheng themselves on $V_{2k+1}$~\cite[Theorem~17]{ZZ95}, while the balanced
+$13$-variable functions of record nonlinearity $4036$ of Kavut and Y\"ucel have $\Delta_f=536$~\cite[Appendix~B]{KY07};
+we are not aware of any balanced $13$-variable function with $\Delta_f<128$ in the literature.
+
+\paragraph{Result.} We settle the case $n=13$.
+
+\begin{theorem}\label{thm:main}
+Let $f$ be the Boolean function on $13$ variables whose truth table is given in Appendix~\ref{app:hex}
+(equivalently, the union of the $36$ $\AGL(1,13)$-orbits listed in Appendix~\ref{app:orbits}). Then $f$ is
+balanced, $\deg f=11$, and $|r_f(d)|\le 112$ for every $d\neq 0$, with equality for $312$ values of $d$.
+In particular $\Delta_f=112<128=2^{\lfloor(13+1)/2\rfloor}$, so Conjecture~\ref{conj:ZZ} fails for $n=13$.
+\end{theorem}
+
+The parts ``balanced'', ``$\deg f\ge 3$'' and ``$\Delta_f\le 112$'' are certified in Lean
+(\cref{sec:lean}); the exact degree $11$, the equality count and the nonlinearity $3980$ quoted below are
+checked by an independent script only. To our knowledge, as of October 8, 2026, no balanced
+$13$-variable Boolean function with $\Delta_f<128$ had been reported.
+
+\section{Definitions and elementary facts}\label{sec:defs}
+
+We identify $x=(x_0,\dots,x_{12})\in\F_2^{13}$ with the integer $\sum_i x_i2^i\in\{0,\dots,2^{13}-1\}$;
+then $x\oplus d$ is the bitwise exclusive or. A function $f$ is given by the integer
+$\mathrm{tt}=\sum_x f(x)2^x<2^{8192}$ (its truth table). It is \emph{balanced} if $\wt(f)=|\{x:f(x)=1\}|=2^{12}$.
+The algebraic normal form is $f(x)=\bigoplus_{u}a_u\prod_{i:u_i=1}x_i$ with Möbius coefficients
+$a_u=\bigoplus_{x\preceq u}f(x)$, where $x\preceq u$ means $x\wedge u=x$ bitwise, and
+$\deg f=\max\{\wt(u):a_u=1\}$. The Walsh transform is $W_f(a)=\sum_x(-1)^{f(x)\oplus a\cdot x}$, the
+nonlinearity is $2^{n-1}-\tfrac12\max_a|W_f(a)|$.
+
+\begin{lemma}[Wiener--Khinchin]\label{lem:WK}
+$r_f(d)=2^{-n}\sum_{a}W_f(a)^2(-1)^{a\cdot d}$ for all $d$, and
+$\sum_{a}\bigl(W_f(a)^2-2^n\bigr)^2=2^n\sum_{d\neq0}r_f(d)^2$.
+\end{lemma}
+\begin{proof}
+$\sum_a W_f(a)^2(-1)^{a\cdot d}=\sum_{x,y}(-1)^{f(x)\oplus f(y)}\sum_a(-1)^{a\cdot(x\oplus y\oplus d)}
+=2^n\sum_x(-1)^{f(x)\oplus f(x\oplus d)}$. By Parseval for the pair $(r_f,W_f^2)$ this gives
+$\sum_aW_f(a)^4=2^n\sum_d r_f(d)^2$, and with $\sum_aW_f(a)^2=2^{2n}$, $r_f(0)=2^n$ the second identity
+follows by expanding the square.
+\end{proof}
+
+\begin{lemma}\label{lem:mod8}
+If $n\ge3$ and $\wt(f)$ is even (in particular if $f$ is balanced), then $r_f(d)\equiv0\pmod 8$ for all $d$.
+\end{lemma}
+\begin{proof}
+For $d\neq0$ let $S=\{x:f(x)=1\}$. Then $r_f(d)=2^n-2\,\wt(D_df)$ with
+$\wt(D_df)=|S\,\triangle\,(S\oplus d)|=2|S|-2|S\cap(S\oplus d)|$. The set $S\cap(S\oplus d)$ is invariant
+under the fixed-point-free involution $x\mapsto x\oplus d$, so its size is even; hence
+$\wt(D_df)\equiv 2|S|\equiv0\pmod 4$ and $r_f(d)\equiv 2^n\equiv0\pmod 8$.
+\end{proof}
+
+Thus for balanced $f$ on $13$ variables the first admissible value below the conjectured bound $128$ is
+$120$. We remark also that concatenating two $12$-variable bent functions $g_0\Vert g_1$ always gives
+$\Delta\ge128$: here $r(d,1)=2\sum_x(-1)^{g_0(x)\oplus g_1(x\oplus d)}=2W_{\tilde g_0\oplus\tilde g_1}(d)$
+(with $\tilde g_i$ the dual bent functions), and $\max_d|W_h(d)|\ge 2^6$ for every $12$-variable $h$.
+
+\section{Construction and search}\label{sec:search}
+
+\paragraph{Symmetry class.} Let $G=\AGL(1,13)=\{i\mapsto ai+b \bmod 13: a\in\Z_{13}^\times,\ b\in\Z_{13}\}$
+(order $156$) act on $\F_2^{13}$ by permuting coordinates, $(\pi x)_{\pi(i)}=x_i$. It is generated by the
+cyclic shift $i\mapsto i+1$ and the map $i\mapsto 2i$ (as $2$ is a primitive root mod $13$); it contains the
+dihedral group, so $G$-invariant functions are in particular rotation- and dihedral-symmetric. The group
+has $74$ orbits on $\F_2^{13}$ (sizes $1,13,26,39,52,78,156$), so there are $2^{74}$ invariant functions.
+This class appears already in~\cite{KY10}, where Kavut and Y\"ucel used it (as dihedral-symmetric
+functions with the extra permutation $x_i\mapsto x_{2i}$) to search for highly nonlinear $13$-variable
+functions.
+
+\paragraph{Orbit formulas.} Let $O_1,\dots,O_{74}$ be the orbits with representatives $u_j\in O_j$ and put
+$C_{ij}=\sum_{x\in O_i}(-1)^{u_j\cdot x}$. Since permutation matrices are orthogonal,
+$W_f(\pi a)=W_f(a)$ and $r_f(\pi d)=r_f(d)$ for $G$-invariant $f$. Writing $s_i=(-1)^{f(O_i)}$ we get
+\[
+W_f(u_j)=\sum_i C_{ij}s_i,\qquad r_f(u_j)=2^{-13}\sum_i W_f(u_i)^2\,C_{ij}
+\]
+(the second formula is Lemma~\ref{lem:WK} grouped by orbits). Hence the full Walsh spectrum and autocorrelation
+of an invariant function are computed from a $74\times 74$ integer matrix.
+
+\paragraph{Search.} We used the cost function of Kavut and Y\"ucel~\cite{KY03,KMY07},
+$\mathrm{cost}(f)=\sum_a(W_f(a)^2-2^{13})^2=2^{13}\sum_{d\ne0}r_f(d)^2$ (Lemma~\ref{lem:WK}), with
+moves that complement $f$ on one orbit, steepest descent with a tabu list of length $5$, $3000$ steps
+per run and random restarts; after each step $\Delta_f$ and the presence of a zero Walsh coefficient were
+recorded. (A zero Walsh coefficient $W_f(a)=0$ means that $f\oplus a\cdot x$ is balanced with the same
+$\Delta$; the function below is itself balanced.) Each step costs $O(74^2)$ operations, so thousands of
+restarts take seconds. In a run with seed 41 the first function with a Walsh zero and $\Delta\le 120$ appeared after 259
+restarts (it is balanced, with $\Delta=120$ and nonlinearity $3984$); the function of \cref{thm:main}
+(with $\Delta=112$) was found after $1015$ restarts with the seed reported below, in about $40$ seconds.
+Short exploratory runs in the larger classes generated by the shift and $i\mapsto ai$ for $a$ of order
+$2,3,4,6$ ($380$, $232$, $198$, $140$ orbits) did not get below $\Delta=136$; a search for
+$\Delta\le104$ in $\AGL(1,13)$ found further functions with $\Delta=112$ but none with $\Delta\le 104$.
+
+\paragraph{Reproduction.} With the files in \texttt{data/search/}:
+\begin{lstlisting}
+python3 t1.py && python3 export.py agl13          # orbits of AGL(1,13), 74x74 matrix
+gcc -O3 -march=native -o acls4 acls4.c -lm
+./acls4 agl13.bin 13 112 3000 77 100000 5   # class n target steps seed restarts tabu
+\end{lstlisting}
+It prints a line beginning \texttt{r1015 it2098 ZERO Delta=112 maxW=232 s=}, followed by a $74$-bit string
+giving the value of $f$ on the orbits ordered by their least element; this string is stored in
+\texttt{data/search/orbit\_string\_agl13.txt} and is equivalent to Appendix~\ref{app:orbits}.
+
+\paragraph{The certificate.} The truth table is the hexadecimal integer in Appendix~\ref{app:hex}. The file
+\texttt{data/truth\_table.hex} contains its $2048$ lower-case hex digits followed by a newline; its SHA-256
+hash is
+\begin{center}\small
+\texttt{0b4a77a6d9278877e3f206da6bf4c185bbe29ed76f50726e30843e5a97dba0c8}
+\end{center}
+(the same digits are the literal \texttt{tt} in \texttt{lean/Main.lean} and Appendix~\ref{app:hex}).
+Bit $x$ of the integer is $f(x)$. The script \texttt{data/verify.py} recomputes, by the naive $O(4^{13})$ double sum, the
+weight $4096$, all $8191$ values $r_f(d)$, the Walsh spectrum, the algebraic normal form and the
+$G$-invariance. Its output: $\deg f=11$ (and $a_{\{0,1,2\}}=1$), $\max_a|W_f(a)|=232$, i.e.\
+nonlinearity $3980$ (script-checked only), and the distribution of $|r_f(d)|$, $d\neq0$:
+
+\begin{center}\small
+\begin{tabular}{l*{15}{r}}
+\toprule
+$|r_f(d)|$ & 0 & 8 & 16 & 24 & 32 & 40 & 48 & 56 & 64 & 72 & 80 & 88 & 96 & 104 & 112\\
+count & 156 & 416 & 780 & 1392 & 650 & 923 & 416 & 780 & 156 & 585 & 286 & 936 & 247 & 156 & 312\\
+\bottomrule
+\end{tabular}
+\end{center}
+All counts except the one for $24$ are multiples of $13$, as they must be for a function invariant under
+the cyclic shift: the only shift-fixed nonzero vector is the all-ones vector $\mathbf 1$, and
+$r_f(\mathbf 1)=24$. The ANF of $f$ has $4485$ monomials.
+
+\begin{proof}[Proof of \cref{thm:main}]
+The statement concerns one explicit function, so the proof is the finite computation; it was carried
+out independently by the script above and, for balancedness, $\deg f\ge3$ and $\Delta_f\le112$, by the Lean
+kernel as described in \cref{sec:lean}.
+\end{proof}
+
+\section{Formal verification}\label{sec:lean}
+
+The file \texttt{lean/Main.lean} ($374$ lines) is checked by Lean~4.34.1~\cite{Lean4} using only the
+core library (no Mathlib). There is no \texttt{sorry}, no \texttt{axiom} and no \texttt{native\_decide};
+all evaluations use \texttt{decide +kernel}.
+
+\subsection{Statement}
+The definitions used by the statement are, verbatim (\texttt{tt} is the $2048$-digit hexadecimal literal of
+Appendix~\ref{app:hex}, abbreviated here):
+\begin{lstlisting}
+def tt : Nat := 0xffeafdcdeba3a0e7...4f1713477dfe4eb75bfea7de3e68
+def f (x : Nat) : Bool := tt.testBit x
+def sgn (b : Bool) : Int := if b then -1 else 1
+def autocorr (d : Nat) : Int := ((List.range (2^13)).map (fun x => sgn (f x ^^ f (x ^^^ d)))).sum
+def weight : Nat := ((List.range (2^13)).filter f).length
+def anfCoeff (u : Nat) : Bool :=
+  ((List.range (2^13)).filter (fun x => x &&& u == x)).foldl (fun b x => b ^^ f x) false
+def monoDeg (u : Nat) : Nat := ((List.range 13).filter (fun i => u.testBit i)).length
+
+def MainStatement : Prop :=
+  weight = 2^12 ∧
+  (∃ u, u < 2^13 ∧ 3 ≤ monoDeg u ∧ anfCoeff u = true) ∧
+  (∀ d, 0 < d → d < 2^13 → (autocorr d).natAbs ≤ 112)
+\end{lstlisting}
+The certified theorems are
+\begin{lstlisting}
+theorem main :
+    weight = 2^12 ∧
+    (∃ u, u < 2^13 ∧ 3 ≤ monoDeg u ∧ anfCoeff u = true) ∧
+    (∀ d, 0 < d → d < 2^13 → (autocorr d).natAbs ≤ 112)
+theorem main_statement : MainStatement := main
+theorem zhang_zheng_fails_n13 :
+    ∃ g : Nat → Bool,
+      ((List.range (2^13)).filter g).length = 2^12 ∧
+      (∃ u, u < 2^13 ∧ 3 ≤ monoDeg u ∧
+        ((List.range (2^13)).filter (fun x => x &&& u == x)).foldl (fun b x => b ^^ g x) false = true) ∧
+      (∀ d, 0 < d → d < 2^13 →
+        (((List.range (2^13)).map (fun x => sgn (g x ^^ g (x ^^^ d)))).sum).natAbs < 2^((13+1)/2))
+\end{lstlisting}
+\texttt{MainStatement} is placed in the file immediately after the definitions; the identity
+\texttt{main\_statement} guarantees that it is literally the statement proved at the end.
+
+\subsection{Statement audit}
+\begin{itemize}
+\item \emph{Encoding.} Inputs are naturals $x<2^{13}$ whose bit $i$ is $x_i$; \texttt{x \textasciicircum{}\textasciicircum{}\textasciicircum{} d} is
+bitwise xor, i.e.\ translation by $d$ in $\F_2^{13}$; \texttt{List.range (2\textasciicircum{}13)} enumerates $\F_2^{13}$
+exactly once. Only bits $x<2^{13}$ of \texttt{tt} are ever read (and $\mathrm{tt}<2^{8192}$ anyway).
+\item \emph{Autocorrelation.} \texttt{autocorr d} is literally $\sum_{x}(-1)^{f(x)\oplus f(x\oplus d)}$
+(\texttt{sgn true = -1}); the quantifier ranges over all $d$ with $0<d<2^{13}$, i.e.\ all nonzero shifts,
+and \texttt{natAbs} is the absolute value. In \texttt{zhang\_zheng\_fails\_n13} the inequality is strict and
+\texttt{(13+1)/2} is natural-number division, equal to $7=\lfloor 14/2\rfloor$.
+\item \emph{Balanced.} \texttt{weight = 2\textasciicircum{}12} says exactly half of the $8192$ inputs are mapped to $1$.
+\item \emph{Degree.} \texttt{anfCoeff u} is the Möbius coefficient $a_u=\bigoplus_{x\preceq u}f(x)$ (with
+$x\preceq u\iff x\wedge u=x$), the coefficient of $\prod_{i\in u}x_i$ in the ANF, and \texttt{monoDeg u}
+is the number of variables of that monomial; so the second conjunct is exactly $\deg f\ge3$
+(the witness is $u=7$, the monomial $x_0x_1x_2$).
+\item The auxiliary functions below never occur in the statements.
+\end{itemize}
+
+\subsection{From the naive definitions to a kernel-feasible computation}
+A literal evaluation of \texttt{autocorr} for all $d$ needs $2^{26}$ list steps, far beyond what the kernel
+can do (a test with $2^{18}$ steps already exhausted 8\,GB). The proof therefore evaluates a fast version
+built from \texttt{Nat} bitwise operations, which the Lean kernel executes with GMP, and proves it equal to
+the naive definitions by general lemmas:
+\begin{enumerate}
+\item \texttt{sum\_sgn}: for any list $L$ and predicate $p$, \texttt{(L.map (fun x => sgn (p x))).sum =
+L.length - 2 * (L.filter p).length}. Hence \texttt{autocorr d} $=8192-2N_d$ with
+$N_d=|\{x:f(x)\ne f(x\oplus d)\}|$.
+\item \emph{Translation by block swaps.} With masks
+\texttt{M i} (ones exactly at positions $x<2^{13}$ whose bit $i$ is $0$) and
+\texttt{swapBlk i U := ((U >{}>{}> 2\textasciicircum{}i) \&\&\& M i) ||| ((U \&\&\& M i) <{}<{}< 2\textasciicircum{}i)}, lemma
+\texttt{swapBlk\_testBit} proves \texttt{(swapBlk i U).testBit x = U.testBit (x \textasciicircum{}\textasciicircum{}\textasciicircum{} 2\textasciicircum{}i)} for all
+$U$, $i<13$, $x<2^{13}$. Its proof is a case analysis on bit $i$ of $x$ using the core lemmas on
+\texttt{testBit} of \texttt{\&\&\&}, \texttt{|||}, \texttt{>{}>{}>}, \texttt{<{}<{}<}, together with $13\cdot 8192$
+elementary facts about the masks and about $x\oplus 2^i$ (\texttt{factOK}), checked by \texttt{decide +kernel}
+in $13$ separate theorems. Composing the swaps for the bits of $d$ gives \texttt{perm d T} with
+\texttt{perm\_testBit : (perm d T).testBit x = T.testBit (x \textasciicircum{}\textasciicircum{}\textasciicircum{} d)} for $d,x<2^{13}$ (induction over
+the bits, plus a kernel check that the accumulated xor mask equals $d$ for all $d<2^{13}$).
+\item \emph{Population count modulo $2^{14}-1$.} Let $D_q=\sum_{j<q}2^{14j}$ and
+$Y(V,q)=\sum_{t=0}^{13}\bigl((V\gg t)\wedge D_q\bigr)$. Lemma \texttt{and\_D\_succ}
+($A\wedge(2^{14}E+1)=2^{14}((A\gg 14)\wedge E)+(A\bmod 2)$) gives \texttt{Y\_succ}:
+$Y(V,q+1)=2^{14}Y(V\gg14,q)+\#\{t<14: V_t=1\}$, and since $2^{14}\equiv1\pmod{2^{14}-1}$, induction gives
+\texttt{Y\_mod}: $Y(V,q)\equiv \#\{x<14q:V_x=1\}\pmod{16383}$. With $q=586$ ($14q=8204$) and the low
+$8192$ bits masked, \texttt{popc\_eq : popc V = cntBits V 8192} where
+\texttt{popc V := Y (V \&\&\& (2\textasciicircum{}8192-1)) 586 \% 16383} and \texttt{cntBits V m} is the naive count of set
+bits below $m$.
+\item \texttt{autocorr\_eq}: for $d<2^{13}$, \texttt{autocorr d = 8192 - 2 * popc (tt \textasciicircum{}\textasciicircum{}\textasciicircum{} perm d tt)},
+from 1--3.
+\item \texttt{chk0},\dots,\texttt{chk7}: the kernel verifies $4040\le$ \texttt{popc (tt \textasciicircum{}\textasciicircum{}\textasciicircum{} perm d tt)}
+$\le4152$ for all $0<d<2^{13}$, in eight chunks of $1024$ shifts; each shift costs roughly a hundred
+operations on $8192$-bit integers. Together with 4 this is $|r_f(d)|\le 112$.
+\item \texttt{weight\_eq}: \texttt{weight = popc tt = 4096}; and \texttt{anfCoeff 7 = true},
+\texttt{monoDeg 7 = 3}, both by \texttt{decide +kernel}.
+\end{enumerate}
+
+\subsection{Axioms and resources}
+The output of \texttt{lean Main.lean}, run in \texttt{lean/} with Lean~4.34.1 through a small timing
+wrapper (\texttt{leanchk}, which appends the last line below; the wrapper itself is not distributed) and
+recorded in \texttt{lean/lean\_output.txt}, is
+\begin{lstlisting}
+'A12.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A12.main_statement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A12.zhang_zheng_fails_n13' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanchk: wall=124.31s maxrss=2369432kB exit=0
+\end{lstlisting}
+i.e.\ only the three standard axioms; in particular no \texttt{Lean.ofReduceBool}. The option
+\texttt{Elab.async false} is set so that the kernel checks run sequentially within the memory limit.
+An independent re-run of \texttt{lean Main.lean} with a freshly installed Lean~4.34.1 core toolchain
+(review of October 8, 2026) reproduced the three axiom lines exactly, with exit code $0$, wall time
+$124.1$\,s and maximum resident set size $2.36$\,GB; the same review also reproduced the two search runs
+of \cref{sec:search} (seeds $77$ and $41$) bit for bit.
+
+\section{Limitations and open questions}\label{sec:limits}
+\begin{itemize}
+\item Novelty rests on a literature search (IACR ePrint, arXiv including 2025--2026 papers on odd-$n$
+Boolean functions, journal pages and survey slides); every source we could check that lists the known
+counterexamples~\cite{TM16,Tang18,CKW19} gives $n\in\{9,11,15,21\}$ for odd $n$, and to our knowledge, as
+of October 8, 2026, the case $n=13$ had not been settled. The conjecture is quoted from the original
+paper~\cite{ZZ95} in \cref{sec:intro}; the floor in the exponent of \cref{conj:ZZ} follows~\cite{TM16}.
+\item Only $n=13$ is settled. For odd $n$ the cases $n=17,19$ appear to remain open; our method extends
+in principle (the class $\AGL(1,p)$ for prime $p$) but kernel verification of $n=17$ would be about
+$2^8$ times more expensive.
+\item The minimum of $\Delta_f$ over balanced $13$-variable functions is unknown; we found $112$ but not
+$104$ in $\AGL(1,13)$. The nonlinearity $3980$ of our function is below the bent concatenation bound
+$4032$; whether $\Delta_f<128$ is compatible with nonlinearity $>4032$ for $n=13$ is open.
+\item Degree $11$, nonlinearity $3980$, the $|r_f|$ distribution and the $\AGL(1,13)$-invariance are
+script-checked only.
+\end{itemize}
+
+\begin{remark}[Negative results on balanced nonlinearity]
+Before turning to the absolute indicator we looked for balanced functions beating the best known
+balanced nonlinearities $992$ ($n=11$) and $4036$ ($n=13$)~\cite{KY07,Mai07,CDJMP22}, starting from
+$h(y)\oplus f(x)$ with $f$ one of the published $9$-variable functions of nonlinearity $242$~\cite{KY10}.
+An exhaustive search found that toggling $4$ bits of any of $69$ such $11$-variable bases never gives a
+balanced function of nonlinearity $\ge994$, and tabu search over $8$-bit toggles of the $13$-variable
+bases (the route to $4036$ in~\cite{KY07}) never approached $4038$. These computations are not certified
+and are recorded only as negative evidence.
+\end{remark}
+
+\appendix
+\section{Truth table}\label{app:hex}
+$f(x)$ is bit $x$ (weight $2^x$) of the following $8192$-bit integer, written in hexadecimal with the most
+significant digit first, $64$ digits per line (the same digits as \texttt{data/truth\_table.hex} and the
+literal \texttt{tt} in \texttt{lean/Main.lean}):
+{\small
+\input{hexlines}
+}
+
+\section{Orbit description}\label{app:orbits}
+Equivalently, $f(x)=1$ if and only if the $\AGL(1,13)$-orbit of $x$ has least element (as an integer) in
+\begin{center}\small
+\begin{tabular}{p{0.9\textwidth}}
+3, 11, 19, 23, 31, 39, 43, 55, 107, 127, 151, 183, 187, 191, 215, 223, 255, 303, 311, 367, 375, 383,
+431, 443, 447, 471, 763, 767, 831, 895, 951, 1023, 1791, 2047, 4095, 8191.
+\end{tabular}
+\end{center}
+These $36$ orbits have sizes (in the same order) $78$, $156$, $52$, $156$, $78$, $156$, $156$, $156$, $39$, $78$,
+$156$, $156$, $156$, $156$, $156$, $156$, $78$, $156$, $52$, $156$, $156$, $156$, $156$, $26$, $156$, $78$, $156$, $156$,
+$156$, $156$, $39$, $78$, $52$, $78$, $13$, $1$, summing to $4096$.
+
+{\small
+\bibliographystyle{plain}
+\bibliography{references}
+}
+\end{document}

@@ -1,0 +1,2 @@
+n=9: commutation classes=112018190; predicted #A parity=0; words with wrong #A parity=0; cycles with even #A=0
+components distribution: 2:6360134 4:35038062 6:39168090 8:23868000 10:7583904

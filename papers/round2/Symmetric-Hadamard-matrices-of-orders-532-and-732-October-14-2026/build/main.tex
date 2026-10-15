@@ -1,0 +1,280 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,array}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\PAF}{\mathrm{PAF}}
+\newcommand{\PSD}{\mathrm{PSD}}
+\title{Symmetric Hadamard matrices of orders 532 and 732}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 14, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={Symmetric Hadamard matrices of orders 532 and 732},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+We construct symmetric Hadamard matrices of orders $532=4\cdot133$ and $732=4\cdot183$. To our
+knowledge these are the first symmetric Hadamard matrices of these orders: $v=133$ and $v=183$ appear
+in the most recent published list of odd $v<200$ for which no symmetric Hadamard matrix of order $4v$
+was known. Both come from the propus construction applied to cyclic difference families whose blocks
+are unions of orbits of a multiplier subgroup: parameters $(133;61,64,64,57;113)$ with the subgroup
+$\langle26\rangle$ of order $6$ in $\Z_{133}^{*}$, and $(183;81,91,91,83;163)$ with the subgroup
+$\langle34\rangle$ of order $5$ in $\Z_{183}^{*}$. The second family was found with a
+compression-guided exhaustive search exploiting $183=3\cdot61$. Both existence statements are
+formally verified in Lean~4 with Mathlib: we prove the propus construction in general and check the
+required autocorrelation identities by kernel evaluation. We also report (computational, not formally
+verified) negative evidence for the smallest open order $260=4\cdot65$: no cyclic propus difference
+family in $\Z_{65}$ admits a nontrivial multiplier.
+\end{abstract}
+
+\section{Introduction}
+A Hadamard matrix of order $n$ is an $n\times n$ matrix $H$ with entries $\pm1$ and $HH^{\mathsf T}=nI_n$.
+It is \emph{symmetric} if $H=H^{\mathsf T}$. Symmetric Hadamard matrices of order $4v$ are conjectured
+to exist for every $v\ge1$; as a symmetric Hadamard matrix of order $n$ yields one of order $2n$, the
+essential case is $v$ odd. For many years the main source of new orders has been the
+\emph{propus construction} of Seberry and Balonin~\cite{SB17}, in the cyclic form developed by
+Balonin, \DJ{}okovi\'c and collaborators~\cite{BDK18,BD18,ABDK19,Dj22,Dj24}: a Goethals--Seidel difference
+family $(X_1,X_2,X_3,X_4)$ in $\Z_v$ with $X_2=X_3$ and $X_1$ symmetric gives a symmetric Hadamard
+matrix of order $4v$.
+
+The Handbook of Combinatorial Designs (Craigen--Kharaghani, 2007, Table~1.52) lists the odd $v<200$
+for which no symmetric Hadamard matrix of order $4v$ was known. Using the propus construction, many of
+these cases were settled ($v=23,29,39,43,47,59,67,73,103,109,113,127,151,191$, see
+\cite{DKK15,BDK18,BD18,ABDK19,Dj22}); \DJ{}okovi\'c~\cite[\S3]{Dj22} records that the list of undecided cases
+reduces to
+\[ v = 65,\ 89,\ 93,\ 101,\ 107,\ 119,\ 133,\ 149,\ 153,\ 163,\ 167,\ 179,\ 183,\ 189,\ 193. \]
+The unresolved list of Seberry and Balonin~\cite[\S4]{SB17} also contains $133$ and $183$.
+Subsequently $v=93$ was settled in~\cite{Dj24} and $v=189$ follows from the orders $q(q+1)$,
+$q\equiv 3\pmod 8$ a prime power ($q=27$), of~\cite{Dj25}. We found no later work treating $v=133$ or $v=183$
+(we checked the arXiv listing of \DJ{}okovi\'c's papers up to October 13, 2026, the propus catalogue of
+Balonin, a scan of recent arXiv papers with ``Hadamard'' in the title, and web searches); the classical
+constructions do not apply: $531=3^2\cdot 59$, $265=5\cdot53$, $731=17\cdot43$ and $365=5\cdot73$ are not
+prime powers, neither $532$ nor $732$ is of the form $q(q+1)$, and $532=4\cdot7\cdot19$, $732=4\cdot3\cdot61$
+admit no Kronecker factorisation into orders of symmetric Hadamard matrices.
+
+\begin{theorem}\label{thm:main}
+There exist symmetric Hadamard matrices of orders $532$ and $732$.
+\end{theorem}
+
+The difference families behind Theorem~\ref{thm:main} are given in Sections~\ref{sec:constr}
+and~\ref{sec:183}; they were found by exhaustive meet-in-the-middle searches over unions of multiplier
+orbits. Section~\ref{sec:lean}
+describes the Lean formalisation. In Section~\ref{sec:65} we report what our searches say about the
+smallest open order $260$.
+
+\section{The propus construction}
+For $x,y:\Z_v\to\Z$ put $C_{x,y}(t)=\sum_{u\in\Z_v}x(u)\,y(u+t)$; the periodic autocorrelation of $x$
+is $\PAF_x(t)=C_{x,x}(t)$. For $X\subseteq\Z_v$ let $\chi_X$ be the $\pm1$ sequence equal to $-1$ on $X$
+and $+1$ off $X$. Subsets $X_1,\dots,X_4$ of sizes $k_i$ form a \emph{Goethals--Seidel difference family}
+if $\sum_i\PAF_{\chi_{X_i}}(t)=0$ for all $t\ne0$; equivalently they form a difference family with
+$\lambda=\sum k_i-v$.
+
+\begin{proposition}[propus construction~\cite{SB17,BDK18}]\label{prop:propus}
+Let $a,b,d:\Z_v\to\{\pm1\}$ satisfy $\PAF_a(t)+2\PAF_b(t)+\PAF_d(t)=0$ for all $t\ne0$. Let $A,B,D$ be
+the circulant matrices $A_{ik}=a(k-i)$ etc., and $R_{ik}=[i+k=0]$. Then
+\[ P=\begin{pmatrix} -A & BR & BR & DR\\ BR & RD & A & -RB\\ BR & A & -RD & RB\\ DR & -RB & RB & A\end{pmatrix} \]
+satisfies $PP^{\mathsf T}=4vI$. If moreover $a(-u)=a(u)$ for all $u$, then $P=P^{\mathsf T}$.
+\end{proposition}
+\begin{proof}
+Index rows and columns by $\{0,1,2,3\}\times\Z_v$. The $(i,k)$ entries of $A$, $AR$, $RA$ are $a(k-i)$,
+$a(-i-k)$, $a(i+k)$. Each block of $PP^{\mathsf T}$ is a sum of four terms $\sum_k x(\cdot)y(\cdot)$, and the
+substitutions $u=k-i$, $u=-i-k$, $u=i+k$ turn each into $\pm C_{x,y}(\pm i\pm j)$ or $\pm K_{x,y}(\pm i\pm j)$
+with $K_{x,y}(t)=\sum_u x(u)y(t-u)$. The diagonal blocks equal $C_{a,a}(s)+2C_{b,b}(s)+C_{d,d}(s)$ with
+$s=\pm(i-j)$ (using $C_{x,x}(-s)=C_{x,x}(s)$), which is $4v[i=j]$ by hypothesis and $C_{x,x}(0)=v$.
+In each off-diagonal block the terms cancel in pairs by $K_{x,y}=K_{y,x}$ and
+$C_{x,y}(t)=C_{y,x}(-t)$. Symmetry: $AR$, $RA$ are symmetric for every circulant, the blocks in
+positions $(1,2),(1,3),(2,1),(3,1)$ all equal $BR$, and $A$ (in positions $(1,1),(2,3),(3,2),(4,4)$) is
+symmetric iff $a$ is. All of this is formalised in Lean (Section~\ref{sec:lean}).
+\end{proof}
+
+\section{The construction for $v=133$}\label{sec:constr}
+Let $H_6=\langle 26\rangle=\{1,11,20,26,87,121\}\le\Z_{133}^{*}$; note $26\equiv5\pmod 7$ has order $6$
+and $26\equiv7\pmod{19}$ has order $3$, and $-1\notin H_6$. The $H_6$-orbits on $\Z_{133}$ are $\{0\}$,
+six orbits of size $3$ (on $7\Z_{133}\setminus\{0\}$), one orbit of size $6$ (on $19\Z_{133}\setminus\{0\}$) and
+$18$ further orbits of size $6$. For $S\subseteq\Z_{133}$ write $H_6S=\bigcup_{s\in S}H_6s$. Put
+\begin{align*}
+X_1&=H_6\{0,1,2,3,4,5,12,19,24,28,29,70\}, & |X_1|&=61,\\
+X_2=X_3&=H_6\{0,2,4,5,14,16,28,29,30,35,45,56,59,70\}, & |X_2|&=64,\\
+X_4&=H_6\{1,2,6,12,16,19,29,35,56,59,70\}, & |X_4|&=57.
+\end{align*}
+Explicitly,
+{\small
+\begin{align*}
+X_1=\{&0, 1, 2, 3, 4, 5, 11, 12, 19, 20, 22, 24, 26, 28, 29, 33, 36, 38, 40, 41, 42, 44,\\&\quad 46, 48, 51, 52, 53, 55, 57, 60, 63, 70, 73, 76, 78, 80, 81, 82, 85, 87, 89, 91, 92, 93,\\&\quad 95, 97, 100, 104, 105, 107, 109, 111, 113, 114, 121, 122, 128, 129, 130, 131, 132\},\\
+X_2=\{&0, 2, 4, 5, 14, 16, 17, 21, 22, 28, 29, 30, 35, 36, 39, 40, 41, 42, 43, 44, 45, 48,\\&\quad 51, 52, 53, 54, 55, 56, 58, 59, 62, 63, 64, 68, 70, 71, 73, 74, 79, 80, 82, 83, 84, 85,\\&\quad 89, 90, 91, 96, 98, 100, 102, 104, 105, 106, 109, 112, 115, 116, 117, 119, 125, 126, 129, 130\},\\
+X_4=\{&1, 2, 6, 11, 12, 16, 17, 19, 20, 22, 23, 26, 29, 35, 38, 40, 41, 43, 46, 48, 51, 52,\\&\quad 53, 54, 56, 57, 59, 61, 62, 66, 70, 71, 74, 76, 79, 84, 87, 89, 90, 91, 95, 105, 107, 109,\\&\quad 112, 113, 114, 116, 117, 119, 120, 121, 122, 123, 126, 129, 132\}.
+\end{align*}}
+$X_1$ is symmetric ($X_1=-X_1$). With $a=\chi_{X_1}$, $b=\chi_{X_2}$, $d=\chi_{X_4}$ one checks
+\begin{equation}\label{eq:paf}
+\PAF_a(t)+2\PAF_b(t)+\PAF_d(t)=0\qquad(t=1,\dots,132),
+\end{equation}
+so $(X_1,X_2,X_2,X_4)$ is a cyclic difference family with parameters $(133;61,64,64,57;113)$
+($61+2\cdot64+57-133=113$, and $61\cdot60+2\cdot64\cdot63+57\cdot56=113\cdot132$). By
+Proposition~\ref{prop:propus} the propus matrix is a symmetric Hadamard matrix of order $532$; this
+proves Theorem~\ref{thm:main}. Because all blocks are $H_6$-invariant, \eqref{eq:paf} needs to be
+checked only on the $13$ orbits of $\langle H_6,-1\rangle$ on $\Z_{133}\setminus\{0\}$, but our
+verifications check all $132$ shifts.
+
+\paragraph{How the family was found.}
+For a subgroup $H\le\Z_v^{*}$ we search for propus families whose blocks $X_2,X_4$ are unions of
+$H$-orbits and $X_1$ is a union of $\langle H,-1\rangle$-orbits (the standard multiplier ansatz of
+\DJ{}okovi\'c et al.). Our program enumerates all candidates for $X_4$ of the prescribed size whose power
+spectral density satisfies $\PSD\le4v$ at every frequency, stores them in a hash table keyed by the
+vector of autocorrelations on the $\langle H,-1\rangle$-classes of shifts, enumerates candidates for
+$X_1$ ($\PSD\le4v$) and $X_2$ ($\PSD\le2v$), and looks up $-(\PAF_a+2\PAF_b)$ for every pair with
+$\PSD_a+2\PSD_b\le4v$. For $H=\langle26\rangle$ the $26$-orbit space is exhausted for all $20$ propus
+parameter sets of $v=133$ in about a minute; only $(133;61,64,64,57;113)$ admits solutions, namely
+$72$ families, which fall into $4$ orbits of size $18$ under the multiplier group $\Z_{133}^{*}$ (all
+listed in the data file). As a check, the same program re-finds structured families of the kind
+reported in~\cite{Dj22}, e.g.\ for $v=57$, $H=\langle7\rangle$ and parameters $(57;27,26,26,22;44)$ it
+finds $864$ (ordered) families, and it reproduces independently computed counts for small test cases
+($v=35,45,73$).
+
+\section{The construction for $v=183$}\label{sec:183}
+Let $H_5=\langle34\rangle=\{1,34,58,70,142\}\le\Z_{183}^{*}$; here $34\equiv1\pmod3$ and $34$ has order $5$
+modulo $61$, so $H_5$ acts only on the $\Z_{61}$-coordinate of $\Z_{183}\cong\Z_3\times\Z_{61}$. Its orbits
+are the three fixed points $0,61,122$ and $36$ orbits of size $5$. Put
+\begin{align*}
+X_1&=H_5\{0,4,6,7,15,17,18,23,24,28,39,46,47,56,59,69,91\}, & |X_1|&=81,\\
+X_2=X_3&=H_5\{0,4,6,7,8,9,10,13,14,15,17,20,23,36,39,43,46,47,59\}, & |X_2|&=91,\\
+X_4&=H_5\{0,1,2,3,4,5,6,9,10,15,23,25,46,47,52,59,61,78,122\}, & |X_4|&=83.
+\end{align*}
+Explicitly,
+{\small
+\begin{align*}
+X_1=\{&0, 4, 6, 7, 15, 17, 18, 19, 21, 23, 24, 28, 29, 33, 35, 37, 39, 40, 45, 46, 47, 48,\\&\quad 49, 50, 53, 54, 55, 56, 59, 63, 66, 69, 71, 72, 74, 77, 79, 83, 84, 86, 91, 92, 97, 99,\\&\quad 100, 104, 106, 109, 111, 112, 114, 117, 120, 124, 127, 128, 129, 130, 133, 134, 135, 136, 137, 138, 143, 144,\\&\quad 146, 148, 150, 154, 155, 159, 160, 162, 164, 165, 166, 168, 176, 177, 179\},\\
+X_2=\{&0, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 29, 31, 35, 36,\\&\quad 38, 39, 40, 43, 45, 46, 47, 48, 49, 50, 53, 54, 55, 59, 62, 65, 66, 67, 71, 75, 76, 79,\\&\quad 80, 81, 82, 86, 89, 92, 95, 97, 98, 100, 104, 106, 109, 110, 115, 117, 119, 120, 123, 124, 126, 127,\\&\quad 128, 131, 134, 135, 136, 138, 139, 141, 143, 144, 146, 151, 155, 156, 157, 158, 164, 165, 168, 171, 176, 178,\\&\quad 179, 180, 181\},\\
+X_4=\{&0, 1, 2, 3, 4, 5, 6, 9, 10, 15, 19, 21, 23, 25, 27, 31, 34, 46, 47, 49, 50, 52,\\&\quad 53, 54, 58, 59, 60, 61, 64, 68, 70, 73, 78, 81, 86, 88, 90, 96, 97, 100, 101, 102, 103, 104,\\&\quad 106, 107, 109, 116, 117, 118, 120, 121, 122, 123, 127, 128, 132, 134, 135, 136, 138, 139, 140, 142, 143, 144,\\&\quad 146, 151, 153, 155, 156, 157, 161, 163, 164, 165, 167, 169, 170, 174, 176, 179, 180\}.
+\end{align*}}
+Again $X_1=-X_1$, and with $a=\chi_{X_1}$, $b=\chi_{X_2}$, $d=\chi_{X_4}$ we have
+$\PAF_a(t)+2\PAF_b(t)+\PAF_d(t)=0$ for $t=1,\dots,182$; the parameters are $(183;81,91,91,83;163)$
+($81+182+83-183=163$, $81\cdot80+2\cdot91\cdot90+83\cdot82=163\cdot182$). Proposition~\ref{prop:propus}
+gives a symmetric Hadamard matrix of order $732$.
+
+\paragraph{How the family was found.} The $H_5$-invariant space has $39$ orbits per block, too many
+for the plain search of Section~\ref{sec:constr}. We write a block as an assignment of a
+\emph{column pattern} $P_O\in\{0,1\}^{3}$ to each $H_5$-orbit $O$ of $\Z_{61}$ (the entries $(x,y)$,
+$y\in O$, are $-1$ iff the $x$-th bit of $P_O$ is set). The $61$-compression $c_y=\sum_x\chi_X(x,y)$ of a
+propus family must itself satisfy the compressed autocorrelation identity on $\Z_{61}$ with total energy
+$4v=732$; we first enumerate all compressed triples by meet-in-the-middle ($4^{13}$ candidates per
+block), and then uncompress only compatible ones ($3^{\#\{O:|c_O|=1\}}$ choices each), computing the
+power spectral density incrementally per column pattern and matching the full autocorrelation vectors
+through a sorted table. For the parameter set $(183;81,91,91,83;163)$ the search finds exactly $432$
+$H_5$-invariant propus families (about $13$ minutes on one core, $6$\,GB), forming $18$ orbits of size
+$24$ under the multiplier group $\Z_{183}^{*}$; all $432$ were verified independently. All other
+eleven propus parameter sets of $v=183$ were exhausted without $H_5$-invariant solutions. The program reproduces the counts $864$ and $216$ of the plain search for
+$v=57$, $H=\langle7\rangle$.
+
+\section{Formal verification}\label{sec:lean}
+The file \texttt{lean/Main.lean} (Lean 4.35.0, Mathlib) contains three parts; below, Unicode symbols are rendered in ASCII
+(\texttt{forall}, \texttt{->}, \texttt{\textbackslash/}, \texttt{Int}; a \texttt{*} between a scalar and \texttt{1} stands for scalar multiplication \texttt{\textbullet}).
+
+\emph{Part 1 (general).} Definitions \texttt{C} (periodic cross-correlation), \texttt{K} (periodic
+convolution) and \texttt{propus a b d : Matrix (Fin 4 $\times$ ZMod v) (Fin 4 $\times$ ZMod v) $\mathbb Z$}, and the theorems
+\begin{verbatim}
+theorem propus_mul_transpose (a b d : ZMod v -> Int)
+    (ha1 : forall u, a u = 1 \/ a u = -1) (hb1 : forall u, b u = 1 \/ b u = -1)
+    (hd1 : forall u, d u = 1 \/ d u = -1)
+    (hpaf : forall t : ZMod v, t != 0 -> C a a t + 2 * C b b t + C d d t = 0) :
+    propus a b d * (propus a b d).transpose = (4 * (v : Int)) * 1
+theorem propus_transpose (a b d : ZMod v -> Int) (ha : forall u, a (-u) = a u) :
+    (propus a b d).transpose = propus a b d
+\end{verbatim}
+proved by reindexing finite sums (sixteen block identities).
+
+\emph{Parts 2 and 3 (the instances).} For $v=133$ and $v=183$ the three blocks are encoded as
+natural-number bitmasks; the identity \eqref{eq:paf} (for $v=133$ as \texttt{$\forall$ t : ZMod 133, t $\ne$ 0 $\to$ C sA sA t + 2 * C sB sB t + C sD sD t = 0}) and the
+symmetry of $X_1$ are proved by \texttt{decide +kernel}, i.e.\ by evaluation in the Lean kernel
+(no \texttt{native\_decide}); likewise for $v=183$. The main statements are
+\begin{verbatim}
+theorem Sym532.symmetric_hadamard_532 :
+    exists H : Matrix (Fin 532) (Fin 532) Int,
+      (forall i j, H i j = 1 \/ H i j = -1) /\ H.transpose = H /\
+      H * H.transpose = (532 : Int) * (1 : Matrix (Fin 532) (Fin 532) Int)
+\end{verbatim}
+and the identical statement \texttt{Sym732.symmetric\_hadamard\_732} with $532$ replaced by $732$;
+the witnesses are the propus matrices reindexed along \texttt{finProdFinEquiv : Fin 4 $\times$ Fin 133 $\simeq$ Fin 532}
+(resp.\ \texttt{Fin 4 $\times$ Fin 183 $\simeq$ Fin 732}).
+\emph{Statement audit:} the three conjuncts say exactly that $H$ is a $\pm1$ matrix, symmetric, and
+Hadamard of order $532$ (resp.\ $732$). \texttt{\#print axioms} reports only \texttt{propext}, \texttt{Classical.choice}
+and \texttt{Quot.sound} (see \texttt{lean/lean\_output.txt}). Independently, a Python/NumPy script
+builds all $72$ matrices of order $532$ and all $432$ matrices of order $732$, and checks
+$H=H^{\mathsf T}$ and $HH^{\mathsf T}=4vI$ in exact integer arithmetic.
+
+\section{The smallest open order 260}\label{sec:65}
+The smallest order for which no symmetric Hadamard matrix is known is $260=4\cdot65$
+\cite{ABDK19,Dj24}. For $v=65$ the propus parameter sets are exactly
+$(65;27,31,31,27;51)$, $(65;31,27,27,31;51)$, $(65;28,29,29,28;49)$ and $(65;29,28,28,29;49)$.
+We call $h\in\Z_{65}^{*}$ a \emph{multiplier} of a propus family if $hX_i=X_i+c_i$ for all blocks.
+Every nontrivial subgroup of $\Z_{65}^{*}\cong\Z_4\times\Z_{12}$ contains $16$ (generating the unique
+subgroup of order $3$) or one of the involutions $14,51,64$, and for each of these $h$ one checks that
+invariance up to translation can be turned into exact invariance by translating $X_2,X_4$ (the
+symmetric block $X_1$ is then automatically exactly invariant). We searched exhaustively, for all four
+parameter sets, the spaces of families whose blocks are unions of orbits of $H$:
+
+\begin{center}
+\begin{tabular}{lcl}
+\toprule
+$H$ & orbits on $\Z_{65}$ & method / result\\
+\midrule
+every subgroup of order $\ge3$ & $\le25$ & full meet-in-the-middle: none\\
+$\langle51\rangle$, $(x,y)\mapsto(x,-y)$ on $\Z_5\times\Z_{13}$ & $35$ & MITM with $5$- and $13$-compression filters: none\\
+$\langle64\rangle=\{\pm1\}$ & $33$ & same: none\\
+$\langle14\rangle$, $(x,y)\mapsto(-x,y)$ & $39$ & row decomposition, compression filters: none\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{proposition}[computational]
+No cyclic propus difference family in $\Z_{65}$ admits a nontrivial multiplier.
+\end{proposition}
+
+This explains why the multiplier ansatz, which produced the orders $4v$ for $v=73,93,113,127,191$
+\cite{BDK18,Dj22,Dj24} and $v=133,183$ here, cannot reach $v=65$. It is also in sharp contrast with a
+Gaussian heuristic for the number of solutions, which predicts of the order of $10^{2}$--$10^{3}$
+families in the $\langle16\rangle$- and $\langle51\rangle$-invariant spaces and $\sim10^{4}$ in the
+$\langle14\rangle$-invariant space (the same heuristic is accurate for $v=57,73$ and for the
+$\langle26\rangle$-space of $v=133$). These statements are computer results and are not formally
+verified; the programs were validated by reproducing known counts on smaller cases. Local search
+(tabu search, simulated annealing) in the full space finds propus families quickly for $v\le37$ but
+not for $v=65$. Whether a propus family without multipliers exists for $v=65$ remains open.
+
+\section{Limitations}
+Novelty of the orders $532$ and $732$ rests on a literature search (\DJ{}okovi\'c's lists and later papers up to
+2025, web search); we cannot exclude an unpublished construction. The negative statements about
+$v=65$ (Section~\ref{sec:65}) depend on our search programs (validated on known cases) and are not certified. The order
+$260$ remains open.
+
+\begin{thebibliography}{99}
+\bibitem{SB17} J.~Seberry, N.~A.~Balonin, Two infinite families of symmetric Hadamard matrices,
+\emph{Australas.\ J.\ Combin.} 69(3) (2017) 349--357.
+\bibitem{DKK15} O.~Di~Matteo, D.~\v{Z}.~\DJ{}okovi\'c, I.~S.~Kotsireas, Symmetric Hadamard matrices of order 116
+and 172 exist, \emph{Spec.\ Matrices} 3 (2015) 227--234; arXiv:1503.04226.
+\bibitem{BDK18} N.~A.~Balonin, D.~\v{Z}.~\DJ{}okovi\'c, D.~A.~Karbovskiy, Construction of symmetric Hadamard
+matrices of order $4v$ for $v=47,73,113$, \emph{Spec.\ Matrices} 6 (2018) 11--22; arXiv:1710.03037.
+\bibitem{BD18} N.~A.~Balonin, D.~\v{Z}.~\DJ{}okovi\'c, Symmetric Hadamard matrices of orders 268, 412, 436 and
+604, \emph{Inf.\ Control Syst.} 2018 no.~4; arXiv:1803.08787.
+\bibitem{ABDK19} L.~V.~Abuzin, N.~A.~Balonin, D.~\v{Z}.~\DJ{}okovi\'c, I.~S.~Kotsireas, Hadamard matrices from
+Goethals--Seidel difference families with a repeated block, \emph{Inf.\ Control Syst.} 2019 no.~5, 2--9.
+\bibitem{Dj22} D.~\v{Z}.~\DJ{}okovi\'c, Some new symmetric Hadamard matrices, \emph{Inf.\ Control Syst.} 2022
+no.~2; arXiv:2101.05429.
+\bibitem{Dj24} D.~\v{Z}.~\DJ{}okovi\'c, Hadamard matrices: skew of orders 276, 292 and symmetric 372,
+arXiv:2301.02751 (v3, 2024).
+\bibitem{Dj25} D.~\v{Z}.~\DJ{}okovi\'c, Orthogonal designs and symmetric Hadamard matrices, arXiv:2508.17141 (2025).
+\bibitem{CK07} R.~Craigen, H.~Kharaghani, Hadamard matrices and Hadamard designs, in: Handbook of
+Combinatorial Designs, 2nd ed., CRC Press, 2007, 273--280.
+\end{thebibliography}
+\end{document}

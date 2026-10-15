@@ -1,0 +1,155 @@
+\section{The parity theorem}\label{sec:parity}
+
+Fix $n=2r+1$ and a reduced word $w=i_1\cdots i_N$ of $w_0\in S_n$. Wire $x$ starts at height $x$
+(heights $1,\dots,n$ from top to bottom). Letter $i_t$ is the \emph{crossing} $t$: the wires at heights
+$i_t$ and $i_t+1$ exchange heights. Along each wire, its $n-1$ crossings are numbered $1,\dots,n-1$ in
+time order. These are its \emph{positions}.
+
+\begin{definition}
+A crossing is an \emph{$A$-crossing} if it has an even position along both of its wires.
+Equivalently, both wires have made an odd number of crossings before it. Let $\#A(w)$ be the number
+of $A$-crossings.
+\end{definition}
+
+In $G$ every edge joins an odd position to the next even position on one wire. So an $A$-crossing is
+a vertex both of whose $G$-neighbours occur earlier in time.
+
+\begin{lemma}\label{lem:percycle}
+Every cycle of $G$ contains an odd number of $A$-crossings. Consequently the number of
+components of $G$ is congruent to $\#A(w)$ modulo $2$.
+\end{lemma}
+
+\begin{proof}
+Process the crossings in time order. After $t$ steps, call a wire \emph{open} if it has made an odd
+number of crossings. Its last crossing is then waiting for its $G$-partner along that wire.
+
+Let $G_t$ be the subgraph of $G$ formed by the processed crossings and the edges with both ends
+processed. Every component of $G_t$ is a cycle of $G$ or a path. Each path has two \emph{dangling
+ends}, and each dangling end belongs to an open wire; distinct open wires carry distinct dangling
+ends. A path consisting of a single vertex has both dangling ends at that vertex.
+
+Pairing the two dangling ends of each path gives a perfect matching $\mu_t$ on the set $S_t$ of heights
+currently occupied by open wires. Consider crossing $t+1$, between wire $u$ at height $i$ and wire $v$
+at height $i+1$, and call it $\tau$. Exactly one of the following happens.
+\begin{itemize}
+\item[(B)] \emph{Both wires closed.} $\tau$ has an odd position on both wires. It starts a new path
+  whose dangling ends now sit at heights $i,i+1$, so the pair $(i,i+1)$ is added to $\mu$.
+\item[(C)] \emph{Exactly one wire open.} Say $u$ is open; the case of $v$ is symmetric. Then $\tau$
+  extends the path that dangled on $u$. Its new dangling end is on $v$, which now occupies height $i$,
+  the height $u$ had. So $S$ and $\mu$ are unchanged.
+\item[(A)] \emph{Both wires open.} $\tau$ is an $A$-crossing and joins the dangling ends at heights $i$
+  and $i+1$. If $\mu(i)=i+1$ this \emph{closes} a cycle of $G$. Otherwise it \emph{joins} two paths:
+  remove $(i,\mu(i))$ and $(i+1,\mu(i+1))$ and add $(\mu(i),\mu(i+1))$.
+\end{itemize}
+Wires not involved in $\tau$ do not move.
+
+By induction on $t$ we prove two invariants.
+\begin{itemize}
+\item[(I1)] $\mu_t$ is non-crossing for the order of heights. Case (B) adds a pair of adjacent heights,
+  which cannot interleave with any pair. In case (A) the pairs $(i,\mu(i))$ and $(i+1,\mu(i+1))$ do not
+  cross and $i,i+1$ are adjacent. So they lie either side by side,
+  $\mu(i)<i<i+1<\mu(i+1)$, or nested, $i<i+1<\mu(i+1)<\mu(i)$ or its mirror image
+  $\mu(i+1)<\mu(i)<i<i+1$; the other placements of $\mu(i),\mu(i+1)$ relative to $i,i+1$ would make the
+  two pairs cross. A pair crossing the merged pair would cross one of the two old pairs.
+\item[(I2)] For every pair $(a,b)\in\mu_t$ with $a<b$, the difference $b-a$ is odd. This is true for
+  $(i,i+1)$. Under a side-by-side join, $b-a=(i-a)+1+(b-i-1)$ is a sum of two odd numbers plus $1$.
+  Under a nested join, the new difference is (odd)$-$(odd)$-1$.
+\end{itemize}
+
+Fix a cycle $C$ of $G$ and let $\Lambda_C(t)=\sum (b-a-1)/2$, the sum over the pairs of $\mu_t$ whose
+path lies in $C$. By (I2) this is an integer. We compare $\Lambda_C$ before and after each step that
+involves $C$:
+\begin{itemize}
+\item a (B)-step adds $0$;
+\item a (C)-step changes nothing;
+\item closing removes $(i,i+1)$, so it changes $\Lambda_C$ by $0$;
+\item a side-by-side join changes it by $\bigl((b-a-1)-(i-a-1)-(b-i-2)\bigr)/2=1$;
+\item a nested join $(i,a)\supset(i+1,b)$ changes it by $-(b-i-1)$, which is odd by (I2);
+\item the mirror nested join $(b,i+1)\supset(a,i)$ changes it by $a-i$, again odd.
+\end{itemize}
+Steps at crossings not on $C$ do not touch the pairs of $C$: in case (C) the dangling end changes
+wire but keeps its height, and in cases (A) and (B) only pairs of the paths involved are changed.
+
+The earliest vertex of $C$ has both neighbours later in time, so it is a (B)-vertex and
+$\Lambda_C=0$ right after it. Just before $C$ closes, the only pair of $C$ is $(i,i+1)$, so again
+$\Lambda_C=0$. Each closing step closes exactly one cycle, so $C$ has exactly one closing step.
+Therefore $C$ has an even number of joins, and its $A$-crossings (joins plus one closing) are odd in
+number. Summing over the cycles gives the congruence.
+\end{proof}
+
+\begin{lemma}\label{lem:A}
+For every reduced word $w$ of $w_0\in S_{2r+1}$ we have $\#A(w)\equiv r(r+1)/2\pmod 2$.
+\end{lemma}
+
+\begin{proof}
+A wire changes height by $\pm1$ at each of its crossings. So the number of crossings it has made so
+far is congruent modulo $2$ to its current height minus its label.
+
+Consider a crossing at heights $(i,i+1)$ of wires $u$ and $v$. They have not crossed before, so their
+initial order persists and $u<v$. The crossing is an $A$-crossing iff $i-u$ and $i+1-v$ are both odd.
+If $u+v$ is even, then $i-u$ and $i+1-v$ have different parities and this is impossible. If $u+v$ is
+odd, they have the same parity and the crossing is an $A$-crossing iff $i-u$ is odd. In both cases,
+writing $[\,\cdot\,]\in\{0,1\}$ for the truth value of a statement,
+\begin{equation}\label{eq:Acrit}
+  [\text{$A$-crossing}]=[u+v\text{ odd}]\cdot[i+u\text{ odd}] .
+\end{equation}
+
+\emph{A potential function.} A state of the sweep is a permutation $\pi$, where $\pi(h)$ is the wire
+at height $h$. Put
+\[
+  \Phi(\pi)=\sum_{h=1}^{n}[\pi(h)\text{ odd}]\Bigl\lfloor\frac h2\Bigr\rfloor
+  \;+\;\#\bigl\{\{x,y\}:\ x<y,\ x\text{ odd},\ y\text{ even},\ \text{$x$ and $y$ have already crossed}\bigr\}.
+\]
+We claim that every crossing changes $\Phi$ by an amount congruent modulo $2$ to its $A$-status. Let
+the crossing be as above. In the sum only the terms at heights $i$ and $i+1$ change: wire $u$ moves
+from height $i$ to $i+1$ and wire $v$ from $i+1$ to $i$, so the sum changes by
+\[
+  \bigl([u\text{ odd}]-[v\text{ odd}]\bigr)
+  \Bigl(\Bigl\lfloor\frac{i+1}2\Bigr\rfloor-\Bigl\lfloor\frac i2\Bigr\rfloor\Bigr)
+  \equiv[u+v\text{ odd}]\cdot[i\text{ odd}]\pmod 2 .
+\]
+The second term increases by exactly $[u\text{ odd}][v\text{ even}]=[u+v\text{ odd}]\cdot[u\text{ odd}]$,
+because the pair $\{u,v\}$ becomes crossed and no other pair changes its status. Adding, the change
+of $\Phi$ is congruent to $[u+v\text{ odd}]\bigl([i\text{ odd}]+[u\text{ odd}]\bigr)\equiv
+[u+v\text{ odd}]\cdot[i+u\text{ odd}]$, which is the $A$-status by~\eqref{eq:Acrit}.
+
+Summing over the $N$ crossings of $w$ gives $\#A(w)\equiv\Phi(w_0)-\Phi(\mathrm{id})\pmod 2$, where
+$\mathrm{id}$ is the initial state and $w_0$, with $w_0(h)=n+1-h$, the final one. Since $n+1$ is even,
+$w_0(h)$ is odd iff $h$ is odd, so the sums in $\Phi(\mathrm{id})$ and $\Phi(w_0)$ agree. Initially no
+pair has crossed and finally every pair has. Hence
+\[
+  \#A(w)\equiv\#\bigl\{\{x,y\}:x<y,\ x\text{ odd},\ y\text{ even}\bigr\}
+  =\sum_{m=1}^{r}\#\{x\text{ odd}:x<2m\}=\sum_{m=1}^{r}m=\frac{r(r+1)}2 .\qedhere
+\]
+\end{proof}
+
+\begin{remark}\label{rem:MT}
+Lemma~\ref{lem:A} can also be derived from the theorem of Matsumoto and
+Tits~\cite{Matsumoto1964,Tits1969}, which says that any two reduced words of $w_0$ are connected by
+commutation moves (exchanging adjacent letters $i,j$ with $|i-j|\ge2$) and braid moves
+($i,i+1,i\leftrightarrow i+1,i,i+1$). A commutation move changes neither the wires nor the heights
+of any crossing. A braid move involves three wires $x<y<z$; each of the crossings $xy,xz,yz$ keeps its
+wires and its upper height changes by exactly $1$, so by~\eqref{eq:Acrit} the move flips the
+$A$-status of exactly those pairs among $x,y,z$ whose labels have odd sum, and there are $0$ or $2$ such
+pairs. Hence $\#A\bmod 2$ is the same for all reduced words of $w_0$, and the bubble-sort word
+$(s_1\cdots s_{n-1})(s_1\cdots s_{n-2})\cdots(s_1)$, in which the crossing of $u<v$ has position $v-1$
+on $u$ and position $u$ on $v$, gives the value $\#\{u\text{ even},\ v\text{ odd},\ u<v\}=r(r+1)/2$. The
+potential $\Phi$ makes this detour unnecessary.
+\end{remark}
+
+\begin{proof}[Proof of Theorem~\ref{thm:parity}]
+Combine Lemmas~\ref{lem:percycle} and~\ref{lem:A}, and note that $(n^2-1)/8=r(r+1)/2$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:main}]
+For $n=2r+1$, the number $r(r+1)/2$ is even iff $r\equiv0,3\pmod 4$, i.e.\ iff $n\equiv\pm1\pmod 8$.
+In that case $G$ has an even number of components, so it is not a single cycle. By
+Proposition~\ref{prop:forced}(1), no simple $\binom n2$-gon lies on $n$ lines, and by Proposition~\ref{prop:forced}(2) every
+such polygon has at most $\binom n2-3$ sides.
+\end{proof}
+
+\begin{remark}
+For $n\equiv\pm3\pmod 8$, Theorem~\ref{thm:parity} only says that $G$ has an odd number of components. It does
+not guarantee a single cycle; for example, both $1$ and $3$ components occur for $n=5$
+(\cref{sec:limitations}).
+\end{remark}

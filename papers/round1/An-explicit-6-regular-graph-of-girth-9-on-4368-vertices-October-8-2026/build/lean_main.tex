@@ -1,0 +1,5 @@
+\begin{Verbatim}[fontsize=\footnotesize,frame=single]
+theorem main : ∃ adj : Fin 4368 → Fin 4368 → Bool,
+    IsSimpleGraph adj ∧ IsRegular adj 6 ∧ HasGirth adj 9 :=
+  ⟨adjF, simple, regular, ⟨exists_cycle, no_short_cycles⟩⟩
+\end{Verbatim}

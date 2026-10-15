@@ -1,0 +1,3 @@
+'main' depends on axioms: [propext, Classical.choice, Quot.sound]
+'main_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanchk: wall=139.69s maxrss=2166456kB exit=0

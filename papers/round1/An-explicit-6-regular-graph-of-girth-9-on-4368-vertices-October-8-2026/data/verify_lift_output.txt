@@ -1,0 +1,2 @@
+N = 4368 degrees {6} simple True symmetric True
+girth = 9

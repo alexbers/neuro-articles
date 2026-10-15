@@ -1,0 +1,2 @@
+CERTIFICATE OK: 1585 witnesses cover all 65535 nonzero x; scheme rank 47, format <4,4,4>
+CERTIFICATE OK: 1581 witnesses cover all 65535 nonzero x; scheme rank 47, format <4,4,4>

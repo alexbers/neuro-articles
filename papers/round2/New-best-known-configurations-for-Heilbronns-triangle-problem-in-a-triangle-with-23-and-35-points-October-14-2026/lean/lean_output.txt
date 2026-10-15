@@ -1,0 +1,11 @@
+== Lean 4.34.1 (local, core only): lean Main.lean
+'Triangle35.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Triangle23.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+wall=41.85s maxrss=2655760kB
+exit 0
+
+== Lean 4.35.0 (node compute-node, core only, 3 cores via slot): lean Main.lean
+'Triangle35.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Triangle23.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+wall=82.79s maxrss=2577908kB
+exit 0

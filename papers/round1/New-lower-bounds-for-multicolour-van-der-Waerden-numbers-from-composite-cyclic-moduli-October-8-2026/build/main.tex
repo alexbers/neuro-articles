@@ -1,0 +1,533 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\N}{\mathbb N}
+\newcommand{\W}{W}
+\lstdefinelanguage{lean}{
+  morekeywords={def,theorem,fun,Prop,Nat,by,exact,obtain,let,in,if,then,else},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]",
+}
+\lstset{
+  language=lean,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  frame=single,
+  framesep=4pt,
+  xleftmargin=6pt,
+  xrightmargin=6pt,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate=
+    {∀}{{$\forall$}}1
+    {∃}{{$\exists$}}1
+    {→}{{$\to$}}1
+    {∧}{{$\wedge$}}1
+    {≠}{{$\neq$}}1
+    {≤}{{$\le$}}1
+    {χ}{{$\chi$}}1
+    {ψ}{{$\psi$}}1
+    {γ}{{$\gamma$}}1
+    {⟨}{{$\langle$}}1
+    {⟩}{{$\rangle$}}1
+}
+\title{New lower bounds for multicolour van der Waerden numbers\\ from composite cyclic moduli}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={New lower bounds for multicolour van der Waerden numbers from composite cyclic moduli},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $\W(r,k)$ be the least $N$ such that every $r$-colouring of $\{1,\dots,N\}$ contains a
+monochromatic $k$-term arithmetic progression.  We give explicit colourings showing
+$\W(4,6)>255{,}606$, $\W(5,6)>1{,}278{,}030$, $\W(6,6)>2{,}531{,}178$, $\W(4,8)>18{,}874{,}790$,
+$\W(4,9)>212{,}844{,}870$, $\W(5,10)>13{,}086{,}046{,}358$, $\W(4,11)>3{,}761{,}291{,}754$,
+$\W(4,12)>37{,}088{,}321{,}982$ and seven further bounds for five and six colours
+(\cref{tab:main}).  To our knowledge, as of October 8, 2026, these improve fifteen entries of the
+standard tables (the Wikipedia table of $\W(r,k)$ and Monroe's table of four-colour bounds).
+No new search is involved.  The colourings come from one elementary blow-up lemma applied to
+cyclic $2$- and $3$-colourings that are already in the literature (Rabung;
+Herwig--Heule--van~Lambalgen--van~Maaren; Rabung--Lotts; Heule; cf.\ Kouril--Paul for $\W(2,6)$).  These certificates are cyclic on
+\emph{composite} moduli ($226$, $1642$, $5158$, $19394$, $58066$) that exceed the prime moduli
+used in the published product bounds.  We also use the Blankenship--Cummings--Taranchuk block step with the
+prime $p=11>k$ for $k=10$, as their own remark allows.  Every bound is certified by a
+kernel-checked proof in Lean~4 (core only, no Mathlib) whose main theorems depend only on the
+standard axioms \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}.
+\end{abstract}
+\tableofcontents
+
+%======================================================================
+\section{Introduction}
+
+For integers $r\ge1$ and $k\ge2$, van der Waerden's theorem guarantees a least integer
+$\W(r,k)$ such that every colouring of $\{1,\dots,\W(r,k)\}$ with $r$ colours contains a
+monochromatic $k$-term arithmetic progression (AP).  We use the order of arguments of the
+Wikipedia table~\cite{wiki}: $r$ colours and $k$-term APs.  A \emph{lower bound}
+``$\W(r,k)>N$'' means that some $r$-colouring of $N$ consecutive integers has no
+monochromatic $k$-AP; the published tables write it as ``$>N$''.
+
+Only a handful of non-trivial values are known exactly, among them $\W(2,6)=1132$
+(Kouril--Paul~\cite{KP08}) and $\W(3,4)=293$ (Kouril).  Every other entry rests on an explicit
+colouring.  The main sources of record colourings are the following.
+\begin{itemize}
+\item \emph{Power-residue colourings} of $\Z/p$ (Rabung~\cite{Rab79}).
+\item \emph{Cyclic zippers}, which double or quadruple such a colouring to a colouring of
+  $\Z/2p$ or $\Z/4p$ (Herwig, Heule, van~Lambalgen and van~Maaren~\cite{HHLM07};
+  Rabung and Lotts~\cite{RL12}).
+\item \emph{SAT searches}, sometimes with symmetry constraints (see Heule~\cite{Heu17} for the
+  history, and Komkov~\cite{Kom20}).
+\item \emph{Recursive constructions} for many colours:
+  \begin{itemize}
+  \item Xu's product recursion $\W(k,st)>p(\W(k,t)-1)+1$ for primes $p$ admitting an
+    $s$-colouring of $\Z/p$ without $k$-APs, as described in Monroe~\cite{Mon22,Mon25}
+    (we only use the form $\W(st,k)-1\ge n(\W(t,k)-1)$ of \cref{cor:product}, without the
+    final $+1$, which is not reproduced by \cref{lem:blowup});
+  \item the block recursion $\W(r,k)>p\cdot(\W(r-\lceil r/p\rceil,k)-1)$ of Blankenship,
+    Cummings and Taranchuk (BCT)~\cite{BCT18}, where $p$ is the largest prime $\le k$.
+  \end{itemize}
+\end{itemize}
+Monroe's distributed computation~\cite{Mon22,Mon25} produced the current four-colour column
+(e.g.\ $\W(4,6)>157{,}348$, $\W(4,8)>12{,}288{,}155$).  For $k\ge7$ the five- and six-colour
+columns of the Wikipedia table are obtained from it by the BCT recursion (Monroe's own tables
+stop at four colours); for $k=6$ the entries are $\W(5,6)>786{,}740=5\cdot157{,}348$ (BCT) and
+$\W(6,6)>1{,}555{,}549=139\cdot11{,}191$ (Xu's product of the prime $139$ with
+$\W(3,6)>11{,}191$).  Monroe states
+explicitly that the ``ring van der Waerden number'' in Xu's recursion is taken over the prime
+field~$\mathbb F_p$, so the moduli in those products are primes: $139$, $1069$, $3389$,
+$11497$, $17863$, $58013$.  Asymptotic lower bounds have advanced recently
+(Hunter~\cite{Hun23}; Fox--Hunter~\cite{Fox26}; Campos--Fox--Schildkraut~\cite{Schild26}), but these papers do not tabulate small
+values.
+
+\paragraph{What is new here.}
+A periodic colouring is just as good as a colouring of a prime field, provided its period is
+fully cyclically AP-free.  Several record two-colour certificates are of this form, with
+composite periods larger than the primes used.  Combining them with a general blow-up lemma
+(Lemma~\ref{lem:blowup}) gives Theorem~\ref{thm:main}.  The lemma contains both the product recursion and the
+BCT block recursion.  We stress that the contribution is modest and combinatorially elementary.
+\begin{itemize}
+\item The underlying cyclic colourings were found by others.
+\item The product construction is Xu's; Hunter~\cite[Lemma~3.2]{Hun23} states it for direct
+  products of abelian groups.
+\item The BCT block step with $p>k$ is remarked in~\cite{BCT18}.
+\end{itemize}
+What appears not to have been done is to apply these constructions with the best available
+cyclic moduli and to record the resulting numbers.  We also give a complete formal
+certificate.
+
+\begin{theorem}\label{thm:main}
+The lower bounds in the column ``new'' of \cref{tab:main} hold.  Each is witnessed by an explicit
+colouring of $\{0,\dots,N-1\}$ described in \cref{sec:constructions}, and each is proved in Lean~4
+(\cref{sec:lean}).
+\end{theorem}
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+entry & previous best (source) & \textbf{new} & construction \\
+\midrule
+$\W(4,6)$  & $157{,}348$ \cite{Mon25} ($157{,}209$ in \cite{wiki}) & $\mathbf{255{,}606}$ & $226\cdot 1131$ \\
+$\W(5,6)$  & $786{,}740$ \cite{wiki} & $\mathbf{1{,}278{,}030}$ & $5\cdot 255{,}606$ \\
+$\W(6,6)$  & $1{,}555{,}549$ \cite{wiki} & $\mathbf{2{,}531{,}178}$ & $2238\cdot1131$ \\
+$\W(4,8)$  & $12{,}288{,}155$ \cite{Mon25,wiki} & $\mathbf{18{,}874{,}790}$ & $1642\cdot 11{,}495$ \\
+$\W(5,8)$  & $86{,}017{,}085$ \cite{wiki} & $\mathbf{132{,}123{,}530}$ & $7\cdot \W(4,8)$-bound \\
+$\W(6,8)$  & $602{,}119{,}595$ \cite{wiki} & $\mathbf{924{,}864{,}710}$ & $7\cdot \W(5,8)$-bound \\
+$\W(4,9)$  & $139{,}847{,}085$ \cite{Mon25,wiki} & $\mathbf{212{,}844{,}870}$ & $5158\cdot 41{,}265$ \\
+$\W(5,9)$  & $978{,}929{,}595$ \cite{wiki} & $\mathbf{1{,}489{,}914{,}090}$ & $7\cdot \W(4,9)$-bound \\
+$\W(6,9)$  & $6{,}852{,}507{,}165$ \cite{wiki} & $\mathbf{10{,}429{,}398{,}630}$ & $7\cdot \W(5,9)$-bound \\
+$\W(5,10)$ & $8{,}327{,}484{,}046$ \cite{wiki} & $\mathbf{13{,}086{,}046{,}358}$ & $11\cdot 1{,}189{,}640{,}578$ \\
+$\W(6,10)$ & $58{,}292{,}388{,}322$ \cite{wiki} & $\mathbf{91{,}602{,}324{,}506}$ & $7\cdot \W(5,10)$-bound \\
+$\W(4,11)$ & $3{,}464{,}368{,}083$ \cite{Mon25,wiki} & $\mathbf{3{,}761{,}291{,}754}$ & $19394\cdot 193{,}941$ \\
+$\W(5,11)$ & $38{,}108{,}048{,}913$ \cite{wiki} & $\mathbf{41{,}374{,}209{,}294}$ & $11\cdot \W(4,11)$-bound \\
+$\W(6,11)$ & $419{,}188{,}538{,}043$ \cite{wiki} & $\mathbf{455{,}116{,}302{,}234}$ & $11\cdot \W(5,11)$-bound \\
+$\W(4,12)$ & $37{,}054{,}469{,}451$ \cite{Mon25} & $\mathbf{37{,}088{,}321{,}982}$ & $58066\cdot 638{,}727$ \\
+\bottomrule
+\end{tabular}
+\caption{Lower bounds $\W(r,k)>N$.  All entries mean ``$>$''.  ``Previous best'' is the
+Wikipedia table (wikitext retrieved October 8, 2026) and Monroe's four-colour table
+(arXiv~v7, Nov.~2022; journal version, Dec.~2025).  The Wikipedia table stops at $k=11$, so the
+last row is compared with Monroe only.  In the last column, ``$p\cdot X$-bound'' means $p$ times
+the new bound in the row named.}
+\label{tab:main}
+\end{table}
+
+Along the way the Lean development also certifies several known values:
+$\W(2,6)>1131$, $\W(2,8)>11{,}495$, $\W(2,9)>41{,}265$, $\W(2,10)>103{,}474$,
+$\W(2,11)>193{,}941$, $\W(2,12)>638{,}727$ and Monroe's $\W(4,10)>1{,}189{,}640{,}578$.
+None of these is new.  The rows $k=3,4,5,7$ of the table are not affected by our method
+(\cref{sec:limits}).
+
+%======================================================================
+\section{Definitions}\label{sec:defs}
+
+Throughout, colourings are maps $c:\N\to\N$, and only their values on the relevant interval
+matter.  We work with $\{0,\dots,N-1\}$ instead of $\{1,\dots,N\}$; shifting by one changes
+nothing.
+
+\begin{definition}
+Let $k\ge2$.  A colouring $c$ has \emph{no monochromatic $k$-AP in $[0,N)$} if for all $a\ge0$
+and $d\ge1$ with $a+(k-1)d<N$ there is an $i<k$ with $c(a+id)\neq c(a)$.  We write
+$\W(r,k)>N$ if some $c$ with $c([0,N))\subseteq\{0,\dots,r-1\}$ has this property.
+\end{definition}
+
+\begin{definition}
+Let $n\ge1$.  A colouring $\chi$ of $\Z/n=\{0,\dots,n-1\}$ is \emph{cyclically $k$-AP-free} if for
+every $a\in\Z/n$ and every $d\not\equiv0\pmod n$ the residues $a,a+d,\dots,a+(k-1)d \pmod n$ do
+not all have the same colour.  Here $d$ may have small additive order.  In that case the
+``progression'' repeats elements, and the condition still applies.
+\end{definition}
+
+\begin{lemma}[unrolling]\label{lem:unroll}
+Let $k\ge3$ and $n\ge1$.  A colouring $c$ of $[0,(k-1)n)$ with period $n$ has no monochromatic
+$k$-AP if and only if the induced colouring $\chi$ of $\Z/n$ is cyclically $k$-AP-free.
+\end{lemma}
+
+\begin{proof}
+A $k$-AP in $[0,(k-1)n)$ with difference $d$ satisfies $(k-1)d<(k-1)n$, so $d<n$ and its
+residues form a cyclic $k$-AP with difference $d\not\equiv 0$.  Conversely, take a cyclic
+$k$-AP $(a,d)$.  Reversing the order if necessary, we may assume $1\le d\le n/2$ and
+$0\le a<n$.  Then $a+(k-1)d\le n-1+(k-1)n/2\le (k-1)n-1$ because $k\ge3$, so the progression
+occurs inside $[0,(k-1)n)$.
+\end{proof}
+
+Hence a certificate of the form ``$k-1$ periods of length $n$'' is the same thing as a cyclically
+AP-free colouring of $\Z/n$.  The zipper certificates of~\cite{HHLM07,RL12} and the certificates
+in Heule's repository~\cite{HeuGit} are of this form.  (The files \texttt{W\_2\_6\_226},
+\texttt{W\_2\_8\_1642}, \texttt{W\_2\_9\_5158} and \texttt{W\_3\_6\_2238} of~\cite{HeuGit} contain
+exactly the $(k-1)n$ symbols of the $k-1$ periods; the additional element that gives the length
+$(k-1)n+1$ is found by the search described in \cref{sec:constructions}.)
+
+%======================================================================
+\section{The blow-up lemma}\label{sec:blowup}
+
+\begin{lemma}[blow-up]\label{lem:blowup}
+Let $n,t\ge1$ and $F:\Z/n\times\{0,\dots,t-1\}\to\N$.  Assume:
+\begin{enumerate}
+\item[(i)] $F(z,\cdot)$ is injective for every $z$;
+\item[(ii)] for every value $\gamma$, the set
+$P_\gamma=\{z\in\Z/n:\ \gamma=F(z,u)\text{ for some }u<t\}$ contains no cyclic $k$-AP
+$\{a+id \bmod n: i<k\}$ with $d\not\equiv0\pmod n$.
+\end{enumerate}
+Let $\psi:[0,M)\to\{0,\dots,t-1\}$ have no monochromatic $k$-AP.  Then
+\[ c(x)=F\bigl(x\bmod n,\ \psi(\lfloor x/n\rfloor)\bigr)\]
+has no monochromatic $k$-AP in $[0,nM)$.  In particular, if $F$ takes at most $r$ values, then
+$\W(r,k)-1\ \ge\ n\,(\W(t,k)-1)$.
+\end{lemma}
+
+\begin{proof}
+Suppose $a+id$ ($i<k$, $d\ge1$) lies in $[0,nM)$ and is monochromatic of colour $\gamma$.
+
+If $n\mid d$, write $d=nq$ with $q\ge1$.  All terms have the residue $z=a\bmod n$, and
+$\lfloor(a+id)/n\rfloor=\lfloor a/n\rfloor+iq$.  These indices form a $k$-AP in $[0,M)$,
+since $n(\lfloor a/n\rfloor+(k-1)q)\le a+(k-1)d<nM$.  From
+$F(z,\psi(\lfloor a/n\rfloor+iq))=\gamma$ for all $i$ and condition~(i), the values
+$\psi(\lfloor a/n\rfloor+iq)$ are all equal, which contradicts the hypothesis on~$\psi$.
+
+If $n\nmid d$, the residues $(a+id)\bmod n=((a\bmod n)+i(d\bmod n))\bmod n$ form a cyclic
+$k$-AP with difference $d\bmod n\neq0$.  Each term has colour $\gamma=F(z_i,u_i)$ with $u_i<t$,
+so the progression lies in $P_\gamma$, which contradicts~(ii).
+\end{proof}
+
+We call such an $F$ an \emph{$(r,t)$-cover} of $\Z/n$ (for $k$-APs).  Three special cases give
+all our bounds.
+
+\begin{corollary}[products; Xu, cf.~\cite{Mon25,Hun23}]\label{cor:product}
+If $\chi$ is a cyclically $k$-AP-free $s$-colouring of $\Z/n$, then
+$\W(st,k)-1\ge n(\W(t,k)-1)$.
+\end{corollary}
+
+\begin{proof}
+Take $F(z,u)=t\chi(z)+u$.  Then $P_\gamma=\chi^{-1}(\lfloor\gamma/t\rfloor)$.
+\end{proof}
+
+\begin{corollary}[blocks; cf.~BCT~\cite{BCT18}]\label{cor:blocks}
+Let $p$ be prime and let $2\le r\le p$.  Put
+$F(z,u)=(z\bmod r+1+u)\bmod r$ for $u<r-1$, so that colour $z\bmod r$ is the one colour
+\emph{missing} at $z$.  Assume one of the following:
+\begin{enumerate}
+\item[(a)] $p\le k$;
+\item[(b)] $p>k$ and every residue class of $\{0,\dots,p-1\}$ modulo $r$ has at least $p-k+1$
+  elements.
+\end{enumerate}
+Then $\W(r,k)-1\ge p\,(\W(r-1,k)-1)$.
+\end{corollary}
+
+\begin{proof}
+Here $P_\gamma=\{z\in\Z/p: z\not\equiv\gamma \pmod r\}$.  Since $p$ is prime, a cyclic $k$-AP
+in $\Z/p$ with $d\neq0$ has $\min(p,k)$ distinct elements, and if $p\le k$ it is all of $\Z/p$.
+In case~(a), $P_\gamma\ne\Z/p$, because every residue class modulo $r$ meets
+$\{0,\dots,p-1\}$ when $r\le p$.  In case~(b), $|P_\gamma|\le k-1$.  In both cases $P_\gamma$
+contains no cyclic $k$-AP.  Injectivity in $u$ holds because $u\mapsto z\bmod r+1+u$ takes
+$r-1<r$ consecutive values.
+\end{proof}
+
+Case~(a) with $p$ the largest prime $\le k$ is the BCT step for $r\le p$.  Case~(b) is the
+strengthening noted at the end of~\cite[\S2]{BCT18} (``choosing a larger prime $p$ such that
+$p-\lfloor p/r\rfloor<k$'').  For $k=10$ and $r=5$ it allows $p=11$: the classes modulo $5$ in
+$\{0,\dots,10\}$ have $3,2,2,2,2\ge 2$ elements.
+
+\begin{corollary}[extra element]\label{cor:extend}
+If $c$ has no monochromatic $k$-AP in $[0,N)$, and no $k$-AP ending at $N$ is monochromatic, then
+$c$ has none in $[0,N]$.
+\end{corollary}
+
+This trivial statement is used to realise $\W(2,k)-1=(k-1)n+1$: we take a suitable rotation of
+the unrolled cyclic colouring and append one element, which is checked directly.
+
+%======================================================================
+\section{The constructions}\label{sec:constructions}
+
+\subsection{Cyclic colourings used}
+\cref{tab:moduli} lists the cyclic colourings (files in \texttt{data/}, with SHA-256 hashes in
+\texttt{data/SHA256SUMS}).  The files contain one digit per element of $\Z/n$.
+
+\begin{table}[ht]
+\centering\footnotesize
+\begin{tabular}{@{}rrc>{\raggedright\arraybackslash}p{6.4cm}l@{}}
+\toprule
+$k$ & $n$ & col. & origin & file, sha256 prefix\\
+\midrule
+6 & 226 & 2 & zipped power-residue colouring mod 113 \cite{HHLM07}, which reproduces the SAT bound $\W(2,6)>1131$ of Kouril--Franco \cite{KF05} and is extremal since $\W(2,6)=1132$ \cite{KP08}; file \texttt{W\_2\_6\_226} of \cite{HeuGit}, rotated by 112 & \texttt{chi\_6\_226}, \texttt{2c720049}\\
+6 & 2238 & 3 & Heule's certificate \texttt{W\_3\_6\_2238} \cite{HeuGit,Heu17} & \texttt{chi3\_6\_2238}, \texttt{aad85c14}\\
+8 & 1642 & 2 & zipped mod 821 \cite{HHLM07}; file \texttt{W\_2\_8\_1642} of \cite{HeuGit}, rotated by 820 & \texttt{chi\_8\_1642}, \texttt{2eaf8f5e}\\
+9 & 5158 & 2 & zipped mod 2579 \cite{HHLM07}; file \texttt{W\_2\_9\_5158} of \cite{HeuGit}, rotated by 2578 & \texttt{chi\_9\_5158}, \texttt{a91414a7}\\
+10 & 11497 & 2 & Rabung quadratic-residue colouring mod 11497 \cite{Rab79} & \texttt{chi\_10\_11497}, \texttt{29dd34cc}\\
+11 & 19394 & 2 & zipped mod 9697 \cite{RL12} (our reconstruction) & \texttt{chi\_11\_19394}, \texttt{7d4c4e82}\\
+12 & 58066 & 2 & zipped mod 29033 \cite{RL12} (our reconstruction) & \texttt{chi\_12\_58066}, \texttt{73a1e273}\\
+\bottomrule
+\end{tabular}
+\caption{Cyclically $k$-AP-free colourings of $\Z/n$ (files in \texttt{data/}).}
+\label{tab:moduli}
+\end{table}
+
+\paragraph{Reconstructions.}
+For $p=11497$ we take $\chi(z)=\operatorname{ind}_g(z)\bmod 2$ for $z\neq0$, where $g$ is the
+least primitive root modulo~$p$, and set $\chi(0)=0$.  For the zipped colourings modulo $2p$
+with $p=9697$ and $p=29033$, we let $q$ be the quadratic-residue colouring modulo~$p$ and put
+\[ \chi(x)=q(x\bmod p)\oplus(x\bmod 2)\quad\text{for }p\nmid x,\qquad \chi(0)=0,\quad \chi(p)=1.\]
+Unrolling these and appending one element reproduces the published bounds $\W(2,10)>103{,}474$,
+$\W(2,11)>193{,}941$ and $\W(2,12)>638{,}727$ of Rabung and Rabung--Lotts.  For every row of
+\cref{tab:moduli} the cyclic property was checked exhaustively by a C program (all $a$, all
+$d\le n/2$) and independently in the Lean kernel (\cref{sec:lean}).
+
+\subsection{Derivation of \texorpdfstring{\cref{tab:main}}{Table 1}}
+Let $L(r,k)$ denote the length of the best colouring used; thus $\W(r,k)>L(r,k)$.
+\begin{itemize}
+\item \emph{Two colours.}  For $(k,n)$ from \cref{tab:moduli}, $L(2,k)=(k-1)n+1$: the unrolled
+  colouring rotated by $s_0$, followed by one element of colour~$e$.  The values of $(s_0,e)$
+  for $k=6,8,9,10,11,12$ are $(0,0)$, $(821,0)$, $(2579,0)$, $(0,1)$, $(9697,0)$, $(29033,0)$.
+  They were found by exhaustive search and are recorded in \texttt{Main.lean}.
+\item \emph{Four colours} (Corollary~\ref{cor:product}, $s=t=2$): $L(4,k)=n\cdot L(2,k)$.  This gives
+  $226\cdot1131$, $1642\cdot11{,}495$, $5158\cdot41{,}265$, $11497\cdot103{,}474$ (Monroe's
+  value), $19394\cdot193{,}941$ and $58066\cdot638{,}727$.
+\item \emph{Six colours, $k=6$} (Corollary~\ref{cor:product}, $s=3$, $t=2$): $L(6,6)=2238\cdot1131$.
+\item \emph{Five colours} (Corollary~\ref{cor:blocks}, $r=5$): $L(5,6)=5\,L(4,6)$ ($p=5\le k$);
+  $L(5,k)=7\,L(4,k)$ for $k=8,9$; $L(5,10)=11\,L(4,10)$ ($p=11>k$, case~(b));
+  $L(5,11)=11\,L(4,11)$.
+\item \emph{Six colours, $k\ge8$} (Corollary~\ref{cor:blocks}, $r=6$): $L(6,k)=7\,L(5,k)$ for $k=8,9,10$
+  and $L(6,11)=11\,L(5,11)$.
+\end{itemize}
+The resulting colourings are explicit.  For example, the four-colour colouring witnessing
+$\W(4,6)>255{,}606$ is $c(x)=2\chi_{226}(x\bmod 226)+\psi_6(\lfloor x/226\rfloor)$, where
+$\psi_6(y)=\chi_{226}(y\bmod226)$ for $y<1130$ and $\psi_6(1130)=0$.
+
+\begin{remark}
+Monroe's products use the primes $139$, $1069$, $3389$, $17863$ and $58013$ for $k=6,8,9,11,12$
+(for $k=8,\dots,12$ the primes are listed in \cite[Table~2]{Mon22,Mon25}; for $k=6$ the prime
+$139$, whose quadratic-residue colouring is cyclically $6$-AP-free, is inferred from the
+Wikipedia value $157{,}209=139\cdot1131$).  Monroe's own entry $\W(4,6)>157{,}348$ equals
+$139\cdot1132$, i.e.\ $139\cdot\W(2,6)$ rather than $139\cdot(\W(2,6)-1)$, and we could not
+reconstruct a colouring of that length; the point is immaterial here, since $255{,}606$ exceeds
+both values, but it also affects the Wikipedia entry $\W(5,6)>786{,}740=5\cdot157{,}348$.
+The improvement for $k=6,8,9$ is a factor $226/139$, $1642/1069$, $5158/3389$, roughly $1.5$
+to $1.6$.  For $k=11$ and $k=12$ it is $8.6\%$ and $0.09\%$.  For $k=10$ the four-colour bound
+is unchanged, and the gain in five colours comes only from $p=11$ in place of $p=7$.  Other
+entries propagate through the block step.
+\end{remark}
+
+%======================================================================
+\section{Formal verification}\label{sec:lean}
+
+All bounds of \cref{tab:main} are proved in a single self-contained Lean file
+(\texttt{lean/Main.lean}, 591\,KB).  We used Lean~4.34.1 with core and \texttt{Std} only and no
+Mathlib.  The two definitions used in the statements are the first declarations of the file:
+
+\begin{lstlisting}
+def NoMonoAP (k N : Nat) (c : Nat → Nat) : Prop :=
+  ∀ a d : Nat, 0 < d → a + (k - 1) * d < N → ∃ i, i < k ∧ c (a + i * d) ≠ c a
+
+def VdWGt (r k N : Nat) : Prop :=
+  ∃ c : Nat → Nat, (∀ x, x < N → c x < r) ∧ NoMonoAP k N c
+\end{lstlisting}
+
+The main theorems are, verbatim (proof terms omitted):
+
+\begin{lstlisting}
+theorem W4_6  : VdWGt 4 6 255606
+theorem W5_6  : VdWGt 5 6 1278030
+theorem W6_6  : VdWGt 6 6 2531178
+theorem W4_8  : VdWGt 4 8 18874790
+theorem W5_8  : VdWGt 5 8 132123530
+theorem W6_8  : VdWGt 6 8 924864710
+theorem W4_9  : VdWGt 4 9 212844870
+theorem W5_9  : VdWGt 5 9 1489914090
+theorem W6_9  : VdWGt 6 9 10429398630
+theorem W5_10 : VdWGt 5 10 13086046358
+theorem W6_10 : VdWGt 6 10 91602324506
+theorem W4_11 : VdWGt 4 11 3761291754
+theorem W5_11 : VdWGt 5 11 41374209294
+theorem W6_11 : VdWGt 6 11 455116302234
+theorem W4_12 : VdWGt 4 12 37088321982
+\end{lstlisting}
+
+The file also contains \texttt{W2\_6}, \dots, \texttt{W2\_12} and \texttt{W4\_10} (known values).
+
+\paragraph{Statement audit.}
+\texttt{NoMonoAP k N c} quantifies over all $a$ and all $d\ge1$ whose last term
+$a+(k-1)d$ lies in $[0,N)$, that is, over all $k$-APs in $\{0,\dots,N-1\}$.  Its conclusion,
+``some term has a colour different from the first'', is exactly ``not monochromatic''.
+\texttt{VdWGt r k N} also requires all colours on $[0,N)$ to be $<r$.  Shifting by one gives a
+colouring of $\{1,\dots,N\}$, so \texttt{VdWGt r k N} is equivalent to $\W(r,k)>N$, the same
+``$>$'' convention as the tables.  The arguments are (colours, length, $N$), so \texttt{W4\_6} is
+the four-colour, six-term statement.  The main theorems have no hypotheses, and all numerals are
+literals.
+
+\paragraph{Proof architecture.}
+\begin{itemize}
+\item \emph{General lemmas, proved by hand.}  The blow-up lemma (\texttt{blowup},
+  Lemma~\ref{lem:blowup}); \texttt{product} (Corollary~\ref{cor:product}); \texttt{unroll} and
+  \texttt{unrollN} (one direction of Lemma~\ref{lem:unroll}); \texttt{cover\_step}
+  (Corollary~\ref{cor:blocks}, with the cover condition checked by \texttt{decide}); and
+  \texttt{NoMonoAP.extend\_one} (Corollary~\ref{cor:extend}).
+\item \emph{Finite facts.}  These are checked by \texttt{decide +kernel} on Boolean checkers with
+  proved soundness lemmas.
+\item \emph{Two-colour cyclic colourings.}  Each is invariant under $z\mapsto mz$ for a unit $m$
+  generating an index-$2$ subgroup of units: $m=9,5,3,2,3,9$ for $n=226$, $1642$, $5158$,
+  $11497$, $19394$, $58066$.  The kernel checks three things: this invariance; a table of
+  ``steps to an orbit representative'' for the differences~$d$; and all start points $a$ for
+  the at most five representatives.  The representatives are, e.g., $\{1,2,3,6,113\}$ for
+  $n=226$ and $\{1,5\}$ for $n=11497$.  Lemma \texttt{cyc\_of\_symP} then transfers the check to
+  all differences, by induction on the number of steps.
+\item \emph{The 3-colouring of $\Z/2238$.}  It has no multiplicative symmetry, so it is checked
+  for all $a$ and all $d\le1119$.  A reversal lemma (\texttt{cyc\_of\_rows}) covers $d>n/2$.
+\item \emph{Memory.}  Large checks are split into chunks; this keeps the kernel memory bounded.
+\end{itemize}
+
+\paragraph{Axioms and run.}
+Every main theorem prints
+\begin{lstlisting}
+'W4_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}
+and likewise for all 22 theorems listed in \texttt{lean/lean\_output.txt}.  There is no
+\texttt{sorryAx} and no \texttt{native\_decide} (\texttt{Lean.ofReduceBool}).  The complete file
+checked with no errors and no warnings in 2310\,s of wall time, with peak resident memory
+3.6\,GB.  The command was \texttt{nice -n 10 lean -j1 Main.lean} (Lean 4.34.1), run under a
+timeout and an RSS watchdog; the authors' guarded wrapper script could not be used because its
+address-space limit made Lean fail at start-up (\texttt{lean/leanchk\_attempt.txt}).
+The SHA-256 of the checked file is \texttt{20251d5c\dots f4f}.  An independent re-run of \texttt{lean Main.lean} with the same toolchain
+on October 8, 2026 reproduced the output verbatim (exit status 0, 1237\,s wall time, peak RSS 3.5\,GiB; log in
+\texttt{lean/lean\_output\_review.txt}).
+
+\paragraph{Independent checks.}
+Separately from Lean, C programs (not included in this distribution; the Lean file is the
+certificate) performed the following checks:
+\begin{itemize}
+\item every colouring of \cref{tab:moduli} was checked exhaustively;
+\item every two-colour interval colouring $L(2,k)$ was brute-forced over all APs;
+\item the colouring for $\W(4,6)>255{,}606$ was brute-forced over all $6$-APs, with no
+  monochromatic one;
+\item each of the larger final colourings was tested on $2\cdot10^7$ random APs, with no
+  monochromatic one, and two deliberately wrong constructions were correctly rejected.
+\end{itemize}
+
+%======================================================================
+\section{Limitations and open questions}\label{sec:limits}
+
+\begin{itemize}
+\item \emph{Novelty.}  The comparison is with the Wikipedia table (retrieved October 8, 2026)
+  and Monroe's tables~\cite{Mon22,Mon25}.  Our searches of arXiv and the web (2023--2026) found no
+  later improvement of these entries.  A bound in an unindexed source cannot be excluded; hence
+  ``to our knowledge, as of October 8, 2026''.
+\item \emph{Nature of the contribution.}  No new search result enters Theorem~\ref{thm:main}.  The
+  gains come from combining published certificates with known recursions.  We searched for
+  genuinely new $(r,t)$-covers with SAT (CaDiCaL) and exhaustive enumeration, and found none
+  beyond the counting ones of Corollary~\ref{cor:blocks}.  Specifically, within the ranges of
+  $n$ that we enumerated (and disregarding the trivial moduli $n<k$, for which every proper
+  subset of $\Z/n$ is cyclically $k$-AP-free):
+  \begin{itemize}
+  \item $(5,3)$-covers for $4$-APs exist only for $n\le5$ (an independent exhaustive search
+    confirms this for all $n\le16$);
+  \item $(6,4)$-covers exist only for $n=5$ (for $5$-APs) and $n\le7$ (for $6$-APs); for
+    $6$-APs, maximal $6$-AP-free subsets of $\Z/11$ and $\Z/13$ have density $<2/3$;
+  \item no $(6,3)$-cover of $\Z/n$ for $5$-APs was found for $45\le n\le53$.  Such a cover with
+    $n\ge46$ would give $\W(6,5)>46\cdot2173=99{,}958$ and thus beat Komkov's bound
+    $\W(6,5)>99{,}554$~\cite{Kom20} (the Wikipedia entry $>98{,}748$ predates it).
+  \end{itemize}
+  The rows $k=3,4,5,7$ are therefore unchanged.
+\item \emph{Open.}  Two questions remain.  Are there cyclically AP-free $2$-colourings of
+  $\Z/n$ with $(k-1)n+1$ beyond the current $\W(2,k)$ records?  For $k=7$ and $k=10$ the best
+  moduli are the primes $617$ and $11497$.  Do fractional covers (an $(r,t)$-cover with $r/t$
+  not an integer, or with $r/t=s$ but not coming from an $s$-colouring) exist for moduli larger
+  than the best $s$-colourings?  Either would propagate through Lemma~\ref{lem:blowup}.
+\end{itemize}
+
+%======================================================================
+\begin{thebibliography}{99}
+\bibitem{BCT18} T.~Blankenship, J.~Cummings, V.~Taranchuk, \emph{A new lower bound for van der
+Waerden numbers}, European J.\ Combin.\ 69 (2018) 163--168; arXiv:1705.09673.
+\bibitem{Fox26} J.~Fox, Z.~Hunter, \emph{Three-color van der Waerden numbers grow super-exponentially},
+arXiv:2606.02541 (2026).
+\bibitem{HeuGit} M.~J.~H.~Heule, \emph{vdWaerden: computing lower bounds for van der Waerden
+numbers using SAT}, certificate repository, \url{https://github.com/marijnheule/vdWaerden}
+(accessed October 8, 2026).
+\bibitem{Heu17} M.~J.~H.~Heule, \emph{Avoiding triples in arithmetic progression}, J.\ Comb.\ 8
+(2017) 391--422.
+\bibitem{HHLM07} P.~R.~Herwig, M.~J.~H.~Heule, P.~M.~van~Lambalgen, H.~van~Maaren, \emph{A new
+method to construct lower bounds for van der Waerden numbers}, Electron.\ J.\ Combin.\ 14 (2007)
+\#R6.
+\bibitem{Hun23} Z.~Hunter, \emph{Lower bounds for multicolor van der Waerden numbers},
+arXiv:2301.06212 (2023); Israel J.\ Math.\ 267 (2025) 783--795.
+\bibitem{Kom20} A.~V.~Komkov, \emph{New lower bounds for van der Waerden numbers},
+arXiv:1701.05603v5 (October 2020).
+\bibitem{KF05} M.~Kouril, J.~Franco, \emph{Resolution tunnels for improved SAT solver
+performance}, in: Theory and Applications of Satisfiability Testing (SAT 2005), Lecture Notes in
+Comput.\ Sci.\ 3569, Springer, 2005, pp.~143--157.
+\bibitem{KP08} M.~Kouril, J.~L.~Paul, \emph{The van der Waerden number $W(2,6)$ is $1132$},
+Experiment.\ Math.\ 17 (2008) 53--61.
+\bibitem{Mon22} D.~Monroe, \emph{New lower bounds for van der Waerden numbers using distributed
+computing}, arXiv:1603.03301v7 (November 2022).
+\bibitem{Mon25} D.~Monroe, \emph{New lower bounds for van der Waerden numbers using distributed
+computing}, J.\ Combin.\ Math.\ Combin.\ Comput.\ 128 (2025) 305--315, published December 4, 2025,
+doi:10.61091/jcmcc128-19.
+\bibitem{Rab79} J.~R.~Rabung, \emph{Some progression-free partitions constructed using Folkman's
+method}, Canad.\ Math.\ Bull.\ 22 (1979) 87--91.
+\bibitem{RL12} J.~R.~Rabung, M.~Lotts, \emph{Improving the use of cyclic zippers in finding lower
+bounds for van der Waerden numbers}, Electron.\ J.\ Combin.\ 19(2) (2012) \#P35.
+\bibitem{Schild26} M.~Campos, J.~Fox, C.~Schildkraut, \emph{A new lower bound for two-color van der Waerden numbers},
+arXiv:2608.20824 (2026).
+\bibitem{wiki} Wikipedia, \emph{Van der Waerden number}, table ``$W(r,k)$'', wikitext retrieved
+October 8, 2026, \url{https://en.wikipedia.org/wiki/Van_der_Waerden_number}.
+\end{thebibliography}
+\end{document}

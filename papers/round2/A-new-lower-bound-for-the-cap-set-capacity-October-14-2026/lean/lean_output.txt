@@ -1,0 +1,47 @@
+~/claude_math/agents/B05/lean/Main_cp3.lean:252:6: warning: `dite_cond_eq_true` has been deprecated: Use `dite_eq_left_of_eq_true` instead
+
+Hint: Replace the deprecated name:
+  d̵i̵t̵e̵_̵c̵o̵n̵d̵_̵e̵q̵_̵t̵r̵u̵e̵d̲i̲t̲e̲_̲e̲q̲_̲l̲e̲f̲t̲_̲o̲f̲_̲e̲q̲_̲t̲r̲u̲e̲
+~/claude_math/agents/B05/lean/Main_cp3.lean:356:0: warning: automatically included section variable(s) unused in theorem `CapB05.mem_blk`:
+  [AddCommGroup V]
+  [DecidableEq V]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [AddCommGroup V] [DecidableEq V] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+~/claude_math/agents/B05/lean/Main_cp3.lean:361:0: warning: automatically included section variable(s) unused in theorem `CapB05.no_sol_00n`:
+  [DecidableEq V]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [DecidableEq V] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+'CapB05.admissible_new' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ rows_chkP._native.native_decide.ax_1_1,
+ rows_chkT._native.native_decide.ax_1_1]
+'CapB05.main_cap' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ CF_card._native.native_decide.ax_1_1,
+ cf_checks._native.native_decide.ax_1_1,
+ rows_chkP._native.native_decide.ax_1_1,
+ rows_chkT._native.native_decide.ax_1_1,
+ rows_nodup._native.native_decide.ax_1_1]
+'CapB05.main_capacity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ CF_card._native.native_decide.ax_1_1,
+ cf_checks._native.native_decide.ax_1_1,
+ rows_chkP._native.native_decide.ax_1_1,
+ rows_chkT._native.native_decide.ax_1_1,
+ rows_nodup._native.native_decide.ax_1_1]
+'CapB05.main_cap_648' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ CF_card._native.native_decide.ax_1_1,
+ cf_checks._native.native_decide.ax_1_1,
+ rows_chkP._native.native_decide.ax_1_1,
+ rows_chkT._native.native_decide.ax_1_1,
+ rows_nodup._native.native_decide.ax_1_1]
+leancheck: wall=248.32s maxrss=8452208kB exit=0

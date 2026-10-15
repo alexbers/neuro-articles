@@ -1,0 +1,41 @@
+Lean certificate for tau_19 >= 12277 (agent B04): clean from-scratch build of the 33 modules in lean/mods2/
+(identical sources), core Lean 4.35.0, 'lean -o' in dependency order by run_mods.sh on compute-node, 2026-10-15 04:13-04:57 (+05).
+Per-module wall time / peak memory / exit code, then the output of K19Main (#print axioms):
+
+K19Core: wall=3.28s maxrss=640468kB exit=0
+K19Defs: wall=10.24s maxrss=894128kB exit=0
+K19C_octkey: wall=3.28s maxrss=764636kB exit=0
+K19C_blocks: wall=34.66s maxrss=3966656kB exit=0
+K19C_rootkey: wall=31.85s maxrss=518432kB exit=0
+K19C_root: wall=1.30s maxrss=536072kB exit=0
+K19C_octads: wall=49.12s maxrss=5476272kB exit=0
+K19C_closRB: wall=17.92s maxrss=1005480kB exit=0
+K19C_grp: wall=5.29s maxrss=515984kB exit=0
+K19C_grpkey: wall=0.83s maxrss=490632kB exit=0
+K19C_grpT: wall=0.65s maxrss=494252kB exit=0
+K19C_repkey: wall=0.91s maxrss=523444kB exit=0
+K19C_replen: wall=1.61s maxrss=587404kB exit=0
+K19C_len: wall=4.42s maxrss=954876kB exit=0
+K19CR: wall=165.92s maxrss=2487096kB exit=0
+K19Chk00: wall=371.42s maxrss=3241504kB exit=0
+K19Chk01: wall=436.66s maxrss=3247116kB exit=0
+K19Chk02: wall=398.19s maxrss=3245048kB exit=0
+K19C_closB: wall=802.98s maxrss=6965856kB exit=0
+K19Chk03: wall=465.23s maxrss=3165024kB exit=0
+K19Chk04: wall=406.77s maxrss=3228812kB exit=0
+K19Chk05: wall=423.36s maxrss=3230864kB exit=0
+K19Chk07: wall=390.48s maxrss=3220284kB exit=0
+K19Chk06: wall=510.41s maxrss=3175724kB exit=0
+K19Chk08: wall=417.88s maxrss=3350416kB exit=0
+K19Chk10: wall=342.43s maxrss=3346268kB exit=0
+K19Chk09: wall=390.60s maxrss=3340492kB exit=0
+K19Chk11: wall=431.37s maxrss=3175628kB exit=0
+K19Chk13: wall=358.89s maxrss=3233388kB exit=0
+K19Chk12: wall=412.80s maxrss=3211380kB exit=0
+K19Chk14: wall=354.58s maxrss=3207764kB exit=0
+K19Chk15: wall=259.91s maxrss=3237760kB exit=0
+K19Main: wall=0.57s maxrss=526844kB exit=0
+'K19.kissing19' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+Errors in any module output: 0 (only unused-variable linter warnings occur).
+Forbidden constructs in sources: native_decide/sorry/admit/axiom count = 0

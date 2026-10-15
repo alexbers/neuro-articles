@@ -1,0 +1,491 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\N}{\mathbb N}
+\newcommand{\F}{\mathbb F}
+\newcommand{\p}{\mathfrak p}
+\newcommand{\PP}{\mathfrak P}
+\DeclareMathOperator{\Gal}{Gal}
+\DeclareMathOperator{\Frob}{Frob}
+
+\lstdefinestyle{lean}{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  frame=single,
+  framerule=0.3pt,
+  rulecolor=\color{black!40},
+  xleftmargin=0.5em,
+  morekeywords={def,theorem,fun,if,then,else,let,mut,for,in,do,return,by,Nat,Prop,Bool},
+  keywordstyle=\bfseries,
+  extendedchars=true,
+  inputencoding=utf8,
+  literate=
+    {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {≤}{{$\le$}}1 {≥}{{$\ge$}}1
+    {→}{{$\to$}}1 {∣}{{$\mid$}}1 {¬}{{$\neg$}}1 {∧}{{$\wedge$}}1
+    {∨}{{$\vee$}}1 {≠}{{$\ne$}}1 {Λ}{{$\Lambda$}}1 {≡}{{$\equiv$}}1
+    {…}{{$\ldots$}}1 {·}{{$\cdot$}}1 {ℕ}{{$\mathbb N$}}1
+}
+
+\title{Explicit lower bounds for runs of three consecutive\\ quintic and septic residues}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={Explicit lower bounds for runs of three consecutive quintic and septic residues},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For a prime $p$ let $r(k,3,p)$ be the least $r\ge1$ such that $r,r+1,r+2$ are all $k$-th power
+residues modulo $p$, and $\Lambda(k,3)=\limsup_{p\to\infty}r(k,3,p)$.
+Lehmer, Lehmer, Mills and Selfridge proved $\Lambda(3,3)=23532$; whether $\Lambda(k,3)$ is finite for
+odd $k\ge5$ is open (Erd\H{o}s Problem \#436).
+We give explicit assignments of quintic (resp.\ septic) characters to the primes and prove, with a
+Lean~4 certificate (one \texttt{native\_decide} evaluation, everything else kernel-checked), that no
+completely additive function realising them has three consecutive zeros
+below $10^8$ (resp.\ $10^7$). Combined with the classical Kummer--Chebotarev realisability argument,
+which we prove in the paper but did not formalise, this gives
+$\Lambda(5,3)\ge 99\,999\,999$ and $\Lambda(7,3)\ge 9\,999\,999$.
+Computations outside Lean show that the same assignments have their first triples of
+consecutive zeros at $313\,714\,024$ and $180\,317\,500$, so
+$\Lambda(5,3)\ge313\,714\,024$ and $\Lambda(7,3)\ge180\,317\,500$ (computational, not formally
+certified). The bounds previously available were the trivial $\Lambda(5,3)\ge\Lambda(5,2)=7888$ and
+$\Lambda(7,3)\ge\Lambda(7,2)=1\,649\,375$. Whether $\Lambda(5,3)$ and $\Lambda(7,3)$ are finite remains open.
+\end{abstract}
+
+\tableofcontents
+
+%======================================================================
+\section{Introduction}
+
+Let $k,m\ge2$. By a theorem of Brauer \cite{Br28}, every sufficiently large prime $p$ has $m$ consecutive
+positive integers $r,r+1,\dots,r+m-1$ that are all $k$-th power residues modulo $p$; let
+$r(k,m,p)$ denote the least such $r$ and put
+\[
+  \Lambda(k,m)=\limsup_{p\to\infty} r(k,m,p)\in\N\cup\{\infty\}.
+\]
+D.~H.~Lehmer and E.~Lehmer \cite{LeLe62} started the study of $\Lambda$: they observed
+$\Lambda(2,2)=9$ (if neither $2$ nor $5$ is a quadratic residue then $10$ is), and proved
+$\Lambda(2,3)=\infty$ and $\Lambda(k,4)=\infty$ for $k\le 1048909$; more generally $\Lambda(k,m)=\infty$
+whenever $k$ is even and $m\ge3$ \cite{LeLe62,LLM63}, and Graham \cite{Gr64} showed
+$\Lambda(k,m)=\infty$ for all $k$ and all $m\ge4$.
+The finite values known are
+\begin{gather*}
+\Lambda(3,2)=77\ \text{\cite{Du65}},\qquad \Lambda(4,2)=1224\ \text{\cite{BiMi63}},\qquad
+\Lambda(5,2)=7888,\quad \Lambda(6,2)=202124\ \text{\cite{LLM63}},\\
+\Lambda(7,2)=1649375\ \text{\cite{BLL64}},
+\end{gather*}
+and, for runs of length three, the ``machine proof''
+\[
+  \Lambda(3,3)=23532 \qquad\text{(Lehmer, Lehmer, Mills and Selfridge \cite{LLMS62}).}
+\]
+Hildebrand proved that $\Lambda(k,2)<\infty$ for every prime $k$ \cite{Hi86} and then for every $k$
+\cite{Hi91} (a combinatorial proof via a generalised Schur theorem is given by Dietzel \cite{Di13}).
+Brillhart, Lehmer and Lehmer \cite{BLL64} also proved the general lower bound $\Lambda(k,2)>5^k$ for
+every odd $k\ge5$ (and for $k$ twice an odd prime $\equiv3\pmod4$).
+
+Erd\H{o}s and Graham \cite[p.~87]{ErGr80} asked whether $\Lambda(k,3)$ is finite for every odd $k$ and how
+large $\Lambda(k,2)$ and $\Lambda(k,3)$ are; this is Problem~\#436 on the Erd\H{o}s problems website
+\cite{EP436}, which (page last edited 25 October 2025, consulted October 8, 2026) records as the
+remaining questions ``whether $\Lambda(k,3)$ is finite for all odd $k\ge5$, and the growth rate of
+$\Lambda(k,2)$ and $\Lambda(k,3)$ as functions of $k$''. The first open case is $k=5$.
+
+\paragraph{What is new.}
+Every run of three residues begins with a pair, so $r(k,3,p)\ge r(k,2,p)$ and trivially
+$\Lambda(5,3)\ge\Lambda(5,2)=7888$, $\Lambda(7,3)\ge\Lambda(7,2)=1\,649\,375$ (and $\Lambda(k,3)\ge\Lambda(k,2)>5^k$
+for every odd $k\ge5$ by \cite{BLL64}; the $\Omega$-assignment of \cref{sec:comp} gives
+$\Lambda(k,3)\ge3^k-2$). To our knowledge, as of October 8, 2026, no bound specific to runs of
+\emph{three} quintic or septic residues, i.e.\ going beyond these trivial consequences of the
+pair results, has been published. We give the first such bounds:
+
+\begin{theorem}[main result]\label{thm:main}
+\[
+  \Lambda(5,3)\ \ge\ 99\,999\,999 \qquad\text{and}\qquad \Lambda(7,3)\ \ge\ 9\,999\,999 .
+\]
+More precisely, for the explicit prime assignments $g_5,g_7$ of \cref{sec:assign}, there are infinitely
+many primes $P\equiv1\pmod5$ (resp.\ $P\equiv1\pmod7$) with $r(5,3,P)\ge 10^8-1$ (resp.\
+$r(7,3,P)\ge10^7-1$).
+\end{theorem}
+
+\paragraph{Logical structure.} The proof has two parts of different status.
+\begin{enumerate}
+\item A purely combinatorial statement about completely additive functions with prescribed prime
+values (Theorem~\ref{thm:core}). It is \emph{certified in Lean~4} (core library only, no Mathlib). The
+certificate uses \texttt{native\_decide} exactly once, to evaluate one large finite check on a table
+of $10^8+1$ bytes; everything else is checked by the Lean kernel (\cref{sec:lean}).
+\item The passage from completely additive functions to $k$-th power residues modulo infinitely many
+primes $P$: a classical consequence of Kummer theory and the Chebotarev density theorem
+(Lemma~\ref{lem:real}). We give a complete proof but have \emph{not} formalised it.
+\end{enumerate}
+In addition we report stronger bounds that are \emph{computational only} (\cref{sec:comp}):
+\[
+  \Lambda(5,3)\ \ge\ 313\,714\,024,\qquad \Lambda(7,3)\ \ge\ 180\,317\,500 .
+\]
+
+\paragraph{What is not shown.} We do not know whether $\Lambda(5,3)$ or $\Lambda(7,3)$ is finite.
+Our searches found no indication of a threshold beyond which every assignment of characters
+produces a zero triple (\cref{sec:open}); if $\Lambda(5,3)$ is finite, it exceeds $3\cdot10^8$, about
+$13\,000$ times $\Lambda(3,3)$.
+
+%======================================================================
+\section{Reduction to completely additive functions}\label{sec:reduction}
+
+Throughout, $k$ is an odd prime. For a prime $P\equiv1\pmod k$ the $k$-th power residues modulo $P$ form
+the subgroup of index $k$ of the cyclic group $\F_P^\times$. Fix a primitive $k$-th root of unity
+$\zeta=\zeta_k$ in $K=\Q(\zeta)$.
+
+\begin{definition}
+An \emph{assignment} is a map $g$ from the primes to $\Z/k\Z$. A function $f:\N\to\N$ is
+\emph{completely additive mod $k$ on $[1,L]$} if $f(ab)\equiv f(a)+f(b)\pmod k$ whenever $a,b\ge1$ and
+$ab\le L$; it \emph{realises $g$ on $[1,L]$} if moreover $f(q)\equiv g(q)\pmod k$ for every prime
+$q\le L$. (Such $f$ are unique mod $k$ on $[1,L]$; see the proof of Theorem~\ref{thm:core}.)
+\end{definition}
+
+\begin{lemma}[realisability]\label{lem:real}
+Let $k$ be an odd prime, $q_1<\dots<q_t$ distinct primes ($k$ itself may be among them) and
+$c\in(\Z/k\Z)^t$. There are infinitely many primes $P\equiv1\pmod k$ for which there is a map
+$f_P:\{n\in\Z: P\nmid n\}\to\Z/k\Z$ such that
+\begin{enumerate}
+\item $f_P(mn)=f_P(m)+f_P(n)$;
+\item $f_P(q_i)=c_i$ for $i=1,\dots,t$;
+\item $n$ is a $k$-th power residue modulo $P$ if and only if $f_P(n)=0$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+\emph{Independence.} Let $K=\Q(\zeta)$, so $[K:\Q]=k-1$ and $\mu_k\subset K$. Suppose
+$x=\prod_i q_i^{a_i}=\alpha^k$ with $\alpha\in K^\times$ and $0\le a_i<k$. Taking the norm
+$N_{K/\Q}$, and using that $x\in\Q$,
+\[
+  \prod_i q_i^{(k-1)a_i}=N_{K/\Q}(x)=N_{K/\Q}(\alpha)^k\in(\Q^\times)^k .
+\]
+Comparing $q_i$-adic valuations gives $k\mid(k-1)a_i$, hence $k\mid a_i$ and $a_i=0$. So the classes of
+$q_1,\dots,q_t$ are $\F_k$-linearly independent in $K^\times/(K^\times)^k$.
+
+\emph{Kummer theory.} Let $\Delta\subseteq K^\times$ be generated by $(K^\times)^k$ and $q_1,\dots,q_t$,
+and $M=K(\Delta^{1/k})=K(q_1^{1/k},\dots,q_t^{1/k})$ for fixed choices of the roots. Since
+$\mu_k\subset K$, Kummer theory gives $[M:K]=|\Delta/(K^\times)^k|=k^t$, and the map
+\[
+  \Gal(M/K)\to\mu_k^t,\qquad \sigma\mapsto\bigl(\sigma(q_i^{1/k})/q_i^{1/k}\bigr)_{i}
+\]
+is an injective homomorphism between groups of order $k^t$, hence an isomorphism. Let $\sigma_c$ be
+the element with $\sigma_c(q_i^{1/k})=\zeta^{c_i}q_i^{1/k}$ for all $i$.
+
+\emph{Chebotarev.} $M/K$ is abelian and unramified outside the primes dividing $kq_1\cdots q_t$. By the
+Chebotarev density theorem the primes $\p$ of $K$, unramified in $M$, with Frobenius
+$\Frob_\p=\sigma_c$ have Dirichlet density $k^{-t}>0$. Primes $\p$ of residue degree $\ge2$ over $\Q$
+have density $0$ (at most $(k-1)\pi(\sqrt x)$ of them have norm $\le x$), so infinitely many $\p$ in
+this class have degree one: $N\p=P$ is a rational prime, $P\nmid kq_1\cdots q_t$, and $P$ splits in
+$K$, i.e.\ $P\equiv1\pmod k$. Fix such a $\p$; then $O_K/\p\cong\F_P$.
+
+\emph{Power residue symbols.} Let $\PP$ be a prime of $M$ above $\p$ and $\beta=q_i^{1/k}$. By definition
+of the Frobenius, $\sigma_c(\beta)\equiv\beta^{P}\pmod\PP$, so
+$\zeta^{c_i}\beta\equiv\beta^P$, i.e.\ $q_i^{(P-1)/k}=\beta^{P-1}\equiv\zeta^{c_i}\pmod\PP$, since $\beta$ is
+a unit at $\PP$. Both sides lie in $O_K$, so the congruence holds modulo $\PP\cap O_K=\p$.
+
+\emph{Definition of $f_P$.} Since $P\nmid k$, the polynomial $X^k-1$ is separable modulo $P$, so the $k$
+elements of $\mu_k$ remain distinct modulo $\p$ and reduce bijectively onto the $k$-th roots of unity
+of $\F_P$ (there are exactly $k$ of them, as $k\mid P-1$). For $P\nmid n$ the element
+$n^{(P-1)/k}\bmod\p$ satisfies $(n^{(P-1)/k})^k=n^{P-1}\equiv1$, so there is a unique
+$f_P(n)\in\Z/k\Z$ with $n^{(P-1)/k}\equiv\zeta^{f_P(n)}\pmod\p$. Property~(1) follows from
+multiplicativity of $n\mapsto n^{(P-1)/k}$ and injectivity of reduction on $\mu_k$; property~(2) is the
+previous paragraph. For~(3): $\F_P^\times$ is cyclic of order $P-1$ and $k\mid P-1$, so $n$ is a $k$-th
+power modulo $P$ iff $n^{(P-1)/k}\equiv1\pmod P$ (Euler's criterion), iff $f_P(n)=0$.
+\end{proof}
+
+\begin{remark}
+Lemma~\ref{lem:real} is classical and not new. For odd prime $k$ and primes $q_i\ne k$ it is the
+Lemma on p.~104 of Lehmer and Lehmer \cite{LeLe62}, stated there as a special case of a theorem of
+Kummer (Hilbert's \emph{Zahlbericht} \cite{Hi97}); Mills \cite{Mi63} proved the version for arbitrary $k$,
+which is the statement used by Lehmer, Lehmer and Mills: ``every vector $[r_1,\dots,r_t]$ \dots{} that
+satisfies certain parity conditions is the $S$-vector of infinitely many primes'' \cite[p.~174]{LLM63};
+for odd prime $k$ there are no parity conditions. Graham \cite{Gr64} uses it in exactly the form above
+(``a special case of a result of Kummer''). We include a proof only because the Lean statement
+requires the precise hypotheses, and because we need $k$ itself among the $q_i$ ($g_5(5)=0$,
+$g_7(7)=1$), a case excluded in \cite{LeLe62}. All known values of $\Lambda$ were obtained through this reduction.
+\end{remark}
+
+\begin{corollary}\label{cor:transfer}
+Let $k$ be an odd prime, $g$ an assignment and $L\ge3$. Suppose that every $f:\N\to\N$ that is completely
+additive mod $k$ on $[1,L]$ and realises $g$ on $[1,L]$ has no $r$ with $1\le r$, $r+2\le L$ and
+$f(r)\equiv f(r+1)\equiv f(r+2)\equiv0\pmod k$. Then $r(k,3,P)\ge L-1$ for infinitely many primes
+$P$; in particular $\Lambda(k,3)\ge L-1$.
+\end{corollary}
+
+\begin{proof}
+Apply Lemma~\ref{lem:real} to the primes $q\le L$ and $c_q=g(q)$, and take any of the infinitely many
+primes $P>L$ it provides. Define $f(n)\in\{0,\dots,k-1\}$ as the representative of $f_P(n)$ for
+$P\nmid n$ and $f(n)=0$ otherwise. Every $n\le L$ is prime to $P$, so $f$ is completely additive mod $k$
+on $[1,L]$ and realises $g$ there. By hypothesis no $r\le L-2$ has $r,r+1,r+2$ all $k$-th power
+residues modulo $P$, so $r(k,3,P)\ge L-1$.
+\end{proof}
+
+%======================================================================
+\section{The assignments}\label{sec:assign}
+
+\begin{definition}\label{def:g}
+The assignment $g_5$ (values in $\Z/5\Z$) is $g_5(q)=1$ for every prime $q$ except the $25$ primes
+in \cref{tab:g5}. The assignment $g_7$ (values in $\Z/7\Z$) is $g_7(q)=1$ for every prime $q$ except
+$g_7(2)=g_7(47)=g_7(163)=0$.
+\end{definition}
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l*{13}{r}@{}}
+\toprule
+$q$      & 2 & 5 & 7 & 11 & 13 & 17 & 23 & 31 & 73 & 347 & 409 & 617 & 1033 \\
+$g_5(q)$ & 0 & 0 & 0 & 0  & 0  & 0  & 0  & 0  & 0  & 2   & 2   & 2   & 2 \\
+\midrule
+$q$      & 1373 & 2053 & 2089 & 2099 & 2437 & 2621 & 3907 & 4523 & 7057 & 12917 & 21407 & 49613 & \\
+$g_5(q)$ & 0    & 0    & 2    & 2    & 2    & 0    & 2    & 0    & 2    & 2     & 3     & 3 & \\
+\bottomrule
+\end{tabular}
+\caption{The exceptional primes of $g_5$; all other primes have $g_5(q)=1$.}\label{tab:g5}
+\end{table}
+
+For an assignment $g$ write $\chi_g(n)=\sum_{q}v_q(n)\,g(q)\in\Z/k\Z$ for its completely additive
+extension. With $g\equiv1$ (the ``$\Omega$-assignment'') $\chi_g(n)=\Omega(n)\bmod k$; its first triple
+of consecutive zeros is at $15470$ for $k=5$ and at $3145310$ for $k=7$. The assignments $g_5,g_7$ were
+found by a local search (\cref{sec:comp}) that starts from the $\Omega$-assignment and changes the values
+of a few primes until no zero triple remains below a target bound.
+
+%======================================================================
+\section{The Lean-certified core}\label{sec:lean}
+
+\begin{theorem}[certified in Lean]\label{thm:core}
+\leavevmode
+\begin{enumerate}
+\item Let $L=10^8$. Every $f:\N\to\N$ that is completely additive mod $5$ on $[1,L]$ and realises
+$g_5$ on $[1,L]$ satisfies: there is no $r$ with $1\le r$, $r+2\le L$ and
+$f(r)\equiv f(r+1)\equiv f(r+2)\equiv0\pmod5$.
+\item The same holds for $L=10^7$, modulus $7$ and $g_7$.
+\end{enumerate}
+\end{theorem}
+
+\Cref{thm:main} follows from Theorem~\ref{thm:core} and Corollary~\ref{cor:transfer}.
+
+\subsection{The Lean statement}
+The file \texttt{lean/Main.lean} (Lean 4.34.1, core library only, no imports) contains, verbatim
+(docstrings omitted):
+
+\begin{lstlisting}[style=lean]
+def L : Nat := 100000000
+def IsPrime (p : Nat) : Prop := 2 ≤ p ∧ ∀ d, d ∣ p → d = 1 ∨ d = p
+def g (p : Nat) : Nat :=
+  if 49613 < p then 1 else
+  if p = 2 then 0 else if p = 5 then 0 else if p = 7 then 0 else if p = 11 then 0 else
+  if p = 13 then 0 else if p = 17 then 0 else if p = 23 then 0 else if p = 31 then 0 else
+  if p = 73 then 0 else if p = 347 then 2 else if p = 409 then 2 else if p = 617 then 2 else
+  if p = 1033 then 2 else if p = 1373 then 0 else if p = 2053 then 0 else if p = 2089 then 2 else
+  if p = 2099 then 2 else if p = 2437 then 2 else if p = 2621 then 0 else if p = 3907 then 2 else
+  if p = 4523 then 0 else if p = 7057 then 2 else if p = 12917 then 2 else if p = 21407 then 3 else
+  if p = 49613 then 3 else 1
+
+theorem no_three_consecutive_quintic_residues (f : Nat → Nat)
+    (hmul : ∀ a b, 1 ≤ a → 1 ≤ b → a * b ≤ L → f (a * b) % 5 = (f a + f b) % 5)
+    (hprime : ∀ p, p ≤ L → IsPrime p → f p % 5 = g p % 5) :
+    ∀ r, 1 ≤ r → r + 2 ≤ L → ¬ (f r % 5 = 0 ∧ f (r + 1) % 5 = 0 ∧ f (r + 2) % 5 = 0)
+\end{lstlisting}
+
+\texttt{lean/Main7.lean} is the same file with modulus $7$, \texttt{L := 10000000}, \texttt{B := 3163} and
+\begin{lstlisting}[style=lean]
+def g (p : Nat) : Nat :=
+  if 163 < p then 1 else
+  if p = 2 then 0 else if p = 47 then 0 else if p = 163 then 0 else 1
+\end{lstlisting}
+and main theorem \texttt{no\_three\_consecutive\_septic\_residues}.
+
+\subsection{Proof architecture}
+The proof introduces a table and a bound that do \emph{not} occur in the statement:
+\begin{itemize}
+\item \texttt{T : ByteArray := buildT L}, an array of $L+1$ bytes in which a sieve stores
+$T[n]=\sum_{p^j\mid n}g(p)\bmod 5$, i.e.\ $\chi_{g}(n)$. The sieve is \emph{not trusted}: only the
+properties below, checked on the computed array, are used.
+\item \texttt{B := 10000}, with $L<(B+1)^2$.
+\end{itemize}
+A single Boolean \texttt{bigCheck} verifies, for the computed table:
+\begin{enumerate}
+\item[(i)] $T[1]\equiv0$ and $L<(B+1)^2$;
+\item[(ii)] for every $p\le B$ that has no divisor $e$ with $2\le e$, $e^2\le p$ (a trial-division
+primality test) and every $2\le m\le L/p$: $T[pm]\equiv T[p]+T[m]$;
+\item[(iii)] for every $n\in[2,L]$: $T[n]\equiv g(n)$, or $n$ has a divisor $e$ with $2\le e$, $e^2\le n$;
+\item[(iv)] there is no $r\in[1,L-2]$ with $T[r]\equiv T[r+1]\equiv T[r+2]\equiv0$.
+\end{enumerate}
+The theorem \texttt{bigCheck\_true : bigCheck = true} is proved by \texttt{native\_decide}. All remaining
+steps are kernel-checked:
+\begin{itemize}
+\item soundness lemmas turn \texttt{bigCheck = true} into the Propositions (i)--(iv)
+(\texttt{loopAll\_sound}, \texttt{pairLoop\_sound}, \texttt{hsd\_sound}, \texttt{quickComp\_sound});
+\item \texttt{agree}: by strong induction, $f(n)\equiv T[n]$ for all $n\in[1,L]$. For $n=1$,
+$f(1)\equiv f(1)+f(1)$ gives $f(1)\equiv0\equiv T[1]$. If $n$ is prime, (iii) applies with its second
+alternative impossible (a divisor $e$ with $2\le e$, $e^2\le n$ would be a proper divisor), so
+$T[n]\equiv g(n)\equiv f(n)$. If $n\ge2$ is not prime, write $n=ab$ with $2\le a\le b$
+(\texttt{split\_composite}), take a prime $p\mid a$ (\texttt{exists\_prime\_dvd}); then $p^2\le a^2\le n\le L$,
+so $p\le B$ by (i), $p$ passes the primality test in (ii), and with $n=pm$ we have $m\ge p\ge2$, whence
+$f(n)\equiv f(p)+f(m)\equiv T[p]+T[m]\equiv T[n]$ by \texttt{hmul}, the induction hypothesis and (ii);
+\item the main theorem then follows from (iv).
+\end{itemize}
+
+\subsection{Axioms, the use of \texttt{native\_decide}, and runs}
+\texttt{\#print axioms} reports, for both main theorems,
+\begin{center}\small
+\texttt{[propext, Classical.choice, Quot.sound, bigCheck\_true.\_native.native\_decide.ax\_1\_1]}
+\end{center}
+and for \texttt{bigCheck\_true} itself
+\begin{center}\small
+\texttt{[propext, Quot.sound, bigCheck\_true.\_native.native\_decide.ax\_1\_1]}.
+\end{center}
+There is no \texttt{sorry}, \texttt{admit} or user-declared axiom. The last axiom expresses trust in Lean's
+evaluator for the single closed Boolean term \texttt{bigCheck}: the trusted base of Theorem~\ref{thm:core}
+is the Lean kernel \emph{plus} the compiler/IR interpreter invoked by \texttt{native\_decide}
+(\texttt{Lean.ofReduceBool}). A reader who does not extend trust to the latter should regard
+Theorem~\ref{thm:core} as computer-checked rather than kernel-checked; the two independent C programs
+of \cref{sec:comp} confirm the same table-level facts.
+
+\paragraph{Why not the kernel.} \texttt{bigCheck} builds an array of $10^8+1$ bytes by a sieve and then
+performs of the order of $10^9$ table look-ups (checks (ii)--(iv)). The Lean kernel evaluates terms by
+reduction, without a constant-time array representation; even the interpreter needed about 82 minutes
+for $L=10^8$. A kernel reduction of this size is far out of reach, so the check is delegated to
+\texttt{native\_decide}, and only to this one closed term.
+
+\paragraph{Runs.} Lean 4.34.1 on a shared 14-core machine:
+\texttt{Main.lean} ($k=5$, $L=10^8$): wall time $4940$\,s, 725\,MB;
+\texttt{Main7.lean} ($k=7$, $L=10^7$): $165$\,s, 540\,MB. Both were run with plain
+\texttt{lean <file>} (no project file, no Mathlib) under a timing/memory-limit wrapper;
+\texttt{Main7.lean} with the extra flag \texttt{-j 2}. An independent re-run by the reviewer with the
+same toolchain reproduced both outputs (see \texttt{README.md}).
+Two control files (in \texttt{lean/}) show that the check is not vacuous: with $g\equiv1$ the same
+\texttt{bigCheck} evaluates to \texttt{false} for $L=15500$ (zero triple $15470$--$15472$) and to
+\texttt{true} for $L=15469$. An earlier version of the checker, organised differently but with the same
+proof plan, certified the $k=5$ statement for $L=10^7$.
+
+\paragraph{Statement audit.} The hypotheses quantify over \emph{all} $f:\N\to\N$; \texttt{hmul} is
+complete additivity mod $5$ on $[1,L]$ (all $a,b\ge1$ with $ab\le L$), and \texttt{hprime} prescribes
+$f$ on every prime $\le L$ via \texttt{IsPrime}, the textbook definition. These are exactly the
+properties of the index functions $f_P$ of Lemma~\ref{lem:real} for $P>L$. The function \texttt{g} is a
+plain if-chain whose values agree with Definition~\ref{def:g}; the leading test \texttt{49613 < p} only
+short-cuts the chain (no exceptional prime exceeds $49613$). The conclusion covers every window
+$r,r+1,r+2$ contained in $[1,L]$, so a first zero triple must start at $r\ge L-1$, as used in
+Corollary~\ref{cor:transfer}. The table \texttt{T}, the bound \texttt{B} and the sieve do not appear in the
+statement.
+
+%======================================================================
+\section{Computational results (not formally certified)}\label{sec:comp}
+
+\begin{proposition}[computation]\label{prop:comp}
+The completely additive extension $\chi_{g_5}$ has no triple of consecutive zeros $r,r+1,r+2$ with
+$r+2\le313\,714\,025$, and
+\[
+\begin{array}{rcl@{\qquad}l}
+313714024 &=& 2^3\cdot13^4\cdot1373, & \chi_{g_5}=3\cdot0+4\cdot0+0=0,\\
+313714025 &=& 5^2\cdot29^2\cdot43\cdot347, & \chi_{g_5}=0+2+1+2\equiv0,\\
+313714026 &=& 2\cdot3^3\cdot997\cdot5827, & \chi_{g_5}=0+3+1+1\equiv0 \pmod5.
+\end{array}
+\]
+Likewise $\chi_{g_7}$ has no zero triple with $r+2\le180\,317\,501$, and its first zero triple is
+$180317500=2^2\cdot5^4\cdot11\cdot79\cdot83$, $180317501=7^4\cdot13\cdot53\cdot109$,
+$180317502=2\cdot3^4\cdot37\cdot67\cdot449$.
+\end{proposition}
+
+By Corollary~\ref{cor:transfer} (with $L=313\,714\,025$, resp.\ $L=180\,317\,501$), Proposition~\ref{prop:comp} gives $\Lambda(5,3)\ge313\,714\,024$ and
+$\Lambda(7,3)\ge180\,317\,500$; moreover $r(5,3,P)=313\,714\,024$ for infinitely many $P$, namely the primes
+of Lemma~\ref{lem:real} for the primes $q\le313\,714\,026$.
+
+\paragraph{How this was checked.} Two independent C programs compute $\chi_g$ and scan for zero triples:
+one uses a smallest-prime-factor table and the recursion $\chi(n)=g(p)+\chi(n/p)$; the other factors each
+segment of $2^{24}$ integers by trial division by all primes up to $\sqrt{L}$. Both find the same
+first triples. The three factorisations above were also checked with SymPy and can be verified by hand.
+These computations are not formally certified. \texttt{Main.lean} with \texttt{L := 313714025} and
+\texttt{B := 17713} (so that $(B+1)^2>L$) would certify the bound $\Lambda(5,3)\ge313\,714\,024$, but
+we did not run it: at the measured interpreter speed it would need several hours.
+
+\paragraph{Search.} The assignments were found by a WalkSAT-type local search over the values of the
+primes, with incremental bookkeeping of zero triples: a zero window is picked at random and the value of
+one of the primes dividing its members is changed so as to minimise the number of zero windows. Starting
+from the $\Omega$-assignment, 4 and 36 moves removed all zero triples up to $10^6$ and $10^7$ ($k=5$);
+61 further moves extended a $10^7$ solution to $10^8$; for $k=7$, three moves sufficed up to $10^8$.
+An exact depth-first search with conflict-directed backjumping over the same model reproduces the known
+values $\Lambda(2,2)=9$, $\Lambda(3,2)=77$, $\Lambda(4,2)=1224$ and $\Lambda(5,2)=7888$ as the boundary
+between solvable and unsolvable bounds, which checks the model (including Lemma~\ref{lem:real}) against the
+literature for $k=2,3,5$. (For $k=4$ this is only a plausibility check: Lemma~\ref{lem:real} is stated
+for odd prime $k$, and the symmetry reduction used by the search---scaling all values by a unit of
+$\Z/k\Z$, so that the first non-zero prime value may be taken to be $1$---is transitive on the non-zero
+values only for prime $k$; for $k=4$ the search therefore omits assignments whose first non-zero value
+is $2$, and its ``unsolvable'' verdict at $1225$ is not a complete search.)
+
+\paragraph{Side data.} The $\Omega$-assignment alone gives $\Lambda(11,2)\ge6\,082\,047$ (first zero
+pair $6082047=3^{10}\cdot103$, $6082048=2^9\cdot7\cdot1697$) and
+$\Lambda(13,2)\ge10^8$ (no two consecutive integers below $10^8$ have $\Omega\equiv0\pmod{13}$), again by
+computation only. These two bounds are \emph{weaker} than what has been known since 1964: Brillhart,
+Lehmer and Lehmer \cite[\S\S1, 6]{BLL64} proved $\Lambda(k,2)>5^k$ for every odd $k\ge5$ by an
+elementary argument (the assignment $R(3)=0$, $R(q)=1$ for $q\ne3$, and factorisations of $3^n\pm1$),
+so $\Lambda(11,2)>48\,828\,125$ and $\Lambda(13,2)>1.2\cdot10^9$; they remark that $7\cdot5^{k-1}$ can be
+obtained similarly, and they give $\Lambda(8,2)\ge1\,200\,744$, $\Lambda(9,2)>10^7$,
+$\Lambda(10,2)\ge22\,458\,303$. Elementarily, for every odd prime $k$ the
+$\Omega$-assignment shows $\Lambda(k,2)\ge3^k-1$ and $\Lambda(k,3)\ge3^k-2$: every member $n\ge2$ of a zero
+run has $\Omega(n)\ge k$, and one member is odd, hence at least $3^k$. We claim no novelty for these remarks.
+
+%======================================================================
+\section{Finiteness remains open}\label{sec:open}
+
+We stress that Theorem~\ref{thm:main} and Proposition~\ref{prop:comp} are lower bounds; they do not decide whether
+$\Lambda(5,3)$ or $\Lambda(7,3)$ is finite.
+
+By Lemma~\ref{lem:real}, $\Lambda(k,3)$ is finite if and only if for some $L$ every assignment $g$ has a zero
+triple of $\chi_g$ in $[1,L]$ (if not, Corollary~\ref{cor:transfer} gives $\Lambda(k,3)\ge L-1$ for every $L$;
+conversely every prime $P\equiv1\pmod k$ induces an assignment). We found no sign of such an $L$: the exact search slows down near $1.4\cdot10^5$ without proving
+unsolvability, while the local search finds solutions far beyond with very few changes.
+
+The method behind $\Lambda(3,3)=23532$ \cite{LLMS62} and the values of $\Lambda(k,2)$ restricts to the
+first $t$ primes and uses runs of consecutive $p_t$-smooth integers, whose zero conditions are linear
+forms on $(\Z/k\Z)^t$. By the analogue for triples of the heuristic count in \cite[p.~174]{LLM63}, covering $(\Z/5\Z)^{25}$ by the
+codimension-three subspaces coming from triples would need about
+$-t\log5/\log(1-5^{-3})\approx5000$ triples of consecutive $97$-smooth integers, while there are only
+$787$ such triples below $10^{12}$ (our count). So the approach of 1962 does not extend in an obvious way.
+Nor can periodic constructions prove $\Lambda(k,3)=\infty$ for odd $k$: if $\chi$ agrees on integers
+prime to $M$ with a character $\psi$ of $(\Z/M\Z)^\times$ of order dividing $k$ (written additively,
+with values in $\Z/k\Z$), then $\psi(-1)=0$ as $k$ is odd, so $M^k-1$ and $M^k+1$ (both $\equiv\pm1\pmod M$)
+are zeros of $\chi$, and $\chi(M^k)=k\,\chi(M)=0$; thus $(M^k-1,M^k,M^k+1)$ is a zero triple.
+
+%======================================================================
+\section{Data and reproduction}
+All files are in the directory of this preprint.
+\begin{itemize}
+\item Lean files \path{lean/Main.lean} and \path{lean/Main7.lean}, with outputs
+\path{lean/lean_output.txt} and \path{lean/lean_output_k7.txt}; control files
+\path{lean/NegOpt.lean} and \path{lean/PosOpt.lean}. Check with
+\texttt{lean Main.lean} run inside \path{lean/} (Lean 4.34.1, core library only; no \texttt{lakefile}
+is needed).
+\item \path{data/assignment_k5.txt}, \path{data/assignment_k7.txt}: the exceptional primes and their
+values (all other primes have value $1$).
+\item \path{scripts/}: C sources of the local search (\path{ws2.c}), the exact search (\path{lam.c}),
+the two independent checkers (\path{vchk.c}, \path{segchk.c}), the $\Omega$-baseline (\path{om.c}),
+and \path{reproduce.sh}.
+\end{itemize}
+
+{\small
+\bibliographystyle{plain}
+\bibliography{references}
+}
+\end{document}

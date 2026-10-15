@@ -1,0 +1,28 @@
+# Independent re-check of lean/Main.lean (review, October 8, 2026)
+# sha256(Main.lean) = 20251d5cb88aa970b1d612839717a8f072e3869ed4bdef8ea44b06859a387f4f
+# toolchain: Lean (version 4.34.1, x86_64-unknown-linux-gnu, commit 5045d0056413266e57c625dcd7c365b10e377c52, Release)
+# command: lean Main.lean   (default thread count, no ulimit; /usr/bin/time -v)
+# result: exit status 0; wall time 20:37 (1237 s); maximum resident set size 3677636 kB (3.5 GiB); no errors, no warnings
+# stdout (identical to the 22 axiom lines of lean_output.txt):
+'W2_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_11' depends on axioms: [propext, Classical.choice, Quot.sound]

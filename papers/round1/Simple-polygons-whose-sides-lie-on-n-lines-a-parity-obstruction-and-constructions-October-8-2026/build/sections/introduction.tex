@@ -1,0 +1,99 @@
+\section{Introduction}\label{sec:intro}
+
+A polygon is \emph{simple} if its boundary is a Jordan curve. Suppose a simple polygon has $k$ sides
+$S_1,\dots,S_k$ and each side $S_j$ lies on a line $L_j$ taken from a fixed set of $n$ lines. How
+large can $k$ be? We write $M(n)$ for the maximum, over all sets of $n$ lines and all such polygons.
+
+This question was asked on MathOverflow by Johnathan Will (\url{https://mathoverflow.net/users/596423})
+on July 31, 2026~\cite{MO513798}. Their upper bound comes from the following observation. Consecutive
+sides lie on distinct lines, and since the vertex $L_j\cap L_{j+1}$ is visited only once, no unordered
+pair of lines occurs twice as a consecutive pair. So the cyclic sequence $L_1,\dots,L_k$ is a closed
+trail in the complete graph $K_n$, and $k$ is at most the maximum length of a closed trail in $K_n$, which is
+$n\lfloor (n-1)/2\rfloor$ (OEIS \href{https://oeis.org/A050187}{A050187}~\cite{A050187}).
+
+The asker conjectured that $M(n)=n\lfloor (n-1)/2\rfloor$ for every $n$. They gave simple examples for
+$n\le 6$, using the pentagram outline for $n=5$ and the Star of David for $n=6$, and self-intersecting
+examples based on star polygons for $n=7,9,10$; the latter construction breaks down at $n=11$. In the
+comments, the user DSM (\url{https://mathoverflow.net/users/12613}) found a simple $24$-gon on $8$ lines
+and remarked that they could reach $18$ sides with $7$ lines but not $21$. The asker then asked whether
+one can prove that for $n=7$ only a self-intersecting (``genus~1'') polygon can reach $21$ sides. As of
+October 8, 2026 the question had no answers.
+
+\paragraph{Results.} Write $n=2r+1$ for odd $n$; then $n\lfloor (n-1)/2\rfloor=\binom n2$.
+
+\begin{theorem}[Parity obstruction]\label{thm:parity}
+Let $n=2r+1$. In every simple arrangement of $n$ lines, and more generally of $n$ pseudolines, the
+\emph{alternating $2$-factor} $G$ (Definition~\ref{def:G}) has a number of connected components congruent to
+$r(r+1)/2=(n^2-1)/8$ modulo $2$.
+\end{theorem}
+
+\begin{theorem}[Reduction]\label{thm:reduction}
+If $n$ is odd and a simple polygon with $\binom n2$ sides has its sides on $n$ lines, then the
+arrangement is simple and the polygon is exactly the alternating $2$-factor, which must therefore be
+connected. If instead such a polygon has $k\neq\binom n2$ sides, then $k\le\binom n2-3$.
+\end{theorem}
+
+\begin{corollary}\label{cor:main}
+If $n\equiv\pm1\pmod 8$, then $M(n)\le\binom n2-3$. In particular $M(7)\le 18$ and $M(9)\le 33$, so
+the conjectured equality fails for every $n\equiv\pm 1\pmod 8$.
+\end{corollary}
+
+\begin{theorem}[Constructions; Lean-certified]\label{thm:constructions}
+There are explicit arrangements of $7$, $9$, $11$ and $13$ lines with integer coefficients carrying
+simple polygons with $18$, $33$, $55$ and $78$ sides respectively (\cref{sec:constructions}).
+Consequently
+\[
+  M(7)=18,\qquad M(9)=33,\qquad M(11)=55=11\cdot 5,\qquad M(13)=78=13\cdot 6 .
+\]
+\end{theorem}
+
+The values $M(11)$ and $M(13)$ follow from the constructions together with the elementary upper bound.
+The values $M(7)$ and $M(9)$ also need Corollary~\ref{cor:main}. The value $M(7)=18$ confirms DSM's
+experimental $18$ and shows that it is optimal.
+
+The proof of Theorem~\ref{thm:parity} is elementary. A left-to-right sweep of the wiring diagram shows
+that every cycle of $G$ contains an odd number of crossings of a certain type (Lemma~\ref{lem:percycle}),
+and an explicit potential function on permutations counts those crossings modulo $2$
+(Lemma~\ref{lem:A}). Theorem~\ref{thm:parity} is a statement about \emph{every} arrangement, so for
+$n\equiv\pm1\pmod 8$ the obstruction cannot be avoided by choosing the lines cleverly.
+
+\paragraph{Relation to arrangement graphs.} The \emph{arrangement graph} of a simple arrangement has
+the intersection points as vertices and the segments between consecutive intersection points on a
+line as edges~\cite{BoseEverettWismath2003,FelsnerHurtadoNoyStreinu2006}. A simple polygon with
+$\binom n2$ sides on $n$ lines is the same thing as a Hamiltonian cycle of the arrangement graph that
+\emph{turns} at every vertex, i.e.\ never uses two consecutive edges of the same line
+(Remark~\ref{rem:converse}), and by Theorem~\ref{thm:reduction} the only candidate for such a cycle is
+the alternating $2$-factor. Bose, Everett and Wismath~\cite{BoseEverettWismath2003} showed that
+\emph{some} arrangements of $n$ lines have non-Hamiltonian arrangement graphs, for $n=6$ and for all odd
+$n>6$. Corollary~\ref{cor:main} is a statement of a different kind: for $n\equiv\pm1\pmod 8$ \emph{no}
+arrangement of $n$ lines or pseudolines has a turning Hamiltonian cycle, whereas for $n=11$ and $n=13$
+some do. The related notion of an \emph{inducing polygon} goes back to~\cite{BoseEverettWismath2003}, who
+asked whether every simple arrangement of $n$ lines carries a simple $n$-gon with exactly one side on
+each line. Scharf and Scherfenberg~\cite{ScharfScherfenberg2011} relaxed the notion to simple polygons
+whose sides lie on the lines of the arrangement and which use every line (several sides may lie on the
+same line), i.e.\ exactly the polygons considered here, and showed that every simple arrangement has
+such a polygon with $O(n)$ sides; Ackerman, Pinchasi, Scharf and
+Scherfenberg~\cite{AckermanPinchasiScharfScherfenberg2013} then answered the original question: an
+inducing simple $n$-gon always exists. In this language, $M(n)$ is the largest number of sides of an
+inducing polygon of an arrangement of at most $n$ lines, whereas the cited work is concerned with
+inducing polygons with \emph{few} sides. We are not aware of earlier work on the maximum number of
+sides, on the alternating $2$-factor, or on the parity of its number of components.
+
+\paragraph{Verification status.}
+\begin{itemize}
+\item The four constructions of Theorem~\ref{thm:constructions} are checked in Lean~4.34.1 (core only, no
+  Mathlib) by kernel evaluation with exact integer arithmetic. The relevant theorems are
+  \texttt{mo513798\_n7}, \texttt{\_n9}, \texttt{\_n11} and \texttt{\_n13}; the only axiom used is
+  \texttt{propext}. See \cref{sec:formal}. They were also rechecked, independently of Lean, in exact
+  rational arithmetic (\cref{sec:limitations}).
+\item Theorems~\ref{thm:parity} and~\ref{thm:reduction} and Corollary~\ref{cor:main} are proved on paper
+  and \emph{not} formally verified. Their conclusions were confirmed by exhaustive computation over all
+  simple arrangements of $n\le 9$ pseudolines, i.e.\ over all $112\,018\,190$ commutation classes of
+  reduced words of the longest permutation for $n=9$, and by random tests up to $n=23$; this is
+  evidence, not a proof (\cref{sec:limitations}).
+\end{itemize}
+
+\paragraph{Organisation.} \Cref{sec:reduction} proves Theorem~\ref{thm:reduction}. \Cref{sec:parity} proves
+Theorem~\ref{thm:parity}. \Cref{sec:constructions} gives the constructions and \cref{sec:formal} their formal
+certification. \Cref{sec:limitations} lists what is not verified, the computational checks, and some open
+questions.

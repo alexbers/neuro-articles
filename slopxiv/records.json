@@ -1,0 +1,676 @@
+[
+  {
+    "title": "A balanced 13-variable Boolean function with absolute indicator 112",
+    "path": "papers/round1/A-balanced-13-variable-Boolean-function-with-absolute-indicator-112-October-8-2026",
+    "abstract": "We exhibit an explicit balanced Boolean function $f\\colon\\F_2^{13}\\to\\F_2$ of algebraic degree $11$ whose absolute indicator is $\\Delta_f=\\max_{d\\neq 0}\\bigl|\\sum_{x}(-1)^{f(x)\\oplus f(x\\oplus d)}\\bigr|=112$. Since $112<2^{\\lfloor (13+1)/2\\rfloor}=128$, this is a counterexample to the conjecture of Zhang and Zheng (1995) in the case $n=13$; to our knowledge, for odd $n$ the conjecture had previously been disproved only for $n\\in\\{9,11,15,21\\}$. The function is invariant under the affine group $\\AGL(1,13)$ permuting the coordinates and was found by a local search in the $2^{74}$-element class of such functions. Balancedness, the degree bound $\\deg f\\ge 3$ and $\\Delta_f\\le 112$ are certified in Lean~4 (core library only), with all computations checked by the kernel and only the standard axioms.",
+    "categories": [
+      "cs.IT",
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Exhibit a **balanced** Boolean function `f : F_2^13 → F_2` of **algebraic degree ≥ 3** whose **absolute indicator** `Δ_f = max_{d ≠ 0} |r_f(d)|` is **strictly less than `2^⌊(13+1)/2⌋ = 2^7 = 128`**, and certify all three properties in Lean 4 (core only). Such a function is a counterexample to the Zhang–Zheng conjecture (1995) in the case n = 13.",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "An explicit 6-regular graph of girth 9 on 4368 vertices",
+    "path": "papers/round1/An-explicit-6-regular-graph-of-girth-9-on-4368-vertices-October-8-2026",
+    "abstract": "We construct an explicit $6$-regular simple graph of girth exactly $9$ on $4368$ vertices. It is a regular cover (voltage lift) of a two-vertex multigraph with voltages in $\\SL(2,13)$. Consequently $n(6,9)\\le 4368$, where $n(k,g)$ is the order of a $(k,g)$-cage. To our knowledge, as of October 8, 2026, the current cage tables list no explicit $6$-regular graph of girth $9$. The best bound we could find was the implicit estimate $n(6,9)\\le n(6,11)\\le 7783$, which follows from the monotonicity of $n(6,g)$ in $g$; explicit $6$-regular graphs of girth $9$ obtained from general constructions (Sauer's bound, Ramanujan graphs of Lubotzky--Phillips--Sarnak) are much larger than $4368$. All properties of the graph (simplicity, $6$-regularity, absence of cycles of length at most $8$, and an explicit $9$-cycle) are certified in Lean~4 (core library only) by kernel computation. The proof uses only the standard axioms \\texttt{propext}, \\texttt{Classical.choice} and \\texttt{Quot.sound}. The lower bound $n(6,9)\\ge 938$ is unchanged, so a large gap remains.",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Construct an explicit 6-regular graph of girth exactly 9 (a *(6,9)-graph*) — and, if possible, a 6-regular graph of girth exactly 10 (a *(6,10)-graph*) — on as few vertices as possible, and certify it in Lean 4 (core only, no Mathlib). This gives an explicit upper bound `n(6,9) ≤ N` (resp. `n(6,10) ≤ N`) for the cage function `n(k,g)`. Success criterion: a certified graph of order well below the only bound currently implied by the literature (see STATUS), i.e. `N < 7781` for (6,9) and `N < 7782` for (6,10), with the order reported exactly.",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "Explicit lower bounds for runs of three consecutive\\\\ quintic and septic residues",
+    "path": "papers/round1/Explicit-lower-bounds-for-runs-of-three-consecutive-quintic-and-septic-residues-October-8-2026",
+    "abstract": "For a prime $p$ let $r(k,3,p)$ be the least $r\\ge1$ such that $r,r+1,r+2$ are all $k$-th power residues modulo $p$, and $\\Lambda(k,3)=\\limsup_{p\\to\\infty}r(k,3,p)$. Lehmer, Lehmer, Mills and Selfridge proved $\\Lambda(3,3)=23532$; whether $\\Lambda(k,3)$ is finite for odd $k\\ge5$ is open (Erd\\H{o}s Problem \\#436). We give explicit assignments of quintic (resp.\\ septic) characters to the primes and prove, with a Lean~4 certificate (one \\texttt{native\\_decide} evaluation, everything else kernel-checked), that no completely additive function realising them has three consecutive zeros below $10^8$ (resp.\\ $10^7$). Combined with the classical Kummer--Chebotarev realisability argument, which we prove in the paper but did not formalise, this gives $\\Lambda(5,3)\\ge 99\\,999\\,999$ and $\\Lambda(7,3)\\ge 9\\,999\\,999$. Computations outside Lean show that the same assignments have their first triples of consecutive zeros at $313\\,714\\,024$ and $180\\,317\\,500$, so $\\Lambda(5,3)\\ge313\\,714\\,024$ and $\\Lambda(7,3)\\ge180\\,317\\,500$ (computational, not formally certified). The bounds previously available were the trivial $\\Lambda(5,3)\\ge\\Lambda(5,2)=7888$ and $\\Lambda(7,3)\\ge\\Lambda(7,2)=1\\,649\\,375$. Whether $\\Lambda(5,3)$ and $\\Lambda(7,3)$ are finite remains open.",
+    "categories": [
+      "math.NT"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "For a prime `p` and integers `k, m ≥ 2` let `r(k,m,p)` be the least `r ≥ 1` such that `r, r+1, …, r+m-1` are all `k`-th power residues modulo `p`, and `Λ(k,m) = limsup_{p→∞} r(k,m,p)`. Erdős–Graham (after Lehmer–Lehmer) ask: *Is `Λ(k,3)` finite for all odd `k`? How large are `Λ(k,2)`, `Λ(k,3)`?* The first open case is `k = 5`. Primary target: decide whether `Λ(5,3) < ∞`. Fallback target (if the primary resists): new, certified quantitative information on `Λ(5,3)` and `Λ(7,3)` — explicit lower bounds — together with whatever the search reveals about finiteness.",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "New four-dimensional linear codes over $\\mathbb{F}_8$ and $\\mathbb{F}_9$ improving Maruta's tables",
+    "path": "papers/round1/New-four-dimensional-linear-codes-over-GF8-and-GF9-improving-Marutas-tables-October-8-2026",
+    "abstract": "Let $n_q(4,d)$ be the smallest length of a linear $[n,4,d]_q$ code. We give 32 explicit four-dimensional linear codes, 24 over $\\F_9$ and 8 over $\\F_8$. Together with the codes obtained from them by puncturing, they are shorter than the upper bound recorded in Maruta's online tables of $n_q(4,d)$ (as of October 8, 2026) for $191$ values of $d$: for $149$ values of $d$ with $190\\le d\\le 513$ when $q=9$ (twenty of them by $2$), and for $42$ values of $d$ with $137\\le d\\le 376$ when $q=8$. In $29$ cases the new length equals the lower bound proved in the literature, which gives $n_8(4,d)=g_8(4,d)+1$ for $d\\in\\{337,\\dots,345\\}\\cup\\{353,354\\}\\cup\\{361,\\dots,376\\}$ and $n_9(4,512)=578$, $n_9(4,513)=579$, where $g_q(4,d)$ is the Griesmer bound. The codes were found by a prescribed-automorphism search (orbits of cyclic subgroups of $\\PGL(4,q)$, integer programming, and greedy lengthening). The existence of every code is certified in Lean~4 by a kernel-checked computation whose soundness is proved in Lean. The lower bounds are cited, not re-proved.",
+    "categories": [
+      "cs.IT",
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "For a prime power `q` let `n_q(k,d)` be the smallest length `n` for which a linear `[n,k,d]_q` code exists. For `k = 4` and `q ∈ {8, 9}` the exact value of `n_q(4,d)` is still unknown for hundreds of values of `d`; the current state of knowledge is the interval `n_lo(d) ≤ n_q(4,d) ≤ n_up(d)` recorded in T. Maruta's tables * `q = 9`: <http://mars39.lomo.jp/opu/bound9_4-1.htm> (… `-2` … `-6`), 727 open values of `d`; * `q = 8`: <http://mars39.lomo.jp/opu/bound8_4.htm> (… `-2` … `-6`), 415 open values of `d`. **Target.** Construct explicit linear `[n,4,d]_q` codes (`q = 8` or `9`) with `n < n_up(d)`, i.e. strictly shorter than every code recorded in the table, and certify them in Lean. The stro",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "New lower bounds for line-free sets in $\\mathbb{F}_7^3$ and $\\mathbb{F}_{11}^3$",
+    "path": "papers/round1/New-lower-bounds-for-line-free-sets-in-F7-3-and-F11-3-October-8-2026",
+    "abstract": "A subset of $\\F_p^n$ is \\emph{line-free} if it contains no affine line, equivalently no $p$-term arithmetic progression with nonzero common difference; $r_p(\\F_p^n)$ denotes the largest size of such a set. We exhibit an explicit line-free set of $227$ points in $\\F_7^3$ and an explicit line-free set of $1010$ points in $\\F_{11}^3$, so that $r_7(\\F_7^3)\\ge 227$ and $r_{11}(\\F_{11}^3)\\ge 1010$; the previously best known lower bounds were $225$ and $1005$. By the product construction, $r_7(\\F_7^{3k})\\ge 227^k$ for every $k\\ge0$, and hence $\\lim_{n\\to\\infty} r_7(\\F_7^n)^{1/n}\\ge 227^{1/3}\\approx 6.1002$; this improves the three-dimensional product bound $225^{1/3}\\approx 6.0822$ of Elsholtz et al., but not the best known bound $7^{20/21}\\approx 6.3805$, which follows from the line-evasive sets of F\\\"uhrer and Taranchuk (2024). The sets were found by tabu search with iterated local search. Both lower bounds and the statement $r_7(\\F_7^{3k})\\ge 227^k$ for all $k$ are certified in Lean~4 (core library only) by kernel-checked computation and a structural proof; the only step not formalised is the passage to the limit (Fekete's lemma).",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Improve the best known lower bound for r_7(F_7^3), the largest size of a subset of F_7^3 = (Z/7Z)^3 that contains no full affine line, by exhibiting an explicit larger set (current record 225, Elsholtz, Führer, Füredi, Kovács, Pach, Simon, Velich 2023/2024). Secondary targets: r_5(F_5^3) >= 70 (upper bound 73), and r_11(F_11^3) >= 1005, r_13(F_13^3) >= 1734, which come from the general constructions (Thm 1.1 / Thm 1.7: (p-1)^3 + (p-1)/2 for n = 3) of the same paper, with no computer search reported.",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "New lower bounds for multicolour van der Waerden numbers\\\\ from composite cyclic moduli",
+    "path": "papers/round1/New-lower-bounds-for-multicolour-van-der-Waerden-numbers-from-composite-cyclic-moduli-October-8-2026",
+    "abstract": "Let $\\W(r,k)$ be the least $N$ such that every $r$-colouring of $\\{1,\\dots,N\\}$ contains a monochromatic $k$-term arithmetic progression. We give explicit colourings showing $\\W(4,6)>255{,}606$, $\\W(5,6)>1{,}278{,}030$, $\\W(6,6)>2{,}531{,}178$, $\\W(4,8)>18{,}874{,}790$, $\\W(4,9)>212{,}844{,}870$, $\\W(5,10)>13{,}086{,}046{,}358$, $\\W(4,11)>3{,}761{,}291{,}754$, $\\W(4,12)>37{,}088{,}321{,}982$ and seven further bounds for five and six colours (\\cref{tab:main}). To our knowledge, as of October 8, 2026, these improve fifteen entries of the standard tables (the Wikipedia table of $\\W(r,k)$ and Monroe's table of four-colour bounds). No new search is involved. The colourings come from one elementary blow-up lemma applied to cyclic $2$- and $3$-colourings that are already in the literature (Rabung; Herwig--Heule--van~Lambalgen--van~Maaren; Rabung--Lotts; Heule; cf.\\ Kouril--Paul for $\\W(2,6)$). These certificates are cyclic on \\emph{composite} moduli ($226$, $1642$, $5158$, $19394$, $58066$) that exceed the prime moduli used in the published product bounds. We also use the Blankenship--Cummings--Taranchuk block step with the prime $p=11>k$ for $k=10$, as their own remark allows. Every bound is certified by a kernel-checked proof in Lean~4 (core only, no Mathlib) whose main theorems depend only on the standard axioms \\texttt{propext}, \\texttt{Classical.choice}, \\texttt{Quot.sound}.",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Improve (i.e. exhibit explicit colourings beating) the best published lower bounds for the diagonal van der Waerden numbers `W(r,k)` with `r ∈ {4,5,6}` colours that appear in the standard tables (Wikipedia \"Van der Waerden number\", table \"W(r,k)\", columns 4–6 colours, rows k = 3..11; Monroe's table of 4-colour bounds, JCMCC 128 (Dec 2025), rows k = 3..25), and certify every new bound in Lean 4 (core only) by a kernel-checked proof that a concrete r-colouring of `{0, …, N-1}` has no monochromatic k-term arithmetic progression.",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "New proper circulant weighing matrices\\\\ from a twin of the Singer construction",
+    "path": "papers/round1/New-proper-circulant-weighing-matrices-from-a-twin-of-the-Singer-construction-October-8-2026",
+    "abstract": "A circulant weighing matrix $\\CW(n,k)$ is a circulant $n\\times n$ matrix $W$ with entries in $\\{0,\\pm1\\}$ and $WW^{\\mathsf T}=kI$; it is proper if it is not the lift of a smaller one. We construct proper $\\CW(146,8^2)$, $\\CW(266,11^2)$, $\\CW(366,13^2)$, $\\CW(504,12^2)$, $\\CW(614,17^2)$ and $\\CW(762,19^2)$. To our knowledge, as of October 8, 2026, the existence of a proper circulant weighing matrix with each of these parameters was open: all six are listed as open in Gordon's La Jolla Circulant Weighing Matrix Repository and none appears in Gordon's 2026 table of known proper $\\CW(n,k)$ with $n<1000$, $k\\le 19^2$. For $\\CW(504,144)$ no circulant weighing matrix of any kind was known. All six first rows are explicit and are verified in Lean~4 (core library only) by kernel evaluation. Four of them come from a new ``twin'' of the classical Singer-complement construction. For $q$ odd, the standard $\\CW(q^2+q+1,q^2)$ on the points of $\\mathrm{PG}(2,q)$ has a twin, obtained by composing with the homology of ratio $-2$ (an elation when $p=3$), that has the same support. Whenever the twin is again a circulant weighing matrix, a doubling lemma produces a proper $\\CW(2(q^2+q+1),q^2)$. We conjecture that this holds for every odd prime power $q$. It has been checked by computer for all odd prime powers $q\\le251$, but we have no proof. The other two matrices come from a multiplier-restricted search ($n=146$) and from a product over non-coprime orders ($n=504$).",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "1. **Open table entries.** For parameter pairs `(n, k = s^2)` with `n < 1000`, `s <= 19` for which the existence of a *proper* circulant weighing matrix `CW(n, k)` is listed as unknown in the current tables, construct an explicit proper `CW(n, k)` (first row in `{0, +1, -1}^n`) and certify it. Tables: Gordon's La Jolla Circulant Weighing Matrix Repository (dataset v1.3, commit 5b3d729, 2026-04-24, entries with `\"status\": \"Open\"`) and the curated table of all known proper `CW(n,k)` with `n < 1000`, `k <= 19^2` (Gordon, *Cyclic relative difference sets and circulant weighing matrices*, J. Algebr. Comb. 63 (2026), Table 7 = arXiv:2501.14924; reproduced verbatim on https://dmgordon.org/circulant",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "Proof of Sun's conjecture on coprime adjacent sums\\\\ (OEIS A228886)",
+    "path": "papers/round1/Proof-of-Suns-conjecture-on-coprime-adjacent-sums-OEIS-A228886-October-8-2026",
+    "abstract": "For $n\\ge 1$ let $a(n)$ be the number of permutations $(i_0,i_1,\\dots,i_n)$ of $\\{0,1,\\dots,n\\}$ with $i_0=0$ and $i_n=n$ such that all $n+1$ cyclic adjacent sums $i_0+i_1,\\ i_1+i_2,\\ \\dots,\\ i_{n-1}+i_n,\\ i_n+i_0$ are coprime to both $n-1$ and $n+1$ (OEIS A228886). In 2013 Zhi-Wei Sun conjectured that $a(n)>0$ for every $n\\ge1$ except $n=2,4$, and proved this for odd $n$. We give explicit permutations for all even $n\\ge 6$, which completes the proof: $a(n)>0$ if and only if $n\\notin\\{2,4\\}$. We also settle Sun's companion question in which $n\\pm1$ is replaced by $2n\\pm1$: a permutation with all cyclic adjacent sums coprime to $2n-1$ and $2n+1$ exists if and only if $n\\neq 2$. In particular the formulation ``for any positive integer $n$'' given in the OEIS entry fails exactly at $n=2$. Both statements, including Sun's odd case and the impossibility for the exceptional $n$, are formally verified in Lean~4 using the core library only.",
+    "categories": [
+      "math.NT",
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Prove, for **every** integer `n ≥ 1`: > There is a permutation `i_0, i_1, …, i_n` of `0, 1, …, n` with `i_0 = 0` and `i_n = n` such that > all `n + 1` cyclic adjacent sums > `i_0+i_1, i_1+i_2, …, i_{n-1}+i_n, i_n+i_0` > are coprime to both `n − 1` and `n + 1` **if and only if** `n ∉ {2, 4}`. Equivalently: `A228886(n) > 0` for all `n ≥ 1` except `n = 2, 4` (Sun's conjecture). Secondary target (same OEIS entry, comments; Sun arXiv:1309.1679, Remark 3.9(i)): the same question with `n ± 1` replaced by `2n ± 1`. Sun guessed it holds for all `n` (OEIS wording: \"for any positive integer n\"; paper wording: Conjecture 3.9 with `n ± 1 → 2n ± 1`, i.e. for `n ≠ 2, 4`). Decide exactly for which `n ≥ 1` i",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "Settling small open cases of signed difference sets",
+    "path": "papers/round1/Settling-small-open-cases-of-signed-difference-sets-October-8-2026",
+    "abstract": "A $(v,k,\\lambda)$ signed difference set in a finite abelian group $G$ of order $v$ is a group-ring element $D=\\sum_g s_g g$ with $s_g\\in\\{-1,0,1\\}$, exactly $k$ nonzero coefficients, and $DD^{(-1)}=(k-\\lambda)1_G+\\lambda G$. Gordon's La Jolla signed difference set repository lists 67{,}823 group-specific parameter cases as open; after the nonexistence criteria of He and Wu (2026), 22{,}462 remain. We prove that there is no $(9,8,1)$ signed difference set in $\\Z_3\\times\\Z_3$, the smallest open case; the proof is short, and a Lean~4 kernel-checked certificate is given. We exhibit explicit signed difference sets for 45 further open cases, all with $v\\le 64$, each verified by the Lean kernel. To our knowledge, as of October 8, 2026, 26 of these are new. These include an eighth-order cyclotomic $(25,12,1)$ signed difference set in $\\GF(25)$ and examples in $\\Z_3\\times\\Z_9$, in six groups of order 32, and in seven groups of order 64. Of eleven further cases of order 64, with parameters $(64,22,6)$ and $(64,46,30)$, two follow from the partial-difference-set argument with partial difference sets that exist in the group, while for the other nine the required partial difference sets do not exist in the group (exhaustive search), so that these nine are new in the same sense. Eight are corrections to the repository, since they follow from published constructions. Finally, an exhaustive computer search shows, without formal verification, that the remaining 16 open cases with $v\\le 28$ admit no signed difference set. Together with the results above, this decides all 23 open cases with $v\\le 28$.",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "For a finite abelian group `G` of order `v` (given by its invariant factors, e.g. `[3,9]` = `ℤ/3 × ℤ/9`) decide whether a `(v,k,λ)` **signed difference set** exists in `G`, for the group-specific parameter sets that are listed with status **\"Open\"** in D. M. Gordon's *La Jolla Signed Difference Set Repository* (`sds.json`, v1.2, zenodo 10.5281/zenodo.7473882, April 2026) **and** are not excluded by the four nonexistence criteria of He–Wu (arXiv:2608.22936v2, 20 Sep 2026), which leave 22,462 open cases with `9 ≤ v ≤ 499`. Concretely, the goal of this attempt is: 1. settle the smallest open case `SDS(9,8,1)` in `ℤ/3 × ℤ/3` (the only open case with `v < 20`); 2. settle (by explicit, machine-che",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "Simple polygons whose sides lie on $n$ lines:\\\\ a parity obstruction and constructions",
+    "path": "papers/round1/Simple-polygons-whose-sides-lie-on-n-lines-a-parity-obstruction-and-constructions-October-8-2026",
+    "abstract": "Let $M(n)$ be the largest number of sides of a simple polygon all of whose sides lie on $n$ lines. A closed-trail argument gives $M(n)\\le n\\lfloor (n-1)/2\\rfloor$, and it was asked on MathOverflow whether equality always holds. For odd $n=2r+1$ we prove two things. First, in every simple arrangement of $n$ pseudolines, a certain $2$-regular graph on the intersection points, the alternating $2$-factor, has a number of components congruent to $(n^2-1)/8 \\pmod 2$. Second, a simple polygon with $n(n-1)/2$ sides on $n$ lines must be exactly that graph. Consequently, if $n\\equiv\\pm1\\pmod 8$ then $M(n)\\le n(n-1)/2-3$; in particular the conjectured equality fails for $n=7,9,15,17,\\dots$. The proof of the parity statement is elementary: a sweep of the wiring diagram and a potential function on permutations. We also give explicit integer arrangements that realise simple polygons with $18$ sides on $7$ lines, $33$ on $9$, $55$ on $11$ and $78$ on $13$. Hence $M(7)=18$ and $M(9)=33$, while $M(11)=55$ and $M(13)=78$ attain the bound. The four constructions are certified in Lean~4 by exact integer arithmetic. The parity theorem and the upper bounds are proved on paper only; they are confirmed by exhaustive computation over all simple arrangements of at most $9$ pseudolines, but are not formally verified.",
+    "categories": [
+      "math.CO",
+      "cs.CG"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Let `M(n)` be the largest `k` such that some simple polygon with `k` sides has all its sides lying on `n` given lines. The asker proved `M(n) ≤ n·⌊(n−1)/2⌋` and wrote: *\"I suspect that the bound is exact for all n … However, I cannot construct an example satisfying the equality for n ≥ 7\"*, *\"for n = 11, the same construction does not yield one connected polygon, so the question remains unsolved\"*, and *\"I wonder if it is possible to somehow prove that only a genus 1 [= self-intersecting] polygon can satisfy n = 7\"*. Concretely: 1. Decide whether `M(7) = 21`; if not, determine `M(7)`. 2. Decide whether `M(11) = 55`. 3. Decide whether `M(n) = n·⌊(n−1)/2⌋` for all `n` (the asker's conjecture),",
+      "round": "round 1 (2026-10-08)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "A kissing configuration of 12\\,277 points in dimension 19",
+    "path": "papers/round2/A-kissing-configuration-of-12277-points-in-dimension-19-October-14-2026",
+    "abstract": "We exhibit $12\\,277$ points on the unit sphere $S^{18}\\subset\\R^{19}$ with pairwise angular distances at least $60^\\circ$. Hence the kissing number in dimension $19$ satisfies $\\tau_{19}\\ge 12\\,277$, one more than the bound $12\\,276$ of K.~Li (October 2026). The configuration keeps Li's $10\\,484$-point base, which comes from the odd-sign configuration of Cohn and Li. It restores one more of the $184$ base points that Li deletes, and it replaces Li's $1792$ added points by $1792$ re-optimised points. These form $112$ orbits under the order-$16$ group of sign changes that fixes the restored point. All coordinates are integers. Every pair is checked in exact arithmetic by two independent programs. The statement is also proved in Lean~4 by kernel evaluation without \\texttt{native\\_decide}: the inner products among base points are bounded by a formalised structural lemma, and all other inner products are reduced by the symmetry group to finitely many integer inequalities. We also report numerical evidence that restoring a whole further orbit of eight deleted points, as asked by Li, is impossible in this family: the best minimax cosine we reach is $\\tfrac12+2.0\\cdot10^{-5}$.",
+    "categories": [
+      "math.MG",
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Improve the best known lower bound for the kissing number τ₁₉ (currently 12 276) or τ₂₁ (currently 31 560). Give an exact, machine-checkable certificate. Concretely, settle either of the two questions that the record holder states as open (K. Li, \"Improved kissing numbers in nineteen and twenty-one dimensions\", Oct. 2026, §6): * **Q19.** Can a second orbit of eight deleted base points be kept in the 12 276-point configuration, under the sign group Γ or under a smaller group with a larger table? A positive answer gives τ₁₉ ≥ 12 284. Even one extra point gives τ₁₉ ≥ 12 277. * **Q21.** Can more than 3840 line-weighted sign vectors (entries ±2 on a line of PG(2,4), ±3 elsewhere) be added to the ",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "A new lower bound for the cap set capacity",
+    "path": "papers/round2/A-new-lower-bound-for-the-cap-set-capacity-October-14-2026",
+    "abstract": "Let $C=\\lim_{n\\to\\infty} r_3(\\F_3^n)^{1/n}$ be the cap set capacity, where $r_3(\\F_3^n)$ is the largest size of a subset of $\\F_3^n$ without three distinct points on a line. We show $C> \\NLEAN$; the explicit construction gives $C\\ge\\NBOUND$. This improves the bound $2.2203085$ obtained in 2025 with the LLM-guided search X-evolve and the bound $2.2202337$ of FunSearch (2023). The improvement is small (in the sixth significant digit) but explicit and machine-checked: we construct a new symmetric admissible set in $\\{0,1,2\\}^{27}$ in the sense of Edel and Tyrrell, which contains vectors of two different weights, and feed it into Edel's extended product construction. The set was found without language models, by an exact large-neighbourhood search with a CP-SAT solver started from an evolved version of the published X-evolve greedy construction, followed by a mixed-weight augmentation. The resulting statement --- an explicit cap set in $\\F_3^{648}$ of size larger than $\\NLEAN^{648}$ --- is verified in Lean~4 with Mathlib, including Edel's lemmas and the reduction from symmetric rows to admissible vectors; the large finite checks use \\texttt{native\\_decide}.",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Prove a new explicit lower bound for the cap-set capacity C = lim_{n→∞} r_3(F_3^n)^{1/n} (r_3 = largest subset of F_3^n with no three distinct points on a line) strictly larger than the best value in the literature, C ≥ 2.2203085 (X-evolve, arXiv:2508.07932, Aug 2025; previously 2.2202337 by FunSearch, Nature 2023; 2.218021 Tyrrell 2022; 2.217389 Edel 2004). Success = an explicit, independently verifiable certificate (finite combinatorial object + a proof that it yields a cap set of size N in F_3^D with N^{1/D} > 2.2203085).",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "An improved upper bound for binary covering codes\\\\ of length 20 and covering radius 3",
+    "path": "papers/round2/An-improved-upper-bound-for-binary-covering-codes-of-length-20-and-covering-radius-3-October-14-2026",
+    "abstract": "Let $K(n,R)$ denote the minimum number of words in a binary code of length $n$ with covering radius $R$. We show $K(20,3)\\le 1984$, improving the bound $K(20,3)\\le 2048$ recorded in Kéri's standard tables of covering codes. The code is the amalgamated direct sum of the $[7,4]$ Hamming code with a new \\emph{normal} binary code of length $14$, covering radius $2$ and $248$ words (a union of $62$ cosets of a $[14,2,3]$ linear code). The covering property is certified in Lean~4 with Mathlib, using only the standard axioms. We also report, as negative results, extensive but unsuccessful computer searches aimed at the football pool problem $K_3(n,1)$ for $n=6,7,8$.",
+    "categories": [
+      "cs.IT",
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Primary (famous): improve an upper bound in the football pool problem, i.e. construct a ternary code of length n with covering radius 1 and fewer words than the record: K_3(6,1) ≤ 72 (record 73, 1989), K_3(7,1) ≤ 185 (record 186, 1989), K_3(8,1) ≤ 485 (486, 1989), K_3(9,1) ≤ 1268, K_3(10,1) ≤ 3644 (3645, 1984). Secondary: improve any upper bound in G. Kéri's standard tables of binary, ternary, quaternary and mixed binary/ternary covering codes (K(n,R), K_3(n,R), K_4(n,R), K(t,b,R)), and in particular binary entries whose current value is \"trivial\" (inherited by doubling/puncturing) or inconsistent with later improvements of other entries.",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "Mod-4 obstructions for completing the rank-47 $\\F_2$ algorithms\\\\ for $4\\times 4$ matrix multiplication",
+    "path": "papers/round2/Mod-4-obstructions-for-completing-the-rank-47-F2-algorithms-for-4x4-matrix-multiplication-October-14-2026",
+    "abstract": "The best known bilinear algorithms for multiplying two $4\\times4$ matrices use $47$ multiplications over fields of characteristic two (AlphaTensor, 2022; Kauers--Moosbauer, 2023) and $48$ multiplications over rings containing $\\tfrac12$ (AlphaEvolve, 2025; Dumas--Pernet--Sedoglavic, 2025), while every known algorithm that is valid over all rings, for instance over $\\Z/2^{64}\\Z$, uses $49$. It is known that the two rank-$47$ schemes over $\\F_2$ do not lift to characteristic zero. We show that they cannot be completed to rank-$48$ schemes over $\\Z/4\\Z$ either: there is no decomposition of the $4\\times4\\times4$ matrix multiplication tensor over $\\Z/4\\Z$ (hence none over $\\Z$ or over the $2$-adic integers) consisting of $48$ rank-one terms of which $47$ reduce modulo $2$ to the AlphaTensor scheme and the remaining one vanishes modulo $2$. More generally, no correction of the form $2\\,x\\otimes M$, with an arbitrary $16\\times16$ block $M$, can repair the mod-$4$ defect of the lifted scheme. The proof reduces the question to linear algebra over $\\F_2$ and is certified by $1585$ explicit linear functionals. The reduction is formalised in Lean~4 with Mathlib; the finite checks on the explicit certificate are run with \\texttt{native\\_decide}; the link between the data and the matrix multiplication tensor is kernel-checked. The same statement holds, with its own certificate and the same formalisation, for the Kauers--Moosbauer scheme. Both schemes are rigid in the flip graph: an exhaustive exploration through rank $48$ (flips, plus transitions, reductions) reaches no other scheme of rank $\\le47$. We also report the analogous computation for the rank-$73$ $\\F_2$ scheme of $\\langle 4,5,5\\rangle$ and $2$-adic integrality measurements for several rational records.",
+    "categories": [
+      "cs.SC",
+      "cs.CC"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Lower a best-known rank of a small matrix multiplication tensor <n,m,p> (n,m,p <= 8), or match a record with a scheme over a more general coefficient ring than previously known. Concretely, the attacked instances (all open as of 14 Oct 2026, see STATUS): 1. <4,4,4>: is there a rank-48 scheme with **integer** coefficients (valid over every ring, incl. Z/2^k)? Known: 48 over Q (Dumas-Pernet-Sedoglavic 2025, needs 1/2), 47 over F2 (AlphaTensor 2022), 49 over Z. 2. <4,5,5>: rank 75 over Z or Q (record 76, AlphaTensor 2022). Over F2, rank 74 (Arai-Ichikawa-Hukushima 2024; Kauers-Wood 2025) and 73 (Arai et al. data) are known, but those F2 schemes do not Hensel-lift. 3. <3,3,6>: rank <= 41 with in",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "New best-known configurations for Heilbronn's triangle problem\\\\ in a triangle with $23$ and $35$ points",
+    "path": "papers/round2/New-best-known-configurations-for-Heilbronns-triangle-problem-in-a-triangle-with-23-and-35-points-October-14-2026",
+    "abstract": "For a triangle $T$ of unit area let $\\Hn(n)$ be the largest possible value of the smallest area of a triangle spanned by $n$ points of $T$. We exhibit explicit configurations, with $30$-digit rational coordinates, showing \\[ \\Hn(35)\\ \\ge\\ 0.0042542724\\ldots \\qquad\\text{and}\\qquad \\Hn(23)\\ \\ge\\ 0.0092790558\\ldots, \\] improving the best values recorded in the public table of Heilbronn configurations (\\url{https://math.tejstead.com/heilbronn}) at the time of writing, $0.0041984701\\ldots$ and $0.0092756410\\ldots$ (both due to N.~Sudermann-Merx, October 2026), by $1.33\\%$ and $0.037\\%$. The configurations were found by basin hopping with sequential-linear-programming polishing. Both lower bounds are certified in Lean~4 (core library only) by a kernel-checked enumeration of all $\\binom{35}{3}$, resp.\\ $\\binom{23}{3}$, triangles in exact rational arithmetic. Nothing is claimed about optimality.",
+    "categories": [
+      "math.MG",
+      "cs.CG"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Find, for some n ≤ 36 and some container K ∈ {unit square, triangle, convex region}, an explicit set of n points whose smallest triangle is strictly larger than the best value currently known (tables at https://math.tejstead.com/heilbronn, state of 2026-10-14 04:55 +05), and certify the value in Lean 4 with exact rational arithmetic.",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "New certified upper bounds for the sign-uncertainty constant and the first autocorrelation constant",
+    "path": "papers/round2/New-certified-upper-bounds-for-the-sign-uncertainty-constant-and-the-first-autocorrelation-constant-October-14-2026",
+    "abstract": "We prove two new upper bounds for constants from the AlphaEvolve benchmark collection, both with certificates checked by the kernel of the Lean~4 proof assistant (with Mathlib, no \\texttt{native\\_decide}, only the standard axioms). (1) For the one-dimensional sign-uncertainty constant of Bourgain, Clozel and Kahane, $C_{\\mathrm{SU}}\\le 0.305578$, improving the previous record $0.3089$ (and the published bound $0.3216$); the witness is $f(x)=P(2\\pi x^2)e^{-\\pi x^2}$ with $P$ an explicit integer combination of the Laguerre polynomials $L_{2j}^{(-1/2)}$, $j\\le 300$. Lean verifies the sign pattern of $P$ exactly; the reduction from the sign pattern to the bound is the classical Hermite eigenfunction argument. (2) For the first autocorrelation (Sidon) constant, $C_1\\le 1.5027434864131$, improving the previous record $1.502743486709583$ by $3\\cdot10^{-10}$; here the continuous statement, including the definition of $C_1$, is formalised. The kernel checks rely on Kronecker substitution: all coefficients needed by the certificates are read off as base-$2^w$ digits of a few very large integers, which the Lean kernel multiplies with GMP.",
+    "categories": [
+      "math.CA",
+      "math.FA"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Beat, with a computation certified in exact arithmetic and in Lean 4, the best known upper bound for (1) the one-dimensional sign-uncertainty constant C_SU of Bourgain–Clozel–Kahane (AlphaEvolve B.4 / problem 6.11, \"an uncertainty inequality\"), and/or (2) the first autocorrelation constant C₁ (AlphaEvolve B.1 / problem 6.2; the Sidon-set constant 2/σ²).",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "New lower bounds for hypergraph Ramsey numbers\\\\ from affine-invariant colourings",
+    "path": "papers/round2/New-lower-bounds-for-hypergraph-Ramsey-numbers-from-affine-invariant-colourings-October-14-2026",
+    "abstract": "We prove \\[ R(4,5;3)\\ge 38,\\quad R(5,5;3)\\ge 98,\\quad R(4,6;3)\\ge 68,\\quad R(5,5;4)\\ge 38,\\quad R(5,6;4)\\ge \\RFSF, \\] improving the lower bounds $35$, $88$, $63$, $35$ and $67$ listed in revision~\\#18 (April 2026) of Radziszowski's dynamic survey \\emph{Small Ramsey Numbers}. Each bound is witnessed by an explicit red/blue colouring of the $r$-subsets of a prime field $\\GF(q)$ that is invariant under a group of affine maps $x\\mapsto ax+b$, where $a$ ranges over a fixed subgroup of $\\F_q^{*}$ (the cube roots of unity for $R(4,5;3)$, the nonzero squares for $R(5,5;3)$ and $R(4,6;3)$, all of $\\F_q^{*}$ for the $4$-uniform cases). Imposing the affine symmetry shrinks the satisfiability problem to a few dozen to a few hundred Boolean variables, which a SAT solver handles in seconds. All five colourings are certified in Lean~4: the absence of monochromatic cliques through a fixed vertex is checked by the Lean kernel, and a short formal argument reduces arbitrary cliques to that case.",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Improve the lower bounds of the classical hypergraph Ramsey numbers listed in Radziszowski's survey, §7.1: R(4,5;3) ≥ 35 (the smallest open case), R(5,5;3) ≥ 88, R(4,6;3) ≥ 63, R(4,4,4;3) ≥ 79, R(5,5;4) ≥ 35, and the recurrence-based R(5,6;4) ≥ 67: find, for n at or above the bound, a red/blue colouring of the r-subsets of an n-set with no red K_k^(r) and no blue K_l^(r) (proving R(k,l;r) ≥ n+1). (Exact-value side target: R(K₄−t, K₅; 3) ∈ {14,15,16}.) (Original assignment: two-colour Table Ia; see README §6 for that part.)",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "Symmetric Hadamard matrices of orders 532 and 732",
+    "path": "papers/round2/Symmetric-Hadamard-matrices-of-orders-532-and-732-October-14-2026",
+    "abstract": "We construct symmetric Hadamard matrices of orders $532=4\\cdot133$ and $732=4\\cdot183$. To our knowledge these are the first symmetric Hadamard matrices of these orders: $v=133$ and $v=183$ appear in the most recent published list of odd $v<200$ for which no symmetric Hadamard matrix of order $4v$ was known. Both come from the propus construction applied to cyclic difference families whose blocks are unions of orbits of a multiplier subgroup: parameters $(133;61,64,64,57;113)$ with the subgroup $\\langle26\\rangle$ of order $6$ in $\\Z_{133}^{*}$, and $(183;81,91,91,83;163)$ with the subgroup $\\langle34\\rangle$ of order $5$ in $\\Z_{183}^{*}$. The second family was found with a compression-guided exhaustive search exploiting $183=3\\cdot61$. Both existence statements are formally verified in Lean~4 with Mathlib: we prove the propus construction in general and check the required autocorrelation identities by kernel evaluation. We also report (computational, not formally verified) negative evidence for the smallest open order $260=4\\cdot65$: no cyclic propus difference family in $\\Z_{65}$ admits a nontrivial multiplier.",
+    "categories": [
+      "math.CO"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Construct a symmetric Hadamard matrix of order 260 = 4·65 (H = Hᵀ, H·Hᵀ = 260·I, entries ±1), or, failing that, make certified structural progress on the only known route to it (cyclic propus difference families in Z_65).",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  },
+  {
+    "title": "The best constant in Smale's mean value problem exceeds $1.048$",
+    "path": "papers/round2/The-best-constant-in-Smales-mean-value-problem-exceeds-1.048-October-14-2026",
+    "abstract": "For a complex polynomial $p$ of degree $d\\ge 2$ and a point $z$ with $p'(z)\\neq0$ let $R(p,z)=\\min_{p'(c)=0}|p(z)-p(c)|/(|z-c|\\,|p'(z)|)$, and let $K_d=\\sup R(p,z)$ over polynomials of degree $d$. Smale (1981) proved $K_d\\le4$ and conjectured $K_d\\le1$ (strong form $K_d=(d-1)/d$). A non-explicit disproof of $K_d\\le1$ for some (very large) $d$ was announced in September 2026. We prove that $K_d$ is non-decreasing and that $\\lim_{d\\to\\infty}K_d\\ge1.048$; thus no constant below $1.048$ works in Smale's inequality for all degrees, and both forms of the conjecture fail in every sufficiently large degree. The proof has two parts. (i) An explicit \\emph{continuum witness}: a rounded Koebe map $\\Phi$ with Gaussian-rational parameters and a Blaschke-type function $F$ on the domain $\\Phi(\\D)$, whose defining properties --- injectivity of $\\Phi$, absence of critical points of $F$, and the boundary inequality $|F(z)|\\ge1.048\\,|z-z_0|$ --- are \\emph{formally verified in Lean~4/Mathlib}; the key inequality reduces exactly to the statement that an explicit cubic polynomial has no zero in the closed unit disc, which is certified by a kernel-checked quadtree. (ii) A realisation lemma (Runge approximation and Fekete lemniscates, paper proof) converting any continuum witness into polynomials. We also explain why explicit counterexamples of moderate degree are out of reach of these constructions.",
+    "categories": [
+      "math.CV"
+    ],
+    "authors": [
+      "Claude (AI model by Anthropic)",
+      "Aleksandr Bersenev (operator; ran and submitted the work)"
+    ],
+    "aiSystem": {
+      "model": "Claude Opus 5.5",
+      "models": [
+        "Claude Opus 5.5"
+      ],
+      "scaffold": "Claude Code (one coordinating session + autonomous sub-agents)",
+      "toolsUsed": [
+        "Lean 4 (machine-checked certificates)",
+        "Python / C search code",
+        "SAT / ILP solvers",
+        "web search"
+      ]
+    },
+    "humanInvolvement": {
+      "level": 1,
+      "description": "A human asked the coordinating agent to find and solve open problems in the style of OpenAI's 2026 math release (round 2: 'focus on more significant problems') and provided compute. Problem choice, problem statements, research, proofs, Lean certificates, verification and the paper text were produced by Claude agents; the human only chose the publication byline and venue. Not peer reviewed."
+    },
+    "provenance": {
+      "reproducible": true,
+      "task": "Smale's mean value conjecture (1981) asserts that for every complex polynomial `p` of degree `d ≥ 2` and every `z` with `p'(z) ≠ 0` there is a critical point `c` of `p` with |p(z) − p(c)| / |z − c| ≤ K · |p'(z)| (MV_K) with `K = 1` (and even `K = (d−1)/d`, attained by `z^d − dz`). In September 2026 a non-explicit disproof of the `K = 1` form was announced (GPT-6 Astra, Lean-checked): there is *some* polynomial of \"very large, unspecified degree\" violating (MV_1) \"by a small margin\". Primary target (registered): an **explicit** counterexample of **explicit degree** with an exact certificate (and Lean check of the finite certificate). Secondary target (if the primary one is out of reach): a **",
+      "round": "round 2 (2026-10-14/15)",
+      "verification": "Lean certificates in lean/; independent coordinator re-checks in verification/ (see process/*_RESULTS.md)"
+    }
+  }
+]

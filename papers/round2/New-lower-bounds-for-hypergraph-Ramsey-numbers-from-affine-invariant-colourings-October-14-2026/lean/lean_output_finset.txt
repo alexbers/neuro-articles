@@ -1,0 +1,13 @@
+~/claude_math/agents/B02/lean/MainFinset.lean:127:6: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+
+Hint: Replace the deprecated name:
+  d̵i̵f̵_̵p̵o̵s̵d̲i̲t̲e̲_̲e̲q̲_̲l̲e̲f̲t̲
+'R453.main_finset' depends on axioms: [propext, Classical.choice, Quot.sound]
+~/claude_math/agents/B02/lean/MainFinset.lean:304:6: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+
+Hint: Replace the deprecated name:
+  d̵i̵f̵_̵p̵o̵s̵d̲i̲t̲e̲_̲e̲q̲_̲l̲e̲f̲t̲
+'R553.main_finset' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R453.main' depends on axioms: [propext, Quot.sound]
+'R553.main' depends on axioms: [propext, Quot.sound]
+leancheck: wall=1078.21s maxrss=15372064kB exit=0

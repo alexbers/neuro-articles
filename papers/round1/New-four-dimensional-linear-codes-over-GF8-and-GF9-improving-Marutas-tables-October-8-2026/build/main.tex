@@ -1,0 +1,402 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array,longtable}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\F}{\mathbb F}
+\newcommand{\PG}{\mathrm{PG}}
+\newcommand{\PGL}{\mathrm{PGL}}
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\wt}{\mathrm{wt}}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,breaklines=true,
+  frame=single,framerule=0.3pt,xleftmargin=4pt,xrightmargin=4pt,
+  literate={⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1 {→}{{$\to$}}1 {≠}{{$\neq$}}1 {≤}{{$\le$}}1
+           {∀}{{$\forall$}}1 {∧}{{$\wedge$}}1 {∃}{{$\exists$}}1 {↔}{{$\leftrightarrow$}}1
+           {×}{{$\times$}}1 {…}{{\ldots}}1 {·}{{$\cdot$}}1 {₃}{{$_3$}}1 {²}{{$^2$}}1}
+\title{New four-dimensional linear codes over $\mathbb{F}_8$ and $\mathbb{F}_9$ improving Maruta's tables}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={New four-dimensional linear codes over GF(8) and GF(9) improving Maruta's tables},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $n_q(4,d)$ be the smallest length of a linear $[n,4,d]_q$ code. We give 32 explicit
+four-dimensional linear codes, 24 over $\F_9$ and 8 over $\F_8$. Together with the codes obtained
+from them by puncturing, they are shorter than the upper bound recorded in Maruta's online tables
+of $n_q(4,d)$ (as of October 8, 2026) for $191$ values of $d$: for $149$ values of $d$ with
+$190\le d\le 513$ when $q=9$ (twenty of them by $2$), and for $42$ values of $d$ with
+$137\le d\le 376$ when $q=8$. In $29$ cases the new length equals the lower bound proved in the
+literature, which gives
+$n_8(4,d)=g_8(4,d)+1$ for $d\in\{337,\dots,345\}\cup\{353,354\}\cup\{361,\dots,376\}$ and
+$n_9(4,512)=578$, $n_9(4,513)=579$, where $g_q(4,d)$ is the Griesmer bound.
+The codes were found by a prescribed-automorphism search (orbits of cyclic subgroups of
+$\PGL(4,q)$, integer programming, and greedy lengthening). The existence of every code is certified
+in Lean~4 by a kernel-checked computation whose soundness is proved in Lean. The lower bounds are
+cited, not re-proved.
+\end{abstract}
+\tableofcontents
+
+\section{Introduction}
+
+For a prime power $q$ and integers $k,d\ge 1$, let $n_q(k,d)$ denote the minimum length $n$ for
+which a linear $[n,k,d]_q$ code exists, i.e.\ a $k$-dimensional subspace of $\F_q^n$ all of whose
+nonzero vectors have Hamming weight at least $d$. Determining $n_q(k,d)$ is one of the basic
+problems of coding theory (see the surveys of Hill~\cite{Hill1992}). The classical lower bound is
+the Griesmer bound~\cite{Griesmer1960,SolomonStiffler1965}
+\[
+  n_q(k,d)\;\ge\; g_q(k,d)\;:=\;\sum_{i=0}^{k-1}\Big\lceil \frac{d}{q^{i}}\Big\rceil .
+\]
+For $k\le 3$ and small $q$ the function $n_q(k,d)$ is known. For $k=4$ it is known for
+$q\le 4$, but for $q\ge 5$ many values remain open.
+T.~Maruta maintains online tables~\cite{MarutaTable} with the current
+intervals $n_{\mathrm{lo}}(d)\le n_q(4,d)\le n_{\mathrm{up}}(d)$ for $q\in\{5,7,8,9\}$ and all $d$
+below the range where $n_q(4,d)=g_q(4,d)$ is known.
+\begin{itemize}
+\item For $q=8$ the table follows Kanazawa--Maruta~\cite{KanazawaMaruta2011}, with later updates
+(e.g.~\cite{BFM2021,MaLuo2024}) for values of $d$ not considered here. That paper determines
+$n_8(4,d)$ for 117 values of $d$ with $113\le d\le 832$ and gives bounds for the others. In
+particular \cite[Thm.~1.1(4)]{KanazawaMaruta2011} shows
+$g_8(4,d)+1\le n_8(4,d)\le g_8(4,d)+2$ for $337\le d\le 376$.
+\item For $q=9$ the table follows Kumegawa--Okazaki--Maruta~\cite{KOM2017} (a few lower bounds have been
+updated since), who constructed many
+mid-range codes ``with the aid of a computer, but the upper bounds are still weak to be improved''
+\cite[p.~10]{KOM2017}. In particular \cite[Thm.~1.7(4)]{KOM2017} gives
+$g_9(4,d)+1\le n_9(4,d)\le g_9(4,d)+2$ for $d=512,513$.
+\end{itemize}
+In the mid range the intervals are typically $g_9(4,d)\le n_9(4,d)\le g_9(4,d)+3$ or $+4$ for $q=9$, and
+$g_8(4,d)+1\le n_8(4,d)\le g_8(4,d)+2$ for $q=8$. These lengths ($n\ge 160$) lie outside Grassl's
+code tables~\cite{Grassl}, which stop at $n=130$ for $q=8,9$. They also lie outside MinT~\cite{MinT},
+whose linear-code data are limited to co-dimension at most $173$ for base $8$ and $150$ for base $9$.
+
+\paragraph{What is new.} We construct 32 linear codes with $k=4$ over $\F_8$ and $\F_9$. Together with
+their punctured codes, they lower the recorded upper bound $n_{\mathrm{up}}(d)$ for 191 table entries
+(\cref{thm:q9,thm:q8}). Twenty-nine of the new lengths coincide with lower bounds proved in
+\cite{KanazawaMaruta2011,KOM2017}, which determines these values of $n_q(4,d)$ (Corollary~\ref{cor:exact}).
+To our knowledge, as of October 8, 2026, none of these codes or parameters appeared before. We
+compared against Maruta's table, the two papers above, Grassl's tables and MinT, and searched the
+recent literature on $n_8(4,d)$ and $n_9(4,d)$~\cite{BFM2021,MaLuo2024,KKM2026}. For every improved
+entry with $q=8$ the table row (lower and upper bound) is the one of Table~3 of~\cite{KanazawaMaruta2011},
+and for every improved entry with $q=9$ the upper bound is the one of Table~2 of~\cite{KOM2017}; the
+updates of the table since then concern other values of $d$ or only lower bounds. The most recent
+nonexistence results~\cite[Thm.~1.3]{KKM2026} ($n_8(4,d)=g_8(4,d)+1$ for $d\in\{278,398,406\}$,
+$n_9(4,d)=g_9(4,d)+1$ for $d\in\{583,808\}$, and $n_9(4,196)\ge g_9(4,196)+1=223$) are not yet
+reflected in the table; they do not affect the entries below, except that the lower bound for
+$d=196$, $q=9$, should now be read as $223$ instead of $222$. We cannot rule out unpublished
+constructions.
+
+\paragraph{Method in one paragraph.} By the standard correspondence~\cite{Hamada1993}, an
+$[n,4,d]_q$ code is a multiset of $n$ points of $\PG(3,q)$ meeting every plane in at most $n-d$
+points. Following the prescribed-automorphism approach of Braun--Kohnert--Wassermann~\cite{BKW2005}
+and the ``orbits of projectivities'' of Maruta--Shinohara--Takenaka~\cite{MST2008}, we chose random
+projectivities $T$ of moderate order. We computed the orbits of $\langle T\rangle$ on points and on
+planes, and solved with HiGHS~\cite{HiGHS} the integer program ``choose a union of point orbits of
+maximum size subject to all plane intersections being $\le r$''. We then lengthened the solution
+greedily by single points. Every hit was checked by exhaustive enumeration of all $q^4-1$ nonzero
+codewords, and all base codes were then certified in Lean~4~\cite{Lean4}.
+
+\section{Definitions and main results}
+
+\begin{definition}
+Let $L=(c_1,\dots,c_n)$ be a list of vectors of $\F_q^4$ (the columns of a $4\times n$ matrix $G$).
+For $u\in\F_q^4$ the codeword of $u$ is $uG=(u\cdot c_1,\dots,u\cdot c_n)$. We say that $L$
+\emph{generates an $[n,4,\ge d]_q$ code} if $\wt(uG)\ge d$ for all $u\ne 0$. Since $d\ge1$, the map
+$u\mapsto uG$ is then injective, so the row space of $G$ is a linear code of length $n$, dimension
+exactly $4$ and minimum distance at least $d$. Columns may repeat (non-projective codes), as in the
+definition of $n_q(k,d)$.
+\end{definition}
+
+\begin{lemma}[puncturing]\label{lem:punct}
+If $L$ generates an $[n,4,\ge d]_q$ code and $0\le t<d$, then deleting any $t$ columns gives an
+$[n-t,4,\ge d-t]_q$ code. Hence $n_q(4,d-t)\le n_q(4,d)-t$.
+\end{lemma}
+\begin{proof}
+Deleting $t$ coordinates lowers every weight by at most $t$. Since $d-t\ge1$, injectivity is preserved.
+\end{proof}
+
+\begin{theorem}[$q=9$]\label{thm:q9}
+For each of the $149$ values of $d$ in \cref{tab:q9}, there is a linear $[n,4,\ge d]_9$ code whose
+length $n$ (column ``new'') is strictly smaller than the upper bound $n_{\mathrm{up}}(d)$ recorded
+in~\cite{MarutaTable}. The improved values of $d$ form the ranges
+$190$--$192$, $194$--$200$, $231$--$232$, $241$--$243$, $253$--$256$, $262$--$279$, $289$--$292$,
+$298$--$312$, $333$--$360$, $370$--$375$, $379$--$387$, $397$--$417$, $424$--$429$, $433$--$438$,
+$487$--$489$, $496$--$500$, $505$--$513$. For twenty of them the improvement is by $2$, for example
+$[312,4,274]_9$ (previous upper bound $314$), $[345,4,303]_9$ ($347$), $[380,4,334]_9$ ($382$),
+$[390,4,343]_9$ ($392$), $[420,4,370]_9$ ($422$), $[460,4,406]_9$ ($462$), $[468,4,414]_9$ ($470$).
+\end{theorem}
+
+\begin{theorem}[$q=8$]\label{thm:q8}
+For each of the $42$ values of $d$ in \cref{tab:q8}, namely $137$--$140$, $221$--$224$,
+$329$--$345$, $353$--$354$ and $361$--$376$, there is a linear $[n,4,\ge d]_8$ code with $n$
+strictly smaller than $n_{\mathrm{up}}(d)$ in~\cite{MarutaTable}.
+\end{theorem}
+
+\begin{corollary}\label{cor:exact}
+Combining \cref{thm:q8,thm:q9} with the lower bounds of \cite[Thm.~1.1(4)]{KanazawaMaruta2011}
+and \cite[Thm.~1.7(4)]{KOM2017} gives
+\[
+  n_8(4,d)=g_8(4,d)+1 \quad\text{for } d\in\{337,\dots,345\}\cup\{353,354\}\cup\{361,\dots,376\},
+\]
+and $n_9(4,512)=578=g_9(4,512)+1$, $n_9(4,513)=579=g_9(4,513)+1$.
+\end{corollary}
+\begin{proof}
+By the cited theorems, $n\ge g+1$ for these $d$. For the upper bound we have explicit codes:
+\begin{itemize}
+\item $[395,4,344]_8$ and its punctured codes $[395-t,4,344-t]_8$ for $t\le 7$ cover $d=337,\dots,344$;
+\item $[397,4,345]_8$ covers $d=345$;
+\item $[407,4,354]_8$ and its punctured code $[406,4,353]_8$ cover $d=353,354$;
+\item $[422,4,368]_8$ and its punctured codes cover $d=361,\dots,368$;
+\item $[431,4,376]_8$ and its punctured codes cover $d=369,\dots,376$;
+\item $[579,4,513]_9$ and $[578,4,512]_9$ cover the two values for $q=9$.
+\end{itemize}
+In each case the length equals $g_q(4,d)+1$, which a direct computation confirms; for example
+$g_8(4,344)=344+43+6+1=394$.
+\end{proof}
+
+The lower bounds used in Corollary~\ref{cor:exact} are \emph{not} re-proved here; the Lean development
+certifies only the existence of the codes (\cref{sec:lean}).
+
+\section{The construction}\label{sec:construction}
+
+\subsection{Geometric reformulation}
+Identify a nonzero column $c\in\F_q^4$ with the point $\langle c\rangle$ of $\PG(3,q)$ and a nonzero
+message $u$ with the plane $u^\perp=\{\langle x\rangle: u\cdot x=0\}$. If $M$ is the multiset of
+columns, then $\wt(uG)=n-|M\cap u^\perp|$. So $L$ generates an $[n,4,\ge n-r]_q$ code iff every
+plane contains at most $r$ points of $M$, counted with multiplicity. $\PG(3,q)$ has
+$\theta=q^3+q^2+q+1$ points and planes, i.e.\ $585$ for $q=8$ and $820$ for $q=9$.
+
+\subsection{Prescribed automorphisms and an integer program}
+Let $T\in\GL(4,q)$, and let $\langle T\rangle$ act on points by $\langle c\rangle\mapsto\langle Tc\rangle$
+and on planes by $u^\perp\mapsto (uT^{-1})^\perp$. If $M$ is a union of point orbits $O_1,\dots,O_s$
+with multiplicities $x_i$, then the plane intersection numbers are constant on plane orbits. Let
+$H_1,\dots,H_t$ be representatives of the plane orbits and $a_{ji}=|O_i\cap H_j|$. Then
+\[
+  \max\ \sum_{i} |O_i|\,x_i \quad\text{s.t.}\quad \sum_i a_{ji}x_i\le r\ (1\le j\le t),\qquad x_i\in\{0,1\}
+\]
+yields a point set with all plane intersections $\le r$, i.e.\ an $[n,4,\ge n-r]_q$ code with
+$n=\sum|O_i|x_i$. For a target entry $(d,n_{\mathrm{up}}(d))$ of the table, the code is an
+improvement iff $n<n_{\mathrm{up}}(n-r)$.
+
+We sampled random $T\in\GL(4,q)$ whose projective order lies in a prescribed set. Orders $8,16,20,24,26,40$
+were productive for $q=9$ and $7,14,21$ for $q=8$; these give between $33$ and $108$ point orbits.
+We solved the program with HiGHS (single thread, 4--12\,s per instance, not necessarily to
+optimality) for every $r$ with an open target. In total about 370 groups were tried. The search
+scripts are not part of this package; the resulting codes and the verification scripts are
+(Appendix~\ref{app:data}).
+
+\subsection{Greedy lengthening}
+If $M$ has maximum plane intersection $r$ and $P$ is a point all of whose planes contain at most
+$r-1$ points of $M$, then $M+P$ (multiplicities allowed) still has maximum plane intersection $r$.
+This lengthens the code from $[n,4,d]$ to $[n+1,4,d+1]$. Applying this step greedily to the orbit
+solutions produced 13 of the 32 base codes (marked ``orbits + lengthening'' in
+\cref{tab:base}); some of them have repeated columns.
+
+\subsection{The base codes}
+\Cref{tab:base} lists the 32 base codes. Every improved entry of \cref{tab:q9,tab:q8} is a punctured
+code of one of them. The base codes were chosen by a greedy set cover among the $230$ verified code files.
+The table shows the construction (order of the prescribed cyclic group, when the code is an orbit
+union), the maximum column multiplicity, the number of distinct nonzero weights, the gcd of the nonzero
+weights, the maximum weight, the number of table entries the code improves (in parentheses: how many of
+them meet the lower bound), and the SHA-256 prefix of the data file
+\texttt{data/codes/q<q>\_n<n>\_d<d>.txt}.
+
+{\small
+\setlength{\tabcolsep}{4pt}
+\input{basecodes.tex}
+}
+
+\subsection{Three examples}
+Field elements are written as integers. In $\F_8=\F_2[x]/(x^3+x+1)$, the integer $c_0+2c_1+4c_2$
+denotes $c_0+c_1x+c_2x^2$. In $\F_9=\F_3[x]/(x^2+x+2)$, the integer $c_0+3c_1$ denotes $c_0+c_1x$.
+The matrices act on column vectors.
+
+\begin{itemize}
+\item $[431,4,376]_8$ is a union of $4$ fixed points and $61$ orbits of size $7$ of
+$T=\left(\begin{smallmatrix}3&0&3&7\\7&3&3&1\\0&2&6&5\\6&2&6&6\end{smallmatrix}\right)$ (projective order
+$7$). Its weight enumerator is $376^{3577}\,384^{441}\,392^{49}\,400^{28}$ (exponents are the numbers
+of codewords), so the code is $8$-divisible.
+\item $[395,4,344]_8$ is a union of orbits of sizes $1,2$ and $28\times14$ of
+$T=\left(\begin{smallmatrix}2&5&5&6\\2&4&0&0\\6&0&6&7\\4&6&0&0\end{smallmatrix}\right)$ (order $14$). Its
+weight enumerator is $344^{3255}\,352^{833}\,392^{7}$, again $8$-divisible.
+The code $[422,4,368]_8$ (order $7$) has weights $368,376,392,400$.
+\item $[579,4,513]_9$ is a union of orbits of sizes $1,2$ and $36\times 16$ of
+$T=\left(\begin{smallmatrix}7&4&5&5\\4&1&8&3\\7&4&5&2\\6&5&6&1\end{smallmatrix}\right)$ (order $16$). Its
+weight enumerator is $513^{5336}\,522^{1216}\,576^{8}$, so the code is $9$-divisible.
+\end{itemize}
+We have no conceptual explanation of these divisible codes. They would be natural starting points for
+a geometric (e.g.\ minihyper-based) description.
+
+\section{Verification}\label{sec:lean}
+
+\subsection{Exhaustive enumeration}
+For every code file, a short Python program (\texttt{data/verify.py}) enumerates all $q^4-1$ nonzero
+messages, computes the codewords with table-based $\F_q$ arithmetic, and prints the minimum distance
+and the full weight distribution. All 32 base codes, and all 230 code files of the search, have the
+claimed minimum distance. An independent re-implementation with its own $\F_8$/$\F_9$ arithmetic
+confirmed all 230 files. We also recomputed the minimum distances directly from the column lists
+embedded in the Lean file, in the field representation used there.
+
+\subsection{Lean formalization}
+The file \texttt{lean/Main.lean} is self-contained Lean~4.34.1 (core library only, no Mathlib), with
+one namespace per field. It is checked by running \texttt{lean Main.lean} in the directory
+\texttt{lean/} with the Lean~4.34.1 toolchain (no project file and no Mathlib are needed).
+
+\paragraph{Fields.} $\F_9$ is realised as $\F_3[i]/(i^2+1)$ (the polynomial $x^2+1$ is irreducible over
+$\F_3$). The codes were found over $\F_3[x]/(x^2+x+2)$ and were transported by the field isomorphism
+$x\mapsto 1+i$, which preserves Hamming weights. $\F_8$ is realised as $\F_2[x]/(x^3+x+1)$ with three
+Boolean coefficients.
+\begin{lstlisting}
+structure GF9 where
+  re : Fin 3
+  im : Fin 3
+instance : Add GF9 := ⟨fun x y => ⟨x.re + y.re, x.im + y.im⟩⟩
+instance : Mul GF9 := ⟨fun x y => ⟨x.re * y.re - x.im * y.im, x.re * y.im + x.im * y.re⟩⟩
+\end{lstlisting}
+The theorems \texttt{Q9.GF9\_is\_field} and \texttt{Q8.GF8\_is\_field} state, and prove by exhaustive
+\texttt{decide}, associativity and commutativity of $+$ and $\cdot$, the neutral elements, additive
+inverses, distributivity, $1\ne0$, and $\forall x\ne0\ \exists y,\ xy=1$.
+
+\paragraph{The statement.} The predicate used in the main theorems is, verbatim (namespace \texttt{Q9};
+\texttt{Q8} is identical with \texttt{GF8}):
+\begin{lstlisting}
+abbrev Vec4 := GF9 × GF9 × GF9 × GF9
+def dot (u c : Vec4) : GF9 := u.1 * c.1 + u.2.1 * c.2.1 + u.2.2.1 * c.2.2.1 + u.2.2.2 * c.2.2.2
+def codeword (L : List Vec4) (u : Vec4) : List GF9 := L.map (dot u)
+def wt (v : List GF9) : Nat := v.countP (fun x => decide (x ≠ 0))
+def IsCode (L : List Vec4) (n d : Nat) : Prop :=
+  L.length = n ∧ ∀ u : Vec4, u ≠ (0, 0, 0, 0) → d ≤ wt (codeword L u)
+\end{lstlisting}
+The main theorems are long conjunctions, one conjunct per improved table entry:
+\begin{lstlisting}
+theorem Q9.main9 :
+    (∃ L : List Vec4, IsCode L 218 190) ∧ (∃ L : List Vec4, IsCode L 219 191) ∧ …
+    ∧ (∃ L : List Vec4, IsCode L 579 513)                  -- 149 conjuncts
+theorem Q8.main8 :
+    (∃ L : List Vec4, IsCode L 160 137) ∧ … ∧ (∃ L : List Vec4, IsCode L 431 376)   -- 42 conjuncts
+\end{lstlisting}
+The conjuncts are exactly the pairs $(n,d)$ of \cref{tab:q9,tab:q8}.
+
+\paragraph{The certificate and its soundness.} For each base code $C$ the file contains the column list
+(encoded as base-$q$ integers and decoded by an explicit function \texttt{ofCode}) and the theorem
+\begin{lstlisting}
+theorem C_431_376_cert : certify C_431_376 431 376 = true := by decide +kernel
+\end{lstlisting}
+\texttt{certify L n d} checks \texttt{L.length = n} and, for each of the $(q^4-1)/(q-1)$ normalized
+messages (first nonzero coordinate $1$), that the support of the codeword has at least $d$ elements.
+The codeword is computed in \emph{bit-sliced} form. A vector of $\F_q^n$ is stored as $2$ bit masks per
+$\F_3$-component (for $\F_9$) or $3$ bit masks (for $\F_8$), and field addition and scalar
+multiplication become a few \texttt{\&\&\&}, \texttt{|||}, \texttt{\^{}\^{}\^{}} operations on natural
+numbers, which the Lean kernel evaluates with GMP arithmetic. The soundness theorem
+\begin{lstlisting}
+theorem isCode_of_certify (L : List Vec4) (n d : Nat) (h : certify L n d = true) : IsCode L n d
+\end{lstlisting}
+is proved in Lean as follows.
+\begin{enumerate}
+\item Bit-level lemmas (\texttt{V3.add\_spec}, \texttt{V3.smul\_spec}, \texttt{mk3\_spec},
+\texttt{nz\_spec}) show that bit $c$ of the computed masks encodes $u\cdot c_c$.
+\item The lemma \texttt{countP\_eq\_pc} shows that the bit count equals \texttt{wt (codeword L u)}.
+\item A projective reduction (\texttt{wt\_smul}, using field identities proved by \texttt{decide}) extends
+the bound from normalized messages to all $u\neq0$.
+\end{enumerate}
+Puncturing (Lemma~\ref{lem:punct}) is the Lean theorem
+\begin{lstlisting}
+theorem isCode_drop (L : List Vec4) (n d t : Nat) (h : IsCode L n d) :
+    IsCode (L.drop t) (n - t) (d - t)
+\end{lstlisting}
+and each conjunct of \texttt{main9}/\texttt{main8} is proved as
+$\langle$\texttt{C.drop t, isCode\_drop \_ \_ \_ t C\_isCode}$\rangle$.
+
+\paragraph{Statement audit.}
+\begin{itemize}
+\item \texttt{IsCode} quantifies over \emph{all} nonzero $u$. The codeword is the list of the $n$ dot
+products, and \texttt{wt} counts nonzero entries.
+\item The length is part of the predicate.
+\item The coefficient structure is a field with $q$ elements: it is built as \texttt{Fin 3 × Fin 3}, respectively $3$ bits, and the field axioms are proved.
+\item The table values $n_{\mathrm{up}}(d)$ are \emph{not} part of the Lean statement. That each pair
+$(n,d)$ improves the table is a comparison with the web page (copies kept with the data).
+\end{itemize}
+The column lists in the Lean file were decoded independently and re-checked by enumeration (see above).
+
+\paragraph{Axioms and resources.} The output of \texttt{\#print axioms}, followed by the resource
+summary printed by the wrapper script used for the run (file \texttt{lean/lean\_output.txt}), is:
+\begin{lstlisting}
+'Q8.GF8_is_field' does not depend on any axioms
+'Q8.main8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Q9.GF9_is_field' depends on axioms: [propext]
+'Q9.main9' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanchk: wall=436.45s maxrss=3865576kB exit=0
+\end{lstlisting}
+Only the standard axioms appear. There is no \texttt{sorry} and no \texttt{native\_decide}
+(no \texttt{Lean.ofReduceBool}): the 32 certificates are evaluated by the kernel
+(\texttt{decide +kernel}). The whole file checks in $436$\,s with a peak memory of $3.9$\,GB.
+The option \texttt{set\_option Elab.async false} is set only to keep the number of threads, and hence
+the address space, small under the checker's memory limit; it has no logical effect.
+
+\section{Limitations and open questions}
+\begin{itemize}
+\item \emph{Lower bounds are cited, not re-proved.} Corollary~\ref{cor:exact} depends on
+\cite[Thm.~1.1(4)]{KanazawaMaruta2011} and \cite[Thm.~1.7(4)]{KOM2017}. Only the upper bounds
+(existence of the codes) are formally verified.
+\item \emph{Novelty} is asserted relative to Maruta's online table as of October 8, 2026, the
+papers~\cite{KanazawaMaruta2011,KOM2017,BFM2021,MaLuo2024,KKM2026}, \cite{Grassl}, \cite{MinT}, and a
+literature search. It is ``to our knowledge'' only.
+\item The search is heuristic: the integer programs were usually stopped by a time limit, and only
+cyclic groups were tried. We did not search $q=7$ or $k\ge5$, nor the short-length entries covered by
+Grassl's tables.
+\item Most remaining gaps in the mid-range $q=9$ table are still $2$--$3$ wide. For many targets
+(e.g.\ $q=9$, $67\le r\le 78$, or $q=8$, $r\in\{48,49,58,59,60\}$) our best codes fall exactly one
+point short of the length that would meet the lower bound. It would be interesting to know whether
+this is a genuine obstruction.
+\item The $8$- and $9$-divisible codes found here (\cref{sec:construction}) suggest an infinite family;
+a geometric construction of them is open.
+\end{itemize}
+
+{\small
+\bibliographystyle{plain}
+\bibliography{references}
+}
+
+\appendix
+\section{All improved table entries}
+Columns: $d$; Griesmer bound $g=g_q(4,d)$; the interval $n_{\mathrm{lo}}$--$n_{\mathrm{up}}$ in
+Maruta's table~\cite{MarutaTable} as of October 8, 2026; and the new upper bound. Entries marked
+$^{*}$ meet the lower bound, so $n_q(4,d)$ is determined (Corollary~\ref{cor:exact}). The base code and
+puncturing amount for every row are listed in \texttt{data/improvements.csv}. (For $d=196$, $q=9$, the
+lower bound $222$ of the table has meanwhile been raised to $223$ by~\cite[Thm.~1.3(c)]{KKM2026}; the
+entry remains open.)
+
+{\small
+\setlength{\tabcolsep}{3.5pt}
+\input{table_q8.tex}
+\input{table_q9.tex}
+}
+
+\section{Data and reproduction}\label{app:data}
+\begin{itemize}
+\item \texttt{data/codes/}: the 32 base codes. The first line of each file is \texttt{q= k= n= d=}; each
+further line \texttt{m x0 x1 x2 x3} is a column, repeated $m$ times, in the field encoding of
+\cref{sec:construction}.
+\item \texttt{data/improvements.csv}: all 191 entries with base code and puncturing amount.
+\item \texttt{data/SHA256SUMS}: hashes of all data and Lean files.
+\item \texttt{lean/Main.lean}, \texttt{lean/lean\_output.txt}: the formal certificate and its checker
+output.
+\end{itemize}
+To reproduce the verification, run \texttt{python3 data/verify.py data/codes/q8\_n431\_d376.txt} for
+each code (exhaustive enumeration, seconds per code) and \texttt{lean Main.lean} in the directory
+\texttt{lean/} with Lean~4.34.1 ($\approx 7$ minutes on a dedicated core, up to about twice that on a
+loaded machine; peak memory about $3.9$\,GB).
+\end{document}

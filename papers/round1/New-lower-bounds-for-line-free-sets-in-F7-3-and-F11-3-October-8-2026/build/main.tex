@@ -1,0 +1,443 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,breaklines=true,
+  literate={≠}{{$\neq$}}1 {→}{{$\to$}}1 {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {¬}{{$\neg$}}1
+           {∈}{{$\in$}}1 {∉}{{$\notin$}}1 {∧}{{$\wedge$}}1 {∨}{{$\vee$}}1 {⟨}{{$\langle$}}1
+           {⟩}{{$\rangle$}}1 {×}{{$\times$}}1 {·}{{$\cdot$}}1 {•}{{$\bullet$}}1}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\F}{\mathbb F}
+\newcommand{\N}{\mathbb N}
+\DeclareMathOperator{\AGL}{AGL}
+\title{New lower bounds for line-free sets in $\mathbb{F}_7^3$ and $\mathbb{F}_{11}^3$}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={New lower bounds for line-free sets in F7^3 and F11^3},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+A subset of $\F_p^n$ is \emph{line-free} if it contains no affine line, equivalently no
+$p$-term arithmetic progression with nonzero common difference; $r_p(\F_p^n)$ denotes the
+largest size of such a set. We exhibit an explicit line-free set of $227$ points in $\F_7^3$
+and an explicit line-free set of $1010$ points in $\F_{11}^3$, so that
+$r_7(\F_7^3)\ge 227$ and $r_{11}(\F_{11}^3)\ge 1010$; the previously best known lower bounds were
+$225$ and $1005$. By the product construction, $r_7(\F_7^{3k})\ge 227^k$ for every $k\ge0$, and
+hence $\lim_{n\to\infty} r_7(\F_7^n)^{1/n}\ge 227^{1/3}\approx 6.1002$; this improves the
+three-dimensional product bound $225^{1/3}\approx 6.0822$ of Elsholtz et al., but not the best known
+bound $7^{20/21}\approx 6.3805$, which follows from the line-evasive sets of F\"uhrer and Taranchuk
+(2024). The sets were found by tabu search with iterated local search.
+Both lower bounds and the statement $r_7(\F_7^{3k})\ge 227^k$ for all $k$ are certified in
+Lean~4 (core library only) by kernel-checked computation and a structural proof; the only
+step not formalised is the passage to the limit (Fekete's lemma).
+\end{abstract}
+\tableofcontents
+
+\section{Introduction}
+
+For a prime $p$ and integers $n\ge1$, $3\le k\le p$, let $r_k(\F_p^n)$ denote the maximum size of a
+subset of $\F_p^n$ containing no $k$-term arithmetic progression $a,a+d,\dots,a+(k-1)d$ with
+$d\neq0$. The case $k=p=3$ is the cap set problem. For $k=p$ a nontrivial $p$-term progression
+is exactly an affine line $\{a+td:t\in\F_p\}$, so $r_p(\F_p^n)$ is the largest size of a
+\emph{line-free} set. Equivalently, $p^n-r_p(\F_p^n)$ is the smallest size of a set of points of
+the affine space $\mathrm{AG}(n,p)$ meeting every line (for $n=3$: a $2$-blocking set).
+
+Line-free sets were studied systematically by Elsholtz, F\"uhrer, F\"uredi, Kov\'acs, Pach,
+Simon and Velich~\cite{EFFKPSV}. The hypercube $\{0,1,\dots,p-2\}^n$ is line-free, so
+$r_p(\F_p^n)\ge(p-1)^n$, with equality for $n\le 2$ (Jamison~\cite{Jamison}, Brouwer and
+Schrijver~\cite{BrouwerSchrijver}, as quoted in~\cite{EFFKPSV}). In dimension three,
+\cite{EFFKPSV} proves
+\[
+(p-1)^3+p-2\sqrt p\;\le\; r_p(\F_p^3)\;\le\; p^3-2p^2-(\sqrt2-1)p+2 \qquad(p\ge5),
+\]
+a further general bound $r_p(\F_p^n)\ge(p-1)^n+\frac{n-2}{2}(p-1)(p-2)^{n-3}$ (their Theorem~1.7,
+which for $n=3$ gives $(p-1)^3+\frac{p-1}{2}$), the special bound $r_7(\F_7^3)\ge225$
+(their Theorem~1.2 and the remark following its proof), a $70$-point line-free set in $\F_5^3$
+found by a branch-and-cut computation, and the upper bounds $r_5(\F_5^3)<74$, $r_7(\F_7^3)<243$.
+Kov\'acs~\cite{Kovacs} recently improved the lower bound to
+$p^3-3p^2+\frac18p^{3/2}-\frac7{16}p=(p-1)^3+\frac18p^{3/2}-O(p)$; his construction uses
+$\lfloor\sqrt p/4\rfloor$ special layers and is void for $p<16$, and the explicit bound exceeds
+$(p-1)^3$ only for $p\ge757$, so it gives nothing for $p=7,11,13$. \cite{Kovacs} states that,
+to the author's knowledge, there had been no further improvements of the bounds
+of~\cite{EFFKPSV} from either side.
+
+A further classical construction is the \emph{cone} (S.~Ball's lecture notes, as quoted in the
+MathOverflow discussion~\cite{MO229442} opened by A.~Bishnoi in January 2016): if $B$ is a
+double blocking set of $\mathrm{PG}(2,p)$, i.e.\ a set meeting every line in at least two points,
+then the affine part of the union of the lines joining a fixed affine point to the points of $B$
+meets every affine line, so that $r_p(\F_p^3)\ge p^3-1-(p-1)|B|$. With the sides of a triangle
+($|B|=3p$) this is exactly $(p-1)^3$. Double blocking sets of size $3p-1$ in $\mathrm{PG}(2,p)$
+are known for $p=13$ (Braun, Kohnert and Wassermann~\cite{BKW}; Csajb\'ok and
+H\'eger~\cite{CsH}) and for $p=19,31,37,43$~\cite{CsH}; none exists for $p\le 8$ (Ball and
+Blokhuis~\cite{BallBlokhuis}), and for $p=11$ none with fewer than $3p=33$ points is known
+(\cite{CsH}; the lower bound is $31$~\cite{BallBlokhuis}). For $p=13$ the cone over the
+$38$-point set of~\cite[\S4.1]{CsH} is therefore a line-free set of $13^3-1-12\cdot38=1740$
+points (we verified this by computer; see \texttt{data/cone13\_1740.py}), which is larger than the
+$1734$ points of
+\cite[Thm.~1.1 and 1.7]{EFFKPSV}; \cref{tab:bounds} takes this into account. Zare's
+single-point improvement $(p-1)^3+1$~\cite{MO229442}, mentioned in~\cite{EFFKPSV}, and the
+constructions of affine $2$-blocking sets of Bishnoi, D'haeseleer, Gijswijt and
+Potukuchi~\cite{BDGP}, which concern growing dimension, do not affect the small cases.
+
+Since products of line-free sets are line-free (\cref{lem:product}), $r_p(\F_p^n)$ is
+supermultiplicative in $n$, and the limit $\alpha_p=\lim_n r_p(\F_p^n)^{1/n}$ exists.
+Small-dimensional examples give lower bounds for $\alpha_p$; \cite{EFFKPSV} obtained
+$\alpha_5\ge 70^{1/3}\approx4.121$ and $\alpha_7\ge225^{1/3}\approx6.082$, which were better than
+the bounds $4.090$ and $6.066$ (their Table~1) obtained from Frankl, Graham and R\"odl's
+construction in dimension $2p$. These bounds have since been superseded: Theorem~1.1 of
+F\"uhrer and Taranchuk~\cite{FuhrerTaranchuk} (first version March 2024) partitions
+$\F_q^{n}$, $n=\binom{t+1}2$, into $q$ sets each meeting every line in at most $t$ points; for
+$t=p-1$ these are line-free sets of size $p^{n-1}$ in $\F_p^{n}$, $n=p(p-1)/2$, whence
+$\alpha_p\ge p^{1-2/(p^2-p)}$, i.e.\ $\alpha_5\ge5^{9/10}\approx4.2567$,
+$\alpha_7\ge7^{20/21}\approx6.3805$ and $\alpha_{11}\ge11^{54/55}\approx10.5307$. Since
+$4.2567^3>73$, $6.3805^3>242$ and $10.5307^3>1085$ exceed the upper bounds for
+$r_p(\F_p^3)$, no three-dimensional set can reach these values, and the product bound
+of \cref{cor:alpha} below is not a record.
+
+\Cref{tab:bounds} summarises the state of the art for small $p$ before this note.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}cccl@{}}
+\toprule
+$p$ & lower bound & upper bound & source of the lower bound\\
+\midrule
+5 & 70 & 73 & computer search (branch and cut) \cite{EFFKPSV}\\
+7 & 225 & 242 & algebraic construction, \cite[Thm.~1.2]{EFFKPSV}\\
+11 & 1005 & 1085 & $(p-1)^3+(p-1)/2$, \cite[Thm.~1.1 and 1.7]{EFFKPSV}\\
+13 & 1740 & 1855 & cone over a $38$-point double blocking set of $\mathrm{PG}(2,13)$ \cite{BKW,CsH}\\
+\bottomrule
+\end{tabular}
+\caption{Bounds for $r_p(\F_p^3)$ before this note. Upper bounds: \cite[Thm.~1.5, 1.6]{EFFKPSV}
+for $p=5,7$ and the exact form of \cite[Cor.~1.4]{EFFKPSV} for $p=11,13$ (its simplified form
+$p^3-2p^2-(\sqrt2-1)p+2$ gives $1086$ for $p=11$). The entry $1740$ for $p=13$ combines known
+results (cone construction and \cite{BKW,CsH}) and is not stated explicitly in the literature we
+found.}
+\label{tab:bounds}
+\end{table}
+
+\paragraph{What is new.} We improve the lower bounds for $p=7$ and $p=11$
+(\cref{thm:main7,thm:main11}) by two and five points respectively; the exact values remain open.
+The product bound for $\alpha_7$ (\cref{cor:alpha}) is included for completeness only, since it
+is weaker than the bound of~\cite{FuhrerTaranchuk}. To our knowledge, as of October~8, 2026,
+$227$ and $1010$ are the best known lower bounds for $r_7(\F_7^3)$ and $r_{11}(\F_{11}^3)$; we
+searched arXiv and the web for later work on line-free sets and on $2$-blocking sets in
+$\mathrm{AG}(3,p)$ and found no improvement of the values in \cref{tab:bounds} (in particular
+none in~\cite{Kovacs,FuhrerTaranchuk}; the cone construction gives $216$ for $p=7$ and at most
+$1000$ for $p=11$ with the known double blocking sets). The sets were found by computer search; they are
+irregular (the $227$-point set has trivial stabiliser in $\AGL(3,7)$) and we do not have a
+conceptual description of them. The proofs consist of an exhaustive verification, which we
+also certify in Lean~4.
+
+\section{Definitions and results}
+
+\begin{definition}
+Let $p$ be a prime. A \emph{line} of $\F_p^n$ is a set $\{a+td: t\in\F_p\}$ with
+$a,d\in\F_p^n$, $d\neq0$. A set $S\subseteq\F_p^n$ is \emph{line-free} if it contains no line.
+$r_p(\F_p^n)$ is the maximum size of a line-free subset of $\F_p^n$, and
+$\alpha_p=\lim_{n\to\infty}r_p(\F_p^n)^{1/n}$.
+\end{definition}
+
+\begin{theorem}\label{thm:main7}
+The set $S_7\subseteq\F_7^3$ of $227$ points listed in \cref{app:set7} is line-free. Hence
+$r_7(\F_7^3)\ge227$.
+\end{theorem}
+
+\begin{theorem}\label{thm:main11}
+The set $S_{11}\subseteq\F_{11}^3$ of $1010$ points listed in \cref{app:set11} is line-free.
+Hence $r_{11}(\F_{11}^3)\ge1010$.
+\end{theorem}
+
+\begin{lemma}[product construction]\label{lem:product}
+If $A\subseteq\F_p^m$ and $B\subseteq\F_p^k$ are line-free, then
+$A\times B\subseteq\F_p^{m+k}$ is line-free.
+\end{lemma}
+
+\begin{proof}
+Let $L=\{a+td\}$ be a line of $\F_p^{m+k}$ and write $a=(a_1,a_2)$, $d=(d_1,d_2)$. If $d_1\neq0$,
+the projection $\{a_1+td_1\}$ is a line of $\F_p^m$, so some $a_1+t_0d_1\notin A$, and then
+$a+t_0d\notin A\times B$. If $d_1=0$ then $d_2\neq0$ and the same argument applies to the second
+factor.
+\end{proof}
+
+\begin{corollary}\label{cor:power}
+For every $k\ge0$, $r_7(\F_7^{3k})\ge227^k$ and $r_{11}(\F_{11}^{3k})\ge1010^k$.
+\end{corollary}
+
+\begin{proof}
+Apply \cref{lem:product} $k-1$ times to $S_7$ (resp.\ $S_{11}$); $|S^k|=|S|^k$.
+\end{proof}
+
+\begin{corollary}\label{cor:alpha}
+$\alpha_7\ge227^{1/3}\approx 6.1002$.
+\end{corollary}
+
+\begin{proof}
+By \cref{lem:product}, $r_p(\F_p^{m+k})\ge r_p(\F_p^m)\,r_p(\F_p^k)$, so $\log r_p(\F_p^n)$ is
+superadditive and by Fekete's lemma $\alpha_p=\lim_n r_p(\F_p^n)^{1/n}=\sup_n
+r_p(\F_p^n)^{1/n}$. Taking $n=3$ and \cref{thm:main7} gives the claim.
+\end{proof}
+
+\begin{remark}
+\Cref{cor:alpha} is not the best known bound: \cite[Thm.~1.1]{FuhrerTaranchuk} gives
+$\alpha_7\ge7^{20/21}\approx6.3805$ and $\alpha_{11}\ge11^{54/55}\approx10.5307$ (see the
+introduction), and no three-dimensional set can reach these values because $6.3805^3>242$ and
+$10.5307^3>1085$. For $p=11$ the bound $1010^{1/3}\approx10.0332$ does not even reach the older
+bound $\alpha_{11}\ge 11^{1/22}10^{21/22}\approx10.0434$ of Frankl, Graham and R\"odl
+(\cite[Table~1]{EFFKPSV}), for which a line-free set of at least $1014$ points in $\F_{11}^3$
+would be needed.
+\end{remark}
+
+\section{The two sets}
+
+\subsection{Encoding and verification}
+A point $(x,y,z)\in\F_p^3$ is encoded by the integer $x+py+p^2z\in[0,p^3)$, with coordinates in
+$\{0,\dots,p-1\}$. The data files \texttt{data/linefree\_F7\_227.txt} and
+\texttt{data/linefree\_F11\_1010.txt} list the encoded points (the \texttt{\_xyz} files list
+coordinates); SHA-256 hashes are in \texttt{data/SHA256SUMS}:
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+\texttt{linefree\_F7\_227.txt} & \texttt{fc505c9d673a4d390ba665a9333d35998ea1bfa34ab03e9b2c6cbad9d5623636}\\
+\texttt{linefree\_F11\_1010.txt} & \texttt{3c65acbb753817d20bc5a7fc118cddef9d43ead14d0ee5be425febdc11070010}
+\end{tabular}
+\end{center}
+The sets are also drawn layer by layer in \cref{app:set7,app:set11}.
+
+\begin{proof}[Proof of \cref{thm:main7,thm:main11}]
+$\F_p^3$ has $p^2(p^2+p+1)$ lines: $2793$ for $p=7$ and $16093$ for $p=11$. For each base point
+$a$ and each nonzero direction $d$ one checks that some $a+td$ lies outside the set. This finite
+verification was carried out by three independent programs: the Python script
+\texttt{data/verify.py} (all pairs $(a,d)$, $d\ne0$), a C implementation inside the search
+program, and the Lean kernel (\cref{sec:lean}); an independent script written by a second party
+also confirmed that no line is contained in either set.
+\end{proof}
+
+\subsection{Statistics}
+Let $n_j$ be the number of lines meeting the set in exactly $j$ points. Then
+\begin{align*}
+S_7:&\quad (n_0,\dots,n_7)=(26,34,112,282,603,993,743,\mathbf 0),\\
+S_{11}:&\quad (n_0,\dots,n_{11})=(91,99,58,19,18,103,503,1954,4898,5909,2441,\mathbf 0).
+\end{align*}
+(As a consistency check, $\sum_j jn_j=|S|(p^2+p+1)$, e.g.\ $12939=227\cdot57$.)
+
+Both sets are maximal with respect to inclusion: adding any of the missing points creates a full
+line. Concerning structure:
+\begin{itemize}
+\item In the parallel class of planes $x+2y+3z=c$ of $\F_7^3$, the planes meet $S_7$ in
+$14,34,35,36,36,36,36$ points ($36=(p-1)^2=r_7(\F_7^2)$ is the maximum for a plane). The
+algebraic $225$-point set of~\cite{EFFKPSV} consists of six layers of $36$ points and one layer
+of $9$ points. $105$ points of $S_7$ have a ``local line profile'' (the multiset of
+$|L\cap S_7|$ over the $57$ lines $L$ through the point) shared by no other point of $S_7$; these
+points span $\F_7^3$ affinely, so the stabiliser of $S_7$ in $\AGL(3,7)$ is trivial.
+\item In the parallel class $x+7y+7z=c$ of $\F_{11}^3$, ten planes contain $100=(p-1)^2$ points
+of $S_{11}$ and one plane contains $10$, i.e.\ $S_{11}$ has the coarse shape ``ten maximal planes
+plus a sparse plane'' of hypercube-type constructions, with $10$ extra points instead of the
+$(p-1)/2=5$ of~\cite[Thm.~1.7]{EFFKPSV}.
+\end{itemize}
+
+\section{How the sets were found}\label{sec:search}
+
+We searched for $k$-subsets of $\F_p^3$ minimising the number of fully contained lines.
+\begin{enumerate}
+\item \emph{Tabu search.} A swap move removes a point of the current set and adds a point of
+the complement. Gains are maintained incrementally (for a point of the set, the number of full
+lines through it; for a point outside, the number of lines through it with $p-1$ points of the
+set); the best swap is chosen among all pairs, with random tie-breaking, short random tabu
+tenures and aspiration. Many \emph{short} restarts work best: at $p=7$, $k=225$, restarts of
+$400$--$800$ iterations gave about $40$ solutions per $150$ CPU-seconds, against $12$ with
+$3000$ and $10$ with $6000$ iterations; a two-stage move rule, adaptive line weights and greedy
+initialisation were all worse. With this method $224$ points are found in about one restart
+in eight, $225$ in one in two hundred, and a $226$-point set was found after about five CPU-minutes;
+no $227$-point set appeared in a further hour. For $p=11$, sets of size $1006$--$1008$ were found in
+one to five minutes.
+\item \emph{Iterated local search.} Restart the same tabu search from a known solution with
+$10$--$30$ randomly chosen points exchanged and the target size increased by one. This is much
+stronger: from a $225$-point set, $226$-point sets were found $61$ times in $150$ CPU-seconds
+(with $10$ exchanged points), against once for random restarts. From the $226$-point set,
+$S_7$ was found after about two CPU-minutes ($20$ exchanged points; $S_7$ shares $199$ points
+with the $226$-point set). For $p=11$, chaining this step from a $1008$-point set gave
+$1009$ and then $S_{11}$.
+\end{enumerate}
+A SAT-based neighbourhood test (re-optimising exactly all points in one plane, or in two parallel
+planes, with the CaDiCaL solver) showed that the $226$-point set cannot be enlarged by such local
+changes, which is consistent with the need for larger perturbations.
+
+\paragraph{Negative results (not theorems).}
+These are reported only to document the search effort.
+\begin{itemize}
+\item $p=7$: no $228$-point set in about $85$ CPU-minutes of iterated local search, including a
+random walk over $227$-point solutions.
+\item $p=11$: no $1011$-point set in about $47$ CPU-minutes.
+\item $p=5$: $70$-point sets are found within a few hundred iterations, but no $71$-point set was
+found (several CPU-minutes of tabu search and iterated local search). We do not know whether
+$r_5(\F_5^3)=70$.
+\item $p=13$: sets of size $1731$ were found within two minutes, but none of size $1735$ (the
+bound $1734$ of~\cite{EFFKPSV} plus one) in about $35$ CPU-minutes of random restarts; iterated
+local search was not tried for $p=13$. Note that the cone construction gives $1740$ points
+(see the introduction), so the search did not even reach the best known value for $p=13$.
+\item In $\F_5^4$ the search reached only $280=70\cdot4$ points, so it gave no improvement of
+$\alpha_5$.
+\end{itemize}
+
+\section{Formal verification}\label{sec:lean}
+
+Both theorems are proved in Lean~4.34.1 using only the core library and \texttt{Std} (no
+Mathlib), in the self-contained files \texttt{lean/Main.lean} ($p=7$) and
+\texttt{lean/Main11.lean} ($p=11$). No \texttt{sorry}, \texttt{axiom} or \texttt{native\_decide}
+is used. The main statements and all definitions they depend on (for $p=7$; the $p=11$ file is
+identical with $11$ and $1010$) are:
+\begin{lstlisting}
+abbrev Pt := Fin 7 × Fin 7 × Fin 7
+def add (a b : Pt) : Pt := (a.1 + b.1, a.2.1 + b.2.1, a.2.2 + b.2.2)
+def smul (t : Fin 7) (d : Pt) : Pt := (t * d.1, t * d.2.1, t * d.2.2)
+def LineFree (L : List Pt) : Prop :=
+  ∀ a d : Pt, d ≠ (0, 0, 0) → ∃ t : Fin 7, add a (smul t d) ∉ L
+theorem main : ∃ L : List Pt, L.Nodup ∧ L.length = 227 ∧ LineFree L
+
+def vadd (a b : List (Fin 7)) : List (Fin 7) := List.zipWith (· + ·) a b
+def vsmul (t : Fin 7) (d : List (Fin 7)) : List (Fin 7) := d.map (t * ·)
+def LineFreeN (n : Nat) (L : List (List (Fin 7))) : Prop :=
+  ∀ a d : List (Fin 7), a.length = n → d.length = n → (∃ x ∈ d, x ≠ 0) →
+    ∃ t : Fin 7, vadd a (vsmul t d) ∉ L
+theorem main_pow (k : Nat) : ∃ M : List (List (Fin 7)), M.Nodup ∧ M.length = 227 ^ k ∧
+    (∀ v ∈ M, v.length = 3 * k) ∧ LineFreeN (3 * k) M
+\end{lstlisting}
+
+\paragraph{Proof architecture.} The witness \texttt{theSet} is the explicit list of points,
+sorted lexicographically. A bitmask with bit $p^2x+py+z$ set for each point is tied to it by
+the kernel-checked equation \texttt{theSet = allPts.filter inMask}, where \texttt{allPts}
+lists all $p^3$ points. \texttt{allPts} has no duplicates, because it maps onto
+\texttt{List.range}~$p^3$ under the lexicographic index; this gives \texttt{theSet.Nodup}.
+The length is checked by \texttt{decide +kernel}. For line-freeness, a Boolean checker
+\texttt{checkAt a} is evaluated by \texttt{decide +kernel} on chunks of base points (7 slices
+for $p=7$, 121 rows for $p=11$); the chunks are glued by \texttt{match} on \texttt{Fin} and
+combined with soundness lemmas (\texttt{List.all\_eq\_true}, \texttt{List.any\_eq\_true},
+membership of every point in \texttt{allPts}). For $p=7$ the checker tries all $342$ nonzero
+directions. For $p=11$ it tries only directions whose first nonzero coordinate is $1$. The
+reduction is proved in the file: a kernel check shows that $u^{-1}d$ is normalised for every
+$d\ne0$, where $u$ is the leading coordinate of $d$, and associativity of multiplication in
+\texttt{Fin 11} (checked by \texttt{decide +kernel}) gives $s(u^{-1}d)=(su^{-1})d$.
+\texttt{main\_pow} is a structural proof: the product of two line-free, duplicate-free lists of
+vectors of fixed lengths is line-free and duplicate-free, of the product size
+(\cref{lem:product}). It is proved by induction on $k$ and instantiated with \texttt{main}'s
+witness.
+
+\paragraph{Statement audit.}
+(i) \texttt{Fin 7} addition and multiplication are taken modulo $7$, so \texttt{Pt} with
+\texttt{add} and \texttt{smul} is the vector space $\F_7^3$.
+(ii) \texttt{LineFree L} says: for every base point $a$ and every direction $d\neq0$, some
+point $a+td$ is not in \texttt{L}, i.e.\ \texttt{L} contains no line. All pairs $(a,d)$ are
+quantified; the direction normalisation for $p=11$ happens only inside the proof.
+(iii) \texttt{L.Nodup} together with \texttt{L.length = 227} says that \texttt{L} consists of
+$227$ distinct points.
+(iv) In \texttt{main\_pow}, vectors of $\F_7^{3k}$ are lists of length $3k$, and this length is
+part of the statement; ``$d\neq0$'' is \texttt{$\exists$ x $\in$ d, x $\neq$ 0}. For $k=0$ the
+statement is the trivial $r_7(\F_7^0)\ge1$.
+(v) Both theorems are existential statements whose witness is explicit, so there are no
+hypotheses that could be vacuous. A separate control file
+(\texttt{lean/NegTest.lean}, \texttt{\#eval} only) checks that the same checker rejects the set
+with the line $\{(t,0,0)\}$ added, and the set with any single missing point added.
+
+\paragraph{Axioms and resources.} \texttt{\#print axioms} reports, for both files,
+\begin{lstlisting}
+'main' depends on axioms: [propext, Classical.choice, Quot.sound]
+'main_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}
+These are the standard axioms; no \texttt{Lean.ofReduceBool} appears. Checking takes about
+$140$\,s with peak memory $2.2$\,GB for $p=7$, and about $550$\,s with $0.96$\,GB for $p=11$,
+on a shared machine. The outputs are in \texttt{lean/lean\_output.txt} and
+\texttt{lean/lean\_output11.txt}.
+
+\section{Limitations and open questions}
+\begin{itemize}
+\item Novelty is claimed to our knowledge as of October~8, 2026, based on a literature search;
+unpublished improvements cannot be excluded.
+\item The exact values remain open: $227\le r_7(\F_7^3)\le242$ and
+$1010\le r_{11}(\F_{11}^3)\le1085$. The search gives no evidence that our sets are optimal.
+\item The bound $\alpha_7\ge227^{1/3}$ of \cref{cor:alpha} is weaker than the known bound
+$\alpha_7\ge7^{20/21}$ of~\cite{FuhrerTaranchuk}; for $p=5,7,11$ no three-dimensional
+line-free set can improve the bounds for $\alpha_p$ that follow from~\cite{FuhrerTaranchuk}.
+\item Not formalised: the existence of the limit $\alpha_7$ (Fekete's lemma), and the comparison
+with the literature.
+\item The sets are unstructured. A structural explanation of why random search beats the
+algebraic constructions for $p=7,11$ might lead to improved general constructions of the form
+$(p-1)^3+cp^{\beta}$. For $p=11$, about ten points beyond the hypercube fit into one sparse
+plane.
+\item Is $r_5(\F_5^3)=70$? This seems within reach of a careful exhaustive search with symmetry
+reduction, but a formal certificate would be substantially harder.
+\end{itemize}
+
+\appendix
+\section{The 227-point line-free set in \texorpdfstring{$\F_7^3$}{F7^3}}\label{app:set7}
+Layers $z=0,\dots,6$; in each layer the rows are $y=0,\dots,6$ (top to bottom) and the columns
+are $x=0,\dots,6$ (left to right). The symbol \texttt{\#} marks a point of $S_7$; the layer sizes
+are given in parentheses.
+{\small
+\input{grid7}
+}
+
+\section{The 1010-point line-free set in \texorpdfstring{$\F_{11}^3$}{F11^3}}\label{app:set11}
+Same conventions, with layers $z=0,\dots,10$, rows $y=0,\dots,10$ and columns $x=0,\dots,10$.
+{\footnotesize
+\input{grid11}
+}
+
+\begin{thebibliography}{99}
+\bibitem{EFFKPSV}
+C.~Elsholtz, J.~F\"uhrer, E.~F\"uredi, B.~Kov\'acs, P.~P.~Pach, D.~G.~Simon, N.~Velich,
+\emph{Maximal line-free sets in $\mathbb F_p^n$}, Period.\ Math.\ Hungar.\ \textbf{90} (2025),
+7--21, \url{https://doi.org/10.1007/s10998-024-00617-x}; arXiv:2310.03382 (v2, May 2024).
+\url{https://arxiv.org/abs/2310.03382}
+
+\bibitem{Kovacs}
+B.~Kov\'acs, \emph{A superlinear improvement on line-free sets in $\mathbb F_p^3$},
+arXiv:2605.23437 (May 2026, revised September 2026). \url{https://arxiv.org/abs/2605.23437}
+
+\bibitem{FuhrerTaranchuk}
+J.~F\"uhrer, V.~Taranchuk, \emph{Large line-free sets and their applications},
+arXiv:2403.18611 (v1 March 2024, v2 February 2026). \url{https://arxiv.org/abs/2403.18611}
+
+\bibitem{MO229442}
+A.~Bishnoi (question), D.~Zare (answer), \emph{Blocking sets in three dimensional finite affine
+spaces}, MathOverflow, January 2016. \url{https://mathoverflow.net/q/229442}
+
+\bibitem{BallBlokhuis}
+S.~Ball, A.~Blokhuis, \emph{On the size of a double blocking set in $PG(2,q)$},
+Finite Fields Appl.\ \textbf{2} (1996), 125--137.
+
+\bibitem{BKW}
+M.~Braun, A.~Kohnert, A.~Wassermann, \emph{Construction of $(n,r)$-arcs in $PG(2,q)$},
+Innov.\ Incidence Geom.\ \textbf{1} (2005), 133--141.
+
+\bibitem{CsH}
+B.~Csajb\'ok, T.~H\'eger, \emph{Double blocking sets of size $3q-1$ in $PG(2,q)$},
+European J.\ Combin.\ \textbf{78} (2019), 73--89. arXiv:1805.01267.
+
+\bibitem{BDGP}
+A.~Bishnoi, J.~D'haeseleer, D.~Gijswijt, A.~Potukuchi, \emph{Blocking sets, minimal codes and
+trifferent codes}, arXiv:2301.09457 (2023).
+
+\bibitem{Jamison}
+R.~E.~Jamison, \emph{Covering finite fields with cosets of subspaces},
+J.\ Combin.\ Theory Ser.\ A \textbf{22} (1977), 253--266.
+
+\bibitem{BrouwerSchrijver}
+A.~E.~Brouwer, A.~Schrijver, \emph{The blocking number of an affine space},
+J.\ Combin.\ Theory Ser.\ A \textbf{24} (1978), 251--253.
+\end{thebibliography}
+
+\end{document}

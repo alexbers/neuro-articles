@@ -1,0 +1,25 @@
+\begin{Verbatim}[fontsize=\footnotesize,frame=single]
+/-- A graph on `Fin n` given by a Boolean adjacency relation is *simple* if the relation is
+symmetric and irreflexive. -/
+def IsSimpleGraph {n : Nat} (adj : Fin n → Fin n → Bool) : Prop :=
+  (∀ u v, adj u v = adj v u) ∧ (∀ v, adj v v = false)
+
+/-- degree of `v`: the number of vertices `w` with `adj v w`. -/
+def degree {n : Nat} (adj : Fin n → Fin n → Bool) (v : Fin n) : Nat :=
+  ((List.finRange n).filter (fun w => adj v w)).length
+
+/-- `k`-regular: every vertex has degree `k`. -/
+def IsRegular {n : Nat} (adj : Fin n → Fin n → Bool) (k : Nat) : Prop :=
+  ∀ v, degree adj v = k
+
+/-- `c = [c₀, …, c_{L-1}]` is a cycle: at least 3 pairwise distinct vertices with
+`cᵢ ~ c_{(i+1) mod L}` for all `i`. -/
+def IsCycle {α : Type} (adj : α → α → Bool) (c : List α) : Prop :=
+  3 ≤ c.length ∧ c.Nodup ∧
+    ∀ i (h : i < c.length), adj c[i] (c[(i + 1) % c.length]'(Nat.mod_lt _ (Nat.lt_of_le_of_lt (Nat.zero_le _) h))) = true
+
+
+/-- girth exactly `g`: some cycle has length `g`, and every cycle has length at least `g`. -/
+def HasGirth {n : Nat} (adj : Fin n → Fin n → Bool) (g : Nat) : Prop :=
+  (∃ c, IsCycle adj c ∧ c.length = g) ∧ ∀ c, IsCycle adj c → g ≤ c.length
+\end{Verbatim}

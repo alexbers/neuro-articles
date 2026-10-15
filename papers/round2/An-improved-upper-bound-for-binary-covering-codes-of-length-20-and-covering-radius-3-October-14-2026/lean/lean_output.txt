@@ -1,0 +1,3 @@
+'KTwentyThree.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+'KTwentyThree.codeB' depends on axioms: [propext, Classical.choice, Quot.sound]
+leancheck: wall=150.94s maxrss=12256460kB exit=0

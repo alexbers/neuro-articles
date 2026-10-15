@@ -1,0 +1,2 @@
+'Cage.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanchk: wall=153.61s maxrss=991836kB exit=0

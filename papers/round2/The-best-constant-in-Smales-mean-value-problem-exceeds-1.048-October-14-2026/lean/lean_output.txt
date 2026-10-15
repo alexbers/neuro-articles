@@ -1,0 +1,9 @@
+--- node check (compute-node): ~/claude_math/bin/leancheck B10 Main.lean ---
+'SmaleKoebe.witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+leancheck: wall=37.40s maxrss=8921508kB exit=0
+
+--- local check: attempts2/bin/leanmath Main.lean ---
+'SmaleKoebe.witness' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanmath: wall=120.10s maxrss=7523692kB exit=0
+
+grep -c 'sorry|admit|native_decide' Main.lean -> 0

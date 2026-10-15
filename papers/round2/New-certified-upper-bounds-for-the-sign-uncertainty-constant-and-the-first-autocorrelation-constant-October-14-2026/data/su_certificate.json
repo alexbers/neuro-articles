@@ -1,0 +1,10 @@
+{
+ "D": 300,
+ "degree": 600,
+ "r_num": 48,
+ "r_den": 25,
+ "kronecker_w": 16623,
+ "n_leaves": 41,
+ "leaves_variable": "u (leaves in su_leaves.txt cover [r,oo) for P); su_leaves_R.txt: same leaves in y=b*u-a for R",
+ "meaning": "P(u)=sum_j gamma_j Lam_{2j}(u), Lam_n=2^n n! L_n^(-1/2); P(0)<0, P(u)>0 for u>=r; C_SU<=r/(2pi)"
+}

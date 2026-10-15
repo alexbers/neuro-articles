@@ -1,0 +1,235 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,array}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\F}{\mathbb F}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Z}{\mathbb Z}
+\title{A kissing configuration of 12\,277 points in dimension 19}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 14, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={A kissing configuration of 12277 points in dimension 19},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+We exhibit $12\,277$ points on the unit sphere $S^{18}\subset\R^{19}$ with pairwise angular
+distances at least $60^\circ$. Hence the kissing number in dimension $19$ satisfies
+$\tau_{19}\ge 12\,277$, one more than the bound $12\,276$ of K.~Li (October 2026). The
+configuration keeps Li's $10\,484$-point base, which comes from the odd-sign configuration of Cohn and
+Li. It restores one more of the $184$ base points that Li deletes, and it replaces Li's $1792$ added
+points by $1792$ re-optimised points. These form $112$ orbits under the order-$16$ group of sign
+changes that fixes the restored point. All coordinates are integers. Every pair is checked in exact
+arithmetic by two independent programs. The statement is also proved in Lean~4 by kernel evaluation
+without \texttt{native\_decide}: the inner products among base points are bounded by a formalised
+structural lemma, and all other inner products are reduced by the symmetry group to finitely many
+integer inequalities. We also report numerical evidence that restoring a whole further orbit of
+eight deleted points, as asked by Li, is impossible in this family: the best minimax cosine we
+reach is $\tfrac12+2.0\cdot10^{-5}$.
+\end{abstract}
+
+\section{Introduction}
+The kissing number $\tau_n$ is the largest number of non-overlapping unit balls in $\R^n$ that touch
+a fixed unit ball. Equivalently, it is the largest size of a set of unit vectors with pairwise inner
+products at most $1/2$. It is known only for $n\in\{1,2,3,4,8,24\}$; see Cohn's table~\cite{CohnTable}
+for current bounds and references. For $17\le n\le 23$ the classical lower bounds come from the
+Leech lattice cross sections $\Lambda_n$~\cite{LS71}, which give $\tau_{19}\ge 10\,668$. Cohn and
+Li~\cite{CL24} changed the parity of the sign patterns on the octads and added sign vectors of a
+code; this gave $\tau_{19}\ge 11\,692$. Ho~\cite{Ho26} found a larger code and reached $11\,948$.
+In October 2026 K.~Li~\cite{Li26,Li26b} obtained $\tau_{19}\ge 12\,276$. That construction cuts the
+$20$-dimensional Cohn--Li configuration by a hyperplane, deletes $184$ base points and adds
+$1792$ reweighted sign vectors with tails. Li lists as open whether ``a second orbit of eight
+deleted points [can] be kept, under $\Gamma$ or under a smaller group with a larger
+table''~\cite[\S6]{Li26b}. On October 15, 2026, Cohn's table~\cite{CohnTable} lists $12\,276$ as
+the best lower bound and $24\,417$ as the best upper bound~\cite{LdL24}.
+
+\begin{theorem}\label{thm:main}
+There are $12\,277$ unit vectors in $\R^{19}$ with pairwise inner products at most $1/2$. Hence
+$\tau_{19}\ge 12\,277$.
+\end{theorem}
+
+The configuration of Theorem~\ref{thm:main} answers a one-point version of Li's question positively:
+one more deleted point can be kept if the symmetry group is shrunk to its stabiliser and the added
+points are re-optimised. For a whole extra orbit of eight points we found only configurations with
+largest cosine $\tfrac12+2.0\cdot10^{-5}$ (Section~\ref{sec:limits}). To our knowledge, as of
+October 15, 2026, Theorem~\ref{thm:main} is the best lower bound for $\tau_{19}$. We checked
+Cohn's table, the four public repositories that worked on dimensions $17$--$31$ in September and
+October 2026~\cite{Li26,Li26b,Kra26,Long26}, the preprint~\cite{YZW26} and a web search.
+
+\section{Notation and the base}\label{sec:base}
+We follow~\cite{Li26b}. Coordinates of $\R^{20}$ are numbered $1,\dots,20$. Let $E\subseteq\F_2^{20}$
+be the $[20,12,4]$ code spanned by the twelve words of~\cite[\S3.1]{Li26b}, which is the Golay code
+punctured at four coordinates. Its dual contains $130$ \emph{octads} (words of weight $8$), and two
+octads meet in at most $4$ coordinates. The \emph{odd configuration} $B_{20}$ of Cohn and
+Li~\cite{CL24} consists of the $760$ roots $\pm2e_i\pm2e_j$ together with, for every octad $o$, the
+$128$ vectors with entries $\pm1$ on $o$, zeros elsewhere and an odd number of minus signs. All
+these vectors have squared norm $8$.
+
+\begin{lemma}[Cohn--Li]\label{lem:CL}
+Distinct $b,b'\in B_{20}$ satisfy $\langle b,b'\rangle\le4$.
+\end{lemma}
+\begin{proof}
+The two cases that need an argument are the following. Two vectors on the same octad have odd sign
+patterns, so they differ in an even and positive number of places. Two vectors on different octads
+overlap in at most four coordinates. The remaining cases are immediate.
+\end{proof}
+
+Let $T=\{1,4,7,9\}$, and let $H=\{1,\dots,20\}\setminus T$ (the \emph{head}). The points of $B_{20}$
+orthogonal to $\mathbf 1_T$ number $10\,668$. Among them are $192$ points on the four octads
+containing $T$ whose sign pattern on $T$ has two plus and two minus signs. Li deletes $184$ of these
+and keeps the eight points $P$ on the octad $T\cup\{3,6,8,19\}$ with pattern $(+,+,-,-)$ on $(1,4,7,9)$.
+The map $v\mapsto(v_H, Rv_T/2)$, with
+\[R=\begin{pmatrix}1&1&-1&-1\\1&-1&1&-1\\1&-1&-1&1\end{pmatrix},\]
+is an isometry from $\mathbf 1_T^\perp$ onto $\R^{19}$~\cite[(2)]{Li26b}. We work in
+$\mathbf 1_T^\perp\subset\R^{20}$ throughout, so ``a kissing configuration in $\mathbf 1_T^\perp$''
+means one in $\R^{19}$.
+
+Li's sign group $\Gamma$ consists of the $128$ sign changes $S_g$ on the coordinates of words
+$g$ of a $7$-dimensional subcode of $E$ missing $T$~\cite[\S3.2]{Li26b}. Every $S_g$ maps the base
+onto itself. Under $\Gamma$ the $184$ deleted points form $23$ orbits of size $8$. In Li's
+configuration each such orbit conflicts with exactly one orbit of added points, at cosines between
+$0.5286$ and $0.5525$.
+
+\section{The configuration}\label{sec:config}
+Let
+\[ q_0 = (-1,-1,+1,+1 \text{ on } 1,4,7,9;\ -1,-1,-1,+1 \text{ on } 10,15,17,18;\ 0 \text{ elsewhere}). \]
+This is one of Li's deleted points: it lies on the octad $T\cup\{10,15,17,18\}$, has five minus signs
+and is orthogonal to $\mathbf 1_T$. Let $\mathcal H\le\Gamma$ be its stabiliser. It has order $16$
+and consists of the $S_g$ with $g\cap\{10,15,17,18\}=\emptyset$. The configuration $\mathcal C$ has
+three parts.
+\begin{itemize}
+\item \textbf{Base:} the $10\,668$ points of $B_{20}\cap\mathbf 1_T^\perp$ minus the $192$ points
+described above, plus $P$ and $q_0$. This gives $10\,485=492+9\,993$ points ($492$ roots and $9\,993$ octad
+vectors). It is $\mathcal H$-invariant.
+\item \textbf{New points:} the $\mathcal H$-orbits $\{S_g r:\ S_g\in\mathcal H\}$ of $112$ integer vectors
+$r_1,\dots,r_{112}\in\mathbf 1_T^\perp\cap\Z^{20}$. Their entries have absolute value at most
+$1.16\cdot10^{8}$, and they are listed in the data file \texttt{reps112\_R20.txt}. Every $r_i$ has all
+$16$ head coordinates nonzero, so each orbit has exactly $16$ points, and the $1792$ new points have
+$1792$ distinct head sign patterns. These patterns are the head patterns of $1792$ words $c\in E$
+with $|c\cap T|\in\{1,2,3\}$, chosen as one bipartition class in each of the $112$ cubes of such
+words. (The cubes are the cosets of the span of the five tetrads.)
+\end{itemize}
+Thus $|\mathcal C| = 10\,485+1\,792=12\,277$.
+
+\begin{proposition}\label{prop:check}
+All $12\,277$ vectors of $\mathcal C$ are distinct, nonzero and orthogonal to $\mathbf 1_T$. Every
+pair $x\ne y$ satisfies $\langle x,y\rangle\le0$ or $4\langle x,y\rangle^2\le|x|^2|y|^2$. Moreover,
+for every pair involving a new point, $\tfrac14-\cos^2\angle(x,y)\ge 4.37\cdot10^{-6}$ whenever the
+inner product is positive.
+\end{proposition}
+Theorem~\ref{thm:main} follows by normalising and applying the isometry of Section~\ref{sec:base}.
+For the proof of Proposition~\ref{prop:check} we use the symmetry reduction of~\cite[\S3.3]{Li26b}.
+Base pairs are covered by Lemma~\ref{lem:CL}. A pair $(b, S_g r_i)$ is carried by the isometry $S_g$
+to $(S_gb, r_i)$, and $S_gb$ lies in the base. A pair $(S_gr_i,S_hr_j)$ is carried to
+$(r_i,S_{g+h}r_j)$. It therefore suffices to check two lists:
+\begin{itemize}
+\item the $112\times10\,485$ products $\langle r_i,b\rangle$ with $b$ in the base;
+\item the $112\cdot112\cdot16$ products $\langle r_i,S_gr_j\rangle$ with $(g,j)\neq(0,i)$.
+\end{itemize}
+We verified the whole statement in three independent ways (Section~\ref{sec:verif}).
+
+\paragraph{How the configuration was found.} We parametrised Li's family by representatives modulo
+a sign group and minimised the largest cosine by sequential linear programming on the
+symmetry-reduced list of pairs. Keeping the base, $P$ and the full $\Gamma$-orbit of $q_0$, and
+optimising over all $2^7$ $\Gamma$-invariant choices of kept words, the best minimax value is
+$\tfrac12+2.0\cdot10^{-5}$. From that configuration we dropped seven of the eight points of the
+orbit. We then ran a gradient method (Adam on a squared-hinge penalty) on all $1792$ added points
+without symmetry, which reached $\tfrac12+1.2\cdot10^{-5}$. We averaged the result over
+$\mathcal H$ and polished it by $\mathcal H$-symmetric sequential linear programming, reaching
+$\tfrac12-4.37\cdot10^{-6}$. Finally we rounded at scale $10^8$. The search played no part in the
+proof.
+
+\section{Verification}\label{sec:verif}
+\paragraph{Two independent exact programs.} The first program computes all $75\,356\,226$ cosines
+in floating point and re-checks the $2\,390\,370$ pairs with cosine above $\tfrac12-10^{-6}$ in exact
+integer arithmetic. The second computes exact $64$-bit Gram blocks, which is safe because
+$|x_k|<2^{28}$, and checks $4\langle x,y\rangle^2\le|x|^2|y|^2$ with unbounded integers for all
+$26\,085\,106$ pairs with positive inner product. Both pass. Exactly $2\,390\,370$ pairs touch, all
+of them base--base. Both programs also pass on the $19$-coordinate version of the data.
+
+\paragraph{Lean.} The certificate uses core Lean~4.35, with no Mathlib needed. Kernel caches accumulate
+across declarations, so to bound memory the certificate is split into $33$ modules, compiled with
+\texttt{lean -o} in dependency order (\texttt{lean/mods2/}). They are: generic lemmas; the data;
+$14$ modules of cheap checks; and $16$ modules with $14$ kernel checks each, taking $6$--$10$ minutes
+each. The last module contains the main theorem. The same content concatenated into one file is
+\texttt{lean/Main.lean}. The main theorem is
+\begin{verbatim}
+theorem K19.kissing19 :
+  exists L : List (List Int), L.length = 12277 /\ L.Nodup /\
+    (forall v in L, v.length = 20 /\ tsumT v = 0 /\ 0 < dot v v) /\
+    L.Pairwise Compat
+\end{verbatim}
+(written with ASCII words for $\exists$, $\wedge$, $\forall$, $\in$).
+Here \texttt{dot} is the integer inner product of lists and \texttt{tsumT v} is $v_0+v_3+v_6+v_8$
+(the $0$-based indices of $T$). \texttt{Compat x y} is
+$\langle x,y\rangle\le0\vee 4\langle x,y\rangle^2\le\langle x,x\rangle\langle y,y\rangle$. The list
+$L$ is computed inside Lean from the data: $128$ octad records (octad mask and list of sign masks),
+$492$ roots, $16$ sign masks and $112$ representatives. The proof uses no \texttt{sorry},
+\texttt{axiom}, \texttt{admit} or \texttt{native\_decide}. It has four parts.
+\begin{enumerate}
+\item \emph{Base pairs: a formalised structural proof.} The bit-level identity
+  $|o\cap(m\oplus m')|+2|o\cap m\cap m'|=|o\cap m|+|o\cap m'|$ shows that two odd octad vectors on one
+  octad differ in an even, positive number of coordinates, so their inner product is at most $4$.
+  For different octads the inner product is at most $|o\cap o'|$, and the $128^2$ octad
+  intersections are checked by \texttt{decide}. Roots are handled by a two-term formula.
+\item \emph{Group closure.} $\mathcal H$ is closed under composition, and every octad block and the
+  root list are closed under the sign changes. Both are checked by \texttt{decide}.
+\item \emph{Reduced inequalities.} $224$ theorems, two per representative, are checked by
+  \texttt{decide +kernel}. They cover the $10\,485$ base products, evaluated through a proved
+  $8$-term formula for octad vectors, and the $1\,792$ products with sign-changed representatives.
+\item \emph{Assembly.} The isometry lemmas
+  $\langle S_gx,S_gy\rangle=\langle x,y\rangle$ and $S_gS_h=S_{g\oplus h}$ give
+  \texttt{L.Pairwise Compat}. Distinctness follows because no nonzero vector is compatible with
+  itself.
+\end{enumerate}
+The command \verb|#print axioms K19.kissing19| reports \texttt{[propext, Classical.choice,
+Quot.sound]}. Resource figures are in \texttt{lean/lean\_output.txt}.
+
+\section{Limits and open questions}\label{sec:limits}
+\begin{itemize}
+\item \emph{A whole extra orbit.} We ran the minimax optimisation for every combination of three
+  choices: one of the $2^7$ $\Gamma$-invariant choices of kept words; one of seven candidate deleted
+  orbits; and Li's group $\Gamma$ or one of the other $15$ admissible index-$2$ subgroups of the
+  sign group of $E$ fixing $T$ (sampled). The best value is $\tfrac12+2.0\cdot10^{-5}$. The minima
+  take a handful of discrete values. Passing to subgroups of index $2$, $4$ or $8$ at the optimum
+  does not lower it, and neither does letting $P$, the extra orbit or base orbits move. This is
+  numerical evidence, not a proof, that Li's question has a negative answer for full orbits.
+\item \emph{Two extra points.} Two points of the same orbit (same stabiliser $\mathcal H$) reach
+  $\tfrac12+1.75\cdot10^{-5}$ by $\mathcal H$-symmetric optimisation. Whether $\tau_{19}\ge12\,278$
+  can be reached this way is open.
+\item \emph{Dimension 21.} Li's line-weighted points satisfy a rule (his Lemma~4.3) implying that the
+  excluded words in each coset of the line code form a dominating set of the Cayley graph of
+  $\F_2^{10}$ with respect to the $21$ lines of $\mathrm{PG}(2,4)$. Hence this family gives at most
+  $4(1024-\gamma)$ points, where $\gamma$ is the domination number. Tabu search finds dominating sets
+  of size $64$ immediately and none of size $63$. This suggests $\gamma=64$, in which case Li's
+  $3840$ points would be optimal for line weights. We have no proof.
+\end{itemize}
+
+\paragraph{Use of AI.} This work, including the search, the verification code, the Lean
+formalisation and this text, was carried out by Claude (Anthropic).
+
+\begin{thebibliography}{99}
+\bibitem{CohnTable} H.~Cohn, \emph{Table of kissing number bounds}, \url{https://cohn.mit.edu/kissing-numbers}, accessed October 15, 2026; data set \url{https://hdl.handle.net/1721.1/153312}.
+\bibitem{CL24} H.~Cohn and A.~Li, \emph{Improved kissing numbers in seventeen through twenty-one dimensions}, preprint, 2024, arXiv:2411.04916.
+\bibitem{Ho26} B.~S.~Ho, \emph{A new lower bound for the kissing number in 19 dimensions}, preprint, 2026, arXiv:2603.10425.
+\bibitem{Li26} K.~Li, \emph{D19--D21 kissing configurations}, \url{https://github.com/Felpix-Studios/D19-D21-Kissing}, October 2026.
+\bibitem{Li26b} K.~Li, \emph{Improved kissing numbers in nineteen and twenty-one dimensions}, preprint in \url{https://github.com/Felpix-Studios/kissing-number}, October 2026.
+\bibitem{Kra26} A.~Kravatskiy, \emph{Kissing numbers: new lower bounds in dimensions 18 through 96}, \url{https://github.com/alexlegeartis/KissingNumbers}, 2026.
+\bibitem{Long26} G.~Long, \emph{Kissing configurations in $\R^{21}$}, \url{https://github.com/griffinwork40/D21-Kissing}, October 2026.
+\bibitem{YZW26} S.~Yang et al., \emph{Large-scale autonomous discovery of kissing number constructions}, preprint, 2026, arXiv:2609.35051.
+\bibitem{LS71} J.~Leech and N.~J.~A.~Sloane, \emph{Sphere packings and error-correcting codes}, Canad.\ J.\ Math.\ 23 (1971), 718--745.
+\bibitem{LdL24} N.~Leijenhorst and D.~de Laat, \emph{Solving clustered low-rank semidefinite programs arising from polynomial optimization}, Math.\ Program.\ Comput.\ 16 (2024), 503--534.
+\end{thebibliography}
+\end{document}

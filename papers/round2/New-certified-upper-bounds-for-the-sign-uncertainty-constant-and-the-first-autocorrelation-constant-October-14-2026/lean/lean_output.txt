@@ -1,0 +1,32 @@
+# lean/su_modules/*.lean compiled in order with lean/su_modules/build_modules.sh on compute-node (Lean 4.35.0 + Mathlib v4.35.0, 3 cores),
+# 2026-10-15 node time 05:0x +05. sha256 of the compiled sources:
+#   99329a937142d58564a6f9ed1b3a7ad41b9d41dd415563695de2df5bf99e4dd5  SUCore.lean
+#   d47c6d1392e921c3b998257d3a8390b62a8be70e2ab8e32ef855c12b542faa10  SULeaves0.lean
+#   6df7369e22db6483f4f622fea1d1745c48abea8ee5af89301773510988f519ec  SULeaves1.lean
+#   d17aebb470c7f3534089640369406702a62b1973a3b3f3c3662c4b03fccebc13  SULeaves2.lean
+#   0880472cd4816d398da6c31e099ff2748c08920bd41300194e46a62021c5f4ad  SULeaves3.lean
+#   69ce840f60cb692530d973246903ee570b9e5f33d223b9fc20069faf99e680c7  SULeaves4.lean
+#   69c21a7dd2a1fd8acfc8eae5e1a3352ba9eab72825dd5dfb06397a0282f51d08  SULeaves5.lean
+#   a06a52467d5d7fa881a3bca6a4c155fedb24d9eb2289582bfeb8b5b7feb9ea3e  SULeaves6.lean
+#   01af0602a38f6498c7050ab18d80c798e01be23e16cdcddb880c45fd1b5b073e  SUMain.lean
+# filtered compiler output (linter warnings removed):
+=== SUCore
+SUCore: wall=46.60s maxrss=9108516kB exit=0
+=== SULeaves0
+SULeaves0: wall=116.36s maxrss=27592624kB exit=0
+=== SULeaves1
+SULeaves1: wall=116.75s maxrss=28044756kB exit=0
+=== SULeaves2
+SULeaves2: wall=117.39s maxrss=27679252kB exit=0
+=== SULeaves3
+SULeaves3: wall=117.60s maxrss=27979848kB exit=0
+=== SULeaves4
+SULeaves4: wall=115.41s maxrss=27439732kB exit=0
+=== SULeaves5
+SULeaves5: wall=115.10s maxrss=26716160kB exit=0
+=== SULeaves6
+SULeaves6: wall=90.64s maxrss=20914436kB exit=0
+=== SUMain
+'SU.P_sign' depends on axioms: [propext, Classical.choice, Quot.sound]
+SUMain: wall=8.96s maxrss=6931168kB exit=0
+ALLDONE

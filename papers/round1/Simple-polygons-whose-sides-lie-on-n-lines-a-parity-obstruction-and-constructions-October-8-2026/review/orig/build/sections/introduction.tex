@@ -1,0 +1,68 @@
+\section{Introduction}\label{sec:intro}
+
+A polygon is \emph{simple} if its boundary is a Jordan curve. Suppose a simple polygon has $k$ sides
+$S_1,\dots,S_k$ and each side $S_j$ lies on a line $L_j$ taken from a fixed set of $n$ lines. How
+large can $k$ be? We write $M(n)$ for the maximum.
+
+This question was asked on MathOverflow by Johnathan Will (\url{https://mathoverflow.net/users/596423})
+on July 31, 2026~\cite{MO513798}. Their upper bound comes from the following observation. Consecutive
+sides lie on distinct lines, and since the vertex $L_j\cap L_{j+1}$ is visited only once, no unordered
+pair of lines occurs twice as a consecutive pair. So the cyclic sequence $L_1,\dots,L_k$ is a closed
+trail in the complete graph $K_n$, and $k$ is at most the maximum length of a circuit in $K_n$, which is
+$n\lfloor (n-1)/2\rfloor$ (OEIS \href{https://oeis.org/A050187}{A050187}~\cite{A050187}).
+
+The asker conjectured that $M(n)=n\lfloor (n-1)/2\rfloor$ for every $n$. They gave examples for
+$n\le 6$, using the pentagram outline for $n=5$ and the Star of David for $n=6$. In the comments, the user
+DSM (\url{https://mathoverflow.net/users/12613}) found a $24$-gon on $8$ lines and remarked that they
+could reach $18$ sides with $7$ lines but not $21$. The asker reported that their own construction
+fails for $n=11$, and asked whether one can prove that for $n=7$ only a self-intersecting
+(``genus~1'') polygon can reach $21$ sides. As of October 8, 2026 the question had no answers. To our
+knowledge, as of that date, the results below do not appear in the literature.
+
+\paragraph{Results.} Write $n=2r+1$ for odd $n$; then $n\lfloor (n-1)/2\rfloor=\binom n2$.
+
+\begin{theorem}[Parity obstruction]\label{thm:parity}
+Let $n=2r+1$. In every simple arrangement of $n$ lines, and more generally of $n$ pseudolines, the
+\emph{alternating $2$-factor} $G$ (Definition~\ref{def:G}) has a number of connected components congruent to
+$r(r+1)/2=(n^2-1)/8$ modulo $2$.
+\end{theorem}
+
+\begin{theorem}[Reduction]\label{thm:reduction}
+If $n$ is odd and a simple polygon with $\binom n2$ sides has its sides on $n$ lines, then the
+arrangement is simple and the polygon is exactly the alternating $2$-factor, which must therefore be
+connected. If instead such a polygon has $k\neq\binom n2$ sides, then $k\le\binom n2-3$.
+\end{theorem}
+
+\begin{corollary}\label{cor:main}
+If $n\equiv\pm1\pmod 8$, then $M(n)\le\binom n2-3$. In particular $M(7)\le 18$ and $M(9)\le 33$, so
+the conjectured equality fails for every $n\equiv\pm 1\pmod 8$.
+\end{corollary}
+
+\begin{theorem}[Constructions; Lean-certified]\label{thm:constructions}
+There are explicit arrangements of $7$, $9$, $11$ and $13$ lines with integer coefficients carrying
+simple polygons with $18$, $33$, $55$ and $78$ sides respectively (\cref{sec:constructions}).
+Consequently
+\[
+  M(7)=18,\qquad M(9)=33,\qquad M(11)=55=11\cdot 5,\qquad M(13)=78=13\cdot 6 .
+\]
+\end{theorem}
+
+The values $M(11)$ and $M(13)$ follow from the constructions together with the elementary upper bound.
+The values $M(7)$ and $M(9)$ also need Corollary~\ref{cor:main}. The value $M(7)=18$ confirms DSM's
+experimental $18$ and shows that it is optimal.
+
+\paragraph{Verification status.}
+\begin{itemize}
+\item The four constructions of Theorem~\ref{thm:constructions} are checked in Lean~4.34.1 (core only, no
+  Mathlib) by kernel evaluation with exact integer arithmetic. The relevant theorems are
+  \texttt{mo513798\_n7}, \texttt{\_n9}, \texttt{\_n11} and \texttt{\_n13}; the only axiom used is
+  \texttt{propext}. See \cref{sec:formal}.
+\item Theorems~\ref{thm:parity} and~\ref{thm:reduction} and Corollary~\ref{cor:main} are proved on paper and \emph{not} formally
+  verified. The proof of Theorem~\ref{thm:parity} uses the Matsumoto--Tits theorem on reduced words.
+  For $n\le 9$ the conclusions were also confirmed by exhaustive computation over all simple
+  pseudoline arrangements; this is evidence, not a proof (\cref{sec:limitations}).
+\end{itemize}
+
+\paragraph{Organisation.} \Cref{sec:reduction} proves Theorem~\ref{thm:reduction}. \Cref{sec:parity} proves
+Theorem~\ref{thm:parity}. \Cref{sec:constructions} gives the constructions and \cref{sec:formal} their formal
+certification. \Cref{sec:limitations} lists what is not verified and some open questions.

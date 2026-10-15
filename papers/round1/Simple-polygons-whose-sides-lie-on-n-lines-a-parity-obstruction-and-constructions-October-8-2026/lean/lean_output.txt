@@ -1,0 +1,5 @@
+'mo513798_n11' depends on axioms: [propext]
+'mo513798_n13' depends on axioms: [propext]
+'mo513798_n7' depends on axioms: [propext]
+'mo513798_n9' depends on axioms: [propext]
+leanchk: wall=53.02s maxrss=1999756kB exit=0

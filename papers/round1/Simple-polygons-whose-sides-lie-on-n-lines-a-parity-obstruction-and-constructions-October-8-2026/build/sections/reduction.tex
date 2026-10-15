@@ -1,0 +1,93 @@
+\section{Definitions and the reduction}\label{sec:reduction}
+
+\begin{definition}
+A \emph{simple polygon with $k$ sides} ($k\ge3$) is a cyclic sequence of points $P_0,\dots,P_{k-1}$
+in the plane with two properties. First, $P_{j-1},P_j,P_{j+1}$ are never collinear (indices mod $k$),
+so there are genuine corners. Second, any two non-adjacent sides $[P_i,P_{i+1}]$ and $[P_j,P_{j+1}]$ are
+disjoint closed segments. Its sides \emph{lie on} a set $\mathcal L$ of lines if every side is
+contained in some line of $\mathcal L$. Let $M(n)$ be the largest $k$ for which a simple polygon with
+$k$ sides has its sides on some set of $n$ lines.
+\end{definition}
+
+Adjacent sides are not collinear, so they meet only in their common vertex; together with the second
+condition this says that the boundary is a Jordan curve with exactly $k$ corners.
+
+An arrangement of lines is \emph{simple} if no two lines are parallel and no three are concurrent.
+
+\begin{definition}[Alternating $2$-factor]\label{def:G}
+Let $\mathcal A$ be a simple arrangement of an odd number $n$ of lines. On each line $\ell$, list the
+$n-1$ intersection points in their order along $\ell$ as $p_1,\dots,p_{n-1}$. The graph $G(\mathcal A)$
+has the $\binom n2$ intersection points as vertices, and its edges are the pairs
+\[
+  \{p_1,p_2\},\ \{p_3,p_4\},\ \dots,\ \{p_{n-2},p_{n-1}\}
+\]
+on every line.
+\end{definition}
+
+Every vertex lies on exactly two lines and gets one edge from each of them, so $G$ is $2$-regular, i.e.\
+a disjoint union of cycles. Its edges are the first, third, fifth, \dots\ bounded segments of each line.
+
+\begin{proposition}\label{prop:forced}
+Let $n$ be odd and let a simple polygon with $k$ sides have its sides on $n$ lines.
+\begin{enumerate}
+\item If $k=\binom n2$, then the arrangement is simple and the polygon's sides are exactly the edges
+  of $G$ (drawn as segments). In particular $G$ is a single cycle.
+\item If $k\ne\binom n2$, then $k\le\binom n2-3$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Let the sides be $S_j\subset L_j$ ($j\in\Z/k$), with $L_j\ne L_{j+1}$ (consecutive sides are not
+collinear) and vertices $V_j=L_j\cap L_{j+1}$. The $k$ vertices $P_0,\dots,P_{k-1}$ are distinct: if
+$P_i=P_j$ with $i\ne j$, then either $j\equiv i\pm1$ or $j\equiv i\pm2\pmod k$ and three consecutive
+vertices, two of which coincide, are collinear, or else the non-adjacent sides $[P_{i-1},P_i]$ and
+$[P_j,P_{j+1}]$ share the point $P_i=P_j$; both are excluded by the definition. Hence the pairs
+$\{L_j,L_{j+1}\}$ are pairwise distinct.
+These pairs form a set $E'$ of $k$ edges of $K_n$, and the cyclic sequence $(L_j)$ is a closed trail
+through them. Hence every vertex of $K_n$ has even degree in $E'$.
+
+\emph{Part 2.} $K_n$ is $(n-1)$-regular and $n-1$ is even, so the complement $E(K_n)\setminus E'$ also
+has all degrees even. If the complement is non-empty it contains a cycle, so it has at least $3$
+edges.
+
+\emph{Part 1.} Now $E'=E(K_n)$. Every two lines meet, so no two are parallel. The $\binom n2$ points
+$V_j$ are distinct, so no three lines are concurrent. Thus the arrangement is simple, and every
+intersection point is a vertex.
+
+Fix a line $\ell$ with intersection points $p_1,\dots,p_{n-1}$ in order. Each $p_i=\ell\cap m$ is a
+vertex where a side on $\ell$ meets a side on $m$. So each $p_i$ is an endpoint of exactly one side
+contained in $\ell$, and there are $(n-1)/2$ such sides. Two sides on $\ell$ are never consecutive,
+since consecutive sides lie on different lines. Hence they are pairwise disjoint closed segments.
+
+The side with endpoint $p_1$ ends at some $p_m$. If $m>2$, its relative interior contains $p_2$, which
+is an endpoint of another side on $\ell$; this contradicts disjointness. So $[p_1,p_2]$ is a side.
+Repeating the argument on $p_3,\dots$ shows that the sides on $\ell$ are exactly
+$[p_1,p_2],[p_3,p_4],\dots$, which are the edges of $G$ on $\ell$. The polygon visits all $\binom n2$
+vertices of $G$ along edges of $G$, so $G$ is one cycle.
+\end{proof}
+
+\begin{remark}\label{rem:converse}
+Conversely, if $G$ is a single cycle then it is the boundary of a simple polygon with $\binom n2$
+sides: two edges of $G$ on different lines can only meet at the common intersection point of the two
+lines, which is then a common vertex, and two edges on the same line are disjoint. The same argument
+shows that any Hamiltonian cycle of the arrangement graph (\cref{sec:intro}) that turns at every vertex
+is a simple polygon with $\binom n2$ sides (two edges of the cycle on the same line cannot share an
+endpoint, because the cycle turns there, so they are disjoint), so such cycles are exactly the simple
+$\binom n2$-gons on the arrangement. We do not need this, because our constructions are verified directly.
+\end{remark}
+
+\paragraph{Wiring diagrams.}
+Rotate the plane so that no line is vertical and all intersection points have distinct
+$x$-coordinates. Number the lines $1,\dots,n$ from top to bottom far to the left. A vertical line
+sweeping from left to right sees the vertical order of the lines change exactly at intersection
+points, each time by swapping the lines at two adjacent heights $i,i+1$. This gives a word
+$i_1i_2\cdots i_N$ with $N=\binom n2$ in which every pair of lines (\emph{wires}) swaps exactly once,
+i.e.\ a reduced word for the longest permutation $w_0$ of $S_n$. This is the wiring diagram of the
+arrangement~\cite{Goodman1980,GoodmanPollack1984,FelsnerGoodman2017}.
+
+The order of the intersection points along a line equals the order of the corresponding letters in
+the word. So $G$ depends only on the word, and we define $G$ in the same way for any reduced word of
+$w_0$. Reduced words of $w_0$ up to commutation of letters $i,j$ with $|i-j|\ge2$ are the same as
+simple arrangements of $n$ pseudolines, in the form of wiring diagrams with numbered
+wires~\cite{FelsnerGoodman2017}; $G$ is invariant under such commutations, since they do not change the
+order of the crossings along any wire. All arguments in \cref{sec:parity} use only the word.

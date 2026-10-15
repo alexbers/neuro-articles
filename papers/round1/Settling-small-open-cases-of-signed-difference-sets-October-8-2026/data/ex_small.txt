@@ -1,0 +1,55 @@
+== 9 8 1 [3 3]
+DONE v=9 k=8 lam=1 supports=8 surviving=8 solutions(sign at 0 = +1, support containing 0)=0
+time=0.00s
+== 20 11 2 [2 10]
+DONE v=20 k=11 lam=2 supports=92378 surviving=418 solutions(sign at 0 = +1, support containing 0)=0
+time=0.03s
+== 20 17 8 [2 10]
+DONE v=20 k=17 lam=8 supports=969 surviving=17 solutions(sign at 0 = +1, support containing 0)=0
+time=0.01s
+== 24 18 2 [2 12]
+DONE v=24 k=18 lam=2 supports=100947 surviving=927 solutions(sign at 0 = +1, support containing 0)=0
+time=3.44s
+== 24 18 2 [2 2 6]
+DONE v=24 k=18 lam=2 supports=100947 surviving=4179 solutions(sign at 0 = +1, support containing 0)=0
+time=8.77s
+== 27 17 4 [3 3 3]
+DONE v=27 k=17 lam=4 supports=5311735 surviving=248404 solutions(sign at 0 = +1, support containing 0)=0
+time=95.31s
+== 27 17 4 [3 9]
+DONE v=27 k=17 lam=4 supports=5311735 surviving=9724 solutions(sign at 0 = +1, support containing 0)=0
+time=5.49s
+== 27 17 8 [27]
+DONE v=27 k=17 lam=8 supports=5311735 surviving=1972 solutions(sign at 0 = +1, support containing 0)=0
+time=0.71s
+== 27 22 3 [3 3 3]
+DONE v=27 k=22 lam=3 supports=65780 surviving=2288 solutions(sign at 0 = +1, support containing 0)=0
+time=101.27s
+== 27 22 3 [3 9]
+DONE v=27 k=22 lam=3 supports=65780 surviving=704 solutions(sign at 0 = +1, support containing 0)=0
+time=27.24s
+== 27 22 9 [3 3 3]
+DONE v=27 k=22 lam=9 supports=65780 surviving=2288 solutions(sign at 0 = +1, support containing 0)=0
+time=2.67s
+== 27 22 9 [3 9]
+DONE v=27 k=22 lam=9 supports=65780 surviving=704 solutions(sign at 0 = +1, support containing 0)=0
+time=1.49s
+== 27 25 16 [27]
+DONE v=27 k=25 lam=16 supports=325 surviving=0 solutions(sign at 0 = +1, support containing 0)=0
+time=0.00s
+== 27 25 16 [3 9]
+DONE v=27 k=25 lam=16 supports=325 surviving=0 solutions(sign at 0 = +1, support containing 0)=0
+time=0.02s
+== 28 13 4 [2 14]
+DONE v=28 k=13 lam=4 supports=17383860 surviving=858 solutions(sign at 0 = +1, support containing 0)=0
+time=1.63s
+== 28 19 10 [2 14]
+DONE v=28 k=19 lam=10 supports=4686825 surviving=2109 solutions(sign at 0 = +1, support containing 0)=0
+time=0.77s
+== 28 27 2 [2 14]
+DONE v=28 k=27 lam=2 supports=27 surviving=27 solutions(sign at 0 = +1, support containing 0)=0
+time=66.23s
+== 27 13 6 [3 9]
+DONE v=27 k=13 lam=6 supports=9657700 surviving=0 solutions(sign at 0 = +1, support containing 0)=0
+time=1.21s
+ALLDONE

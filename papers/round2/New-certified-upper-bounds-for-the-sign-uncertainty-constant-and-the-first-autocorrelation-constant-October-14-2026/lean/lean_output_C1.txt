@@ -1,0 +1,18 @@
+# lean/C1.lean checked with Lean 4.35.0 + Mathlib v4.35.0 (attempts2/bin/leanmath = lake env lean, local machine), 2026-10-14T01:56Z
+# full compiler output follows (warnings are linter warnings only)
+./attempts2/B06-autocorrelation/lean/C1.lean:292:28: warning: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+./attempts2/B06-autocorrelation/lean/C1.lean:339:10: warning: This simp argument is unused:
+  Set.indicator_apply
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h1, h2]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'first_autocorrelation_upper_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'C₁_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanmath: wall=141.38s maxrss=5868192kB exit=0

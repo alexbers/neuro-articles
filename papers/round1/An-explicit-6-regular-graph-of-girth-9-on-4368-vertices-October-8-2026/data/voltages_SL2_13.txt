@@ -1,0 +1,7 @@
+FOUND restart=0 nodes=4712 N=2184 total=4368
+edge 0 0 volt 107 : 0 9 10 2
+edge 1 1 volt 164 : 1 0 8 1
+edge 0 1 volt 0 : 1 0 0 1
+edge 0 1 volt 212 : 1 4 4 4
+edge 0 1 volt 1652 : 9 11 1 10
+edge 0 1 volt 893 : 5 4 9 10

@@ -1,0 +1,6 @@
+weight = 4096
+r(0) = 8192  absolute indicator Delta = max_{d!=0}|r(d)| = 112
+distribution of |r(d)|, d != 0: {0: 156, 8: 416, 16: 780, 24: 1392, 32: 650, 40: 923, 48: 416, 56: 780, 64: 156, 72: 585, 80: 286, 88: 936, 96: 247, 104: 156, 112: 312}
+max|W| = 232  nonlinearity = 3980
+algebraic degree = 11  ANF coeff of x0x1x2 (u=7): 1
+invariant under x_i -> x_{a i + b mod 13} for all a != 0, b: True

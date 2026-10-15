@@ -1,0 +1,258 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black,pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\F}{\mathbb F}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,breaklines=true,frame=single,framerule=0.3pt,rulecolor=\color{black!30},extendedchars=true,inputencoding=utf8,
+  literate={→}{{$\to$}}1 {≤}{{$\le$}}1 {≠}{{$\ne$}}1 {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {∧}{{$\wedge$}}1 {∈}{{$\in$}}1 {ℕ}{{$\mathbb N$}}1 {β}{{$\beta$}}1 {α}{{$\alpha$}}1}
+
+\title{An improved upper bound for binary covering codes\\ of length 20 and covering radius 3}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 14, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $K(n,R)$ denote the minimum number of words in a binary code of length $n$ with covering
+radius $R$. We show $K(20,3)\le 1984$, improving the bound $K(20,3)\le 2048$ recorded in Kéri's
+standard tables of covering codes. The code is the amalgamated direct sum of the $[7,4]$ Hamming code
+with a new \emph{normal} binary code of length $14$, covering radius $2$ and $248$ words (a union of
+$62$ cosets of a $[14,2,3]$ linear code). The covering property is certified in Lean~4 with Mathlib,
+using only the standard axioms. We also report, as negative results, extensive but unsuccessful computer
+searches aimed at the football pool problem $K_3(n,1)$ for $n=6,7,8$.
+\end{abstract}
+
+\section{Introduction}
+A binary code $C\subseteq\F_2^n$ has \emph{covering radius} $R$ if every word of $\F_2^n$ is within
+Hamming distance $R$ of some codeword. The quantity $K(n,R)$, the minimum size of such a code, has been
+studied since the 1960s; see the monograph of Cohen, Honkala, Litsyn and Lobstein~\cite{CHLL} and the
+football pool problem $K_3(n,1)$ for its ternary analogue~\cite{vLAvLW89,LMT09}. The best known bounds
+for $n\le 33$, $R\le 10$ are collected in G.~Kéri's tables~\cite{Keri}, which have been the standard
+reference since the 2000s (the binary table we consulted is dated October~2009; its update log ends in
+November~2011). In these tables
+\[
+  892\;\le\;K(20,3)\;\le\;2048,
+\]
+where the upper bound carries no reference mark, i.e.\ it is classified as ``trivial'' (inherited from
+neighbouring entries).
+
+\paragraph{Result.} We prove $K(20,3)\le1984$ (\cref{thm:main}). The construction is classical --- the
+amalgamated direct sum (ADS) of Graham and Sloane~\cite{GS85} and Cohen, Lobstein and Sloane~\cite{CLS86}
+--- and the observation behind it is simple: the ADS of the $[7,4]$ Hamming code with a \emph{normal}
+code of length $14$ and covering radius $2$ having $M$ words has length $20$, covering radius $3$ and
+$8M$ words. With $M=256=2\cdot128$ (twice the tabulated bound for $K(13,2)$) this gives exactly the recorded value
+$2048$, which suggests how the entry may have arisen; the table entry $K(14,2)\le248$ (credited in~\cite{Keri} to Bertolo, Di Pasquale and Santisi, 2006) would give $1984$,
+provided some $248$-word code is normal --- a property that is not automatic and that, as far as we can
+tell, was never established or used. We construct such a normal code directly
+(\cref{sec:B}) and verify the whole argument in Lean.
+
+To our knowledge, as of October 14, 2026, no upper bound below $2048$ for $K(20,3)$ has been published;
+we searched the update log of~\cite{Keri} and recent work on covering codes
+\cite{GijswijtPolak25,Marosi26,DMP25}, which concerns lower bounds, alphabets $q\ge5$ and linear
+codes respectively. A systematic check of all binary and mixed binary/ternary table entries under direct
+sums, puncturing, extension and ADS (assuming normality) found no other entry that should have improved
+in this way.
+
+This is a modest improvement of one table entry. The work started as an attempt at the football pool
+problem (\cref{sec:negative}); we report those negative results as well.
+
+\section{Definitions}
+For $x,y\in\F_2^n$ let $d(x,y)$ be the Hamming distance and $d(x,C)=\min_{c\in C}d(x,c)$.
+For a code $C$ and $s\in\{0,1\}$ write $C_i^s=\{c\in C: c_i=s\}$.
+
+\begin{definition}[Normality]
+A code $C$ of covering radius $R$ is \emph{normal with respect to coordinate $i$} if
+$d(x,C_i^0)+d(x,C_i^1)\le 2R+1$ for all $x\in\F_2^n$.
+\end{definition}
+
+\begin{definition}[Amalgamated direct sum]
+Let $A\subseteq\F_2^{n_A}$ and $B\subseteq\F_2^{n_B}$. The ADS (amalgamated on the last coordinate of
+$A$ and the first coordinate of $B$) is
+\[
+  A\dot\oplus B=\{(a_1,\dots,a_{n_A-1},s,b_2,\dots,b_{n_B}) :
+  (a_1,\dots,a_{n_A-1},s)\in A,\ (s,b_2,\dots,b_{n_B})\in B\}\subseteq\F_2^{n_A+n_B-1}.
+\]
+\end{definition}
+Clearly $|A\dot\oplus B|=|A^0||B^0|+|A^1||B^1|$, where $A^s$ (resp.\ $B^s$) is taken with respect to the
+amalgamated coordinate.
+
+\begin{proposition}[\cite{GS85,CLS86}]\label{prop:ads}
+If $A$ has covering radius $R_A$ and is normal w.r.t.\ its last coordinate, and $B$ has covering radius
+$R_B$ and is normal w.r.t.\ its first coordinate, then $A\dot\oplus B$ has covering radius at most
+$R_A+R_B$.
+\end{proposition}
+\begin{proof}
+Write $x=(\alpha,t,\beta)$ with $\alpha\in\F_2^{n_A-1}$, $t\in\F_2$, $\beta\in\F_2^{n_B-1}$, and
+for $s\in\{0,1\}$ choose $a^s\in A^s$, $b^s\in B^s$ nearest to $(\alpha,t)$ and $(t,\beta)$. The word
+$c^s$ obtained by amalgamating $a^s$ and $b^s$ lies in $A\dot\oplus B$ and
+$d(x,c^s)=d((\alpha,t),a^s)+d((t,\beta),b^s)-[t\neq s]$. Summing over $s$ and using normality,
+$d(x,c^0)+d(x,c^1)\le(2R_A+1)+(2R_B+1)-1$, so $\min_s d(x,c^s)\le R_A+R_B$.
+\end{proof}
+
+\section{A normal code of length 14 and covering radius 2 with 248 words}\label{sec:B}
+Number the coordinates $0,\dots,13$ and identify a word with the integer $\sum_i x_i2^i$.
+Let $H=[I_{12}\mid h_{12}\ h_{13}]$ be the $12\times14$ binary matrix whose columns are
+$e_0,\dots,e_{11}$, $h_{12}=e_1+e_2$ and $h_{13}=e_0+e_1+e_2$ (as integers: $1,2,4,\dots,2048,6,7$).
+Its kernel is the $[14,2,3]$ code spanned by $e_1+e_2+e_{12}$ and $e_0+e_1+e_2+e_{13}$. Let $S\subseteq\F_2^{12}$
+be the following set of $62$ syndromes (integers, bit $j$ = row $j$):
+\begin{center}\small
+\begin{minipage}{0.92\linewidth}\raggedright
+4, 74, 188, 231, 322, 377, 401, 428, 553, 599, 655, 738, 783, 820, 986, 993, 1055, 1138, 1194, 1236,
+1313, 1468, 1487, 1562, 1601, 1719, 1785, 1879, 1900, 1922, 2097, 2114, 2220, 2271, 2330, 2343, 2505,
+2546, 2575, 2684, 2706, 2791, 2897, 2922, 2948, 3007, 3183, 3201, 3258, 3338, 3346, 3420, 3556, 3575,
+3620, 3665, 3788, 3903, 3905, 3993, 4015, 4082.
+\end{minipage}
+\end{center}
+Define $B=\{x\in\F_2^{14}: Hx\in S\}$, a union of $62$ cosets of $\ker H$, so $|B|=248$.
+
+\begin{proposition}\label{prop:B}
+$B$ has covering radius $2$, $|B^0|=|B^1|=124$ with respect to coordinate $0$, and $B$ is normal with
+respect to coordinate $0$: $d(y,B^0)+d(y,B^1)\le5$ for all $y\in\F_2^{14}$.
+\end{proposition}
+The proof is a finite computation over the $2^{14}$ words (it is part of the Lean certificate,
+\cref{sec:lean}; independently, a breadth-first computation of $d(\cdot,B^0)$ and $d(\cdot,B^1)$ gives
+$\max_y(d(y,B^0)+d(y,B^1))=5$). In fact $B$ is normal with respect to every coordinate.
+The size $248$ equals the best known upper bound for $K(14,2)$~\cite{Keri}; it does not improve it.
+
+\paragraph{How $B$ was found.} Codes of the form $\{x:Hx\in S\}$ with $H=[I_k\mid h_{k}\ \cdots\ h_{n-1}]$
+have covering radius $\le R$ iff $S$ is an $R$-dominating set in the Cayley graph of $\F_2^k$ generated by
+the columns of $H$ (the ``matrix method''). For $n=14$, $k=12$ there are only $239$
+classes of the two extra columns up to coordinate permutations (given by the numbers of coordinates in
+which only $h_{12}$, only $h_{13}$, or both are $1$). We ran a weighted local search for small
+$2$-dominating sets on each class; the class $(0,1,2)$, i.e.\ $h_{12}=e_1+e_2$, $h_{13}=e_0+e_1+e_2$,
+gave $|S|=62$ within seconds (it is the only class reaching $62$ in our runs; $194$ classes reach $64$), and normality was then checked.
+
+\section{The main theorem}
+Let $A$ be the $[7,4]$ Hamming code with parity-check columns $1,2,\dots,7$ (coordinate $j$ has column
+$j+1$):
+$A=\{0,7,25,30,42,45,51,52,75,76,82,85,97,102,120,127\}$. It is perfect, $|A^0|=|A^1|=8$ with respect to
+coordinate $6$, and normal with respect to every coordinate (one checks
+$d(y,A^0)+d(y,A^1)\le3$ for all $y\in\F_2^7$).
+
+\begin{theorem}\label{thm:main}
+$C=A\dot\oplus B$, amalgamated on coordinate $6$ of $A$ and coordinate $0$ of $B$, is a binary code of
+length $20$ with $1984$ words and covering radius $3$. Hence $K(20,3)\le1984$.
+\end{theorem}
+\begin{proof}
+Length $7+14-1=20$; size $8\cdot124+8\cdot124=1984$; covering radius $\le1+2$ by
+\cref{prop:ads,prop:B}. (A word at distance exactly $3$ exists, e.g.\ by the sphere bound.)
+In integer form, $C=\{(u \bmod 64)+64v : u\in A,\ v\in B,\ \lfloor u/64\rfloor = v\bmod 2\}$.
+\end{proof}
+
+\begin{remark}
+Equivalently, $C=\{x\in\F_2^{20}: H_Cx\in\{0\}\times S\}$, where $H_C$ is the $15\times20$ matrix whose first
+three rows are the parity checks of $A$ on coordinates $0,\dots,6$ and whose last twelve rows are $H$ on
+coordinates $6,\dots,19$; thus $C$ is a union of $62$ cosets of a $[20,5]$ linear code.
+\end{remark}
+
+\begin{remark}
+A brute-force check over all $2^{20}$ words confirms that the $1984$ words are distinct and that every
+word is within distance $3$ of the code. The data files accompany this note (\texttt{data/}).
+\end{remark}
+
+\section{Formal verification}\label{sec:lean}
+The file \texttt{lean/Main.lean} (Lean 4.35.0, Mathlib) proves
+\begin{lstlisting}
+theorem main : ∃ C : Finset (Fin 20 → Fin 2), C.card ≤ 1984 ∧
+    ∀ x : Fin 20 → Fin 2, ∃ c ∈ C, hammingDist x c ≤ 3
+\end{lstlisting}
+and the companion statement \texttt{codeB} for $B$ (length $14$, $\le248$ words, covering radius $\le2$).
+Here \texttt{hammingDist} is Mathlib's Hamming distance (number of coordinates where two functions
+differ), so the statement is literally $K(20,3)\le1984$.
+
+\paragraph{Structure of the proof.} Words are encoded by natural numbers $a<2^n$ through their binary
+digits (\texttt{dec n a}); the lemma \texttt{hamming\_dec} proves that \texttt{hammingDist} of two
+decoded words equals a recursively defined digit-difference count \texttt{dist n a b}, and
+\texttt{dec\_surj} (via Mathlib's \texttt{finFunctionFinEquiv}) shows that every word is decoded from
+some $a<2^n$. The finite facts --- normality of $A$ over $128$ words and normality of $B$ over $2^{14}$
+words, the latter with packed witness pairs checked by a tail-recursive Boolean function whose soundness
+lemma is proved --- are established by \texttt{decide +kernel}, i.e.\ evaluated by the Lean kernel; no
+\texttt{native\_decide} is used. The ADS covering argument of \cref{prop:ads} is proved in Lean
+(lemmas \texttt{key} and \texttt{cover\_nat}).
+
+\paragraph{Axioms.} \texttt{\#print axioms} reports \texttt{[propext, Classical.choice, Quot.sound]} for
+both \texttt{main} and \texttt{codeB}. Checking took $105$--$151$\,s wall time and about $12$\,GB peak memory on one
+core.
+
+\paragraph{Statement audit.} \texttt{Fin 20} $\to$ \texttt{Fin 2} is the set of binary words of length $20$;
+\texttt{C.card} $\le$ \texttt{1984} together with the covering condition is exactly the definition of
+$K(20,3)\le1984$. The code is not hidden behind a definition in the statement: the existential is
+discharged by an explicit list.
+
+\section{Negative results on the football pool problem}\label{sec:negative}
+Our primary target was an upper bound in the football pool problem $K_3(n,1)$, whose records
+$K_3(6,1)\le73$, $K_3(7,1)\le186$, $K_3(8,1)\le486$ date from 1989~\cite{vLAvLW89}. We did not improve any
+of them. For the record:
+\begin{itemize}
+\item $n=7$: the matrix method with $k=6$ (all six inequivalent choices of the seventh column) yields at
+best $3\cdot62=186$; with $|S|=61$ our local search always left at least one vertex uncovered.
+The methods with $k=5,4$ gave at best $189$ and $216$. We also treated every conjugacy class of
+fixed-point-free automorphisms of order $3$ of the Hamming graph $H(7,3)$ (products of $c\in\{0,1,2\}$
+coordinate $3$-cycles with a symbol translation on $w\ge1$ fixed coordinates; $12$ classes): codes
+invariant under such an automorphism correspond to dominating sets of a $729$-vertex quotient graph, and
+the best size found was again $3\cdot62=186$. Allowing a few non-invariant extra words (``almost
+invariant'' codes: $60$ or $61$ orbits plus an exactly optimised set of extra words covering the
+remaining uncovered words) never went below $186$. A weighted local search on the full space $\F_3^7$
+reached only $192$--$193$; codes invariant under random subgroups of the automorphism group (orbit local
+search and integer programming) also failed.
+\item $n=8$: the matrix method reproduces $486$ ($k=6,|S|=54$ and $k=4,|S|=6$) but nothing smaller.
+\item $n=6$: $73$-word codes are found in milliseconds, $72$ never.
+\end{itemize}
+A sweep over the open entries of Kéri's binary, ternary, quaternary and mixed tables with full-space local
+search reproduced table values for small parameters and never improved one; the records reflect
+algebraic structure that unstructured search does not find.
+
+\section{Open questions}
+Any normal binary code of length $14$, covering radius $2$ and $M<248$ words would give
+$K(20,3)\le 8M$ and at the same time improve $K(14,2)\le248$. Our searches (all two-extra-column
+classes of the matrix method with $k=12$, one-extra-column classes with $k=13$, and codes formed by $123$
+cosets of a $[14,1]$ code plus a few extra words) produced nothing below $248$; the best unions of cosets
+of a one-dimensional code have $250$ words. Similarly, $K(19,3)\le1024$ and $K(21,3)\le3072$ coincide
+with $8K(13,2)$ and $8K(15,2)$, so improved normal codes for $K(13,2)$ or $K(15,2)$ would improve those
+entries as well. The density of our code, $1984\cdot\sum_{i\le3}\binom{20}{i}/2^{20}\approx2.56$, is
+still larger than that of the neighbouring entries ($\approx2.27$ for $n=19$ and $\approx2.29$ for
+$n=21$), which suggests that $K(20,3)$ can be improved further by a direct construction.
+
+\section{Limitations}
+The improvement is small and rests on a classical construction. Novelty is asserted only to our
+knowledge: Kéri's tables were last updated around 2009--2011 and an unpublished or obscure later
+improvement of $K(20,3)$ cannot be completely excluded. The Lean proof certifies the theorem
+independently of the search code.
+
+\begin{thebibliography}{99}
+\bibitem{CHLL} G.~Cohen, I.~Honkala, S.~Litsyn, A.~Lobstein, \emph{Covering Codes}, North-Holland, 1997.
+\bibitem{CLS86} G.~D.~Cohen, A.~C.~Lobstein, N.~J.~A.~Sloane, Further results on the covering radius of
+codes, \emph{IEEE Trans.\ Inform.\ Theory} 32 (1986) 680--694.
+\bibitem{GS85} R.~L.~Graham, N.~J.~A.~Sloane, On the covering radius of codes, \emph{IEEE Trans.\ Inform.\
+Theory} 31 (1985) 385--401.
+\bibitem{Keri} G.~Kéri, Tables for bounds on covering codes,
+\url{https://old.sztaki.hu/~keri/codes/index.htm} (binary table dated 2009-10-15; accessed 2026-10-14).
+\bibitem{vLAvLW89} P.~J.~M.~van Laarhoven, E.~H.~L.~Aarts, J.~H.~van Lint, L.~T.~Wille, New upper bounds for
+the football pool problem for 6, 7, and 8 matches, \emph{J.\ Combin.\ Theory Ser.\ A} 52 (1989) 304--312.
+\bibitem{LMT09} J.~Linderoth, F.~Margot, G.~Thain, Improving bounds on the football pool problem by
+integer programming and high-throughput computing, \emph{INFORMS J.\ Comput.} 21 (2009) 445--457.
+\bibitem{GijswijtPolak25} D.~Gijswijt, S.~Polak, Semidefinite lower bounds for covering codes,
+arXiv:2504.01932 (2025, rev.\ 2026).
+\bibitem{Marosi26} M.~Marosi, New upper and lower bounds on covering codes $K_q(n,R)$ for alphabets of
+size $5\le q\le21$, arXiv:2608.19872 (2026).
+\bibitem{DMP25} A.~A.~Davydov, S.~Marcugini, F.~Pambianco, New upper bounds for binary linear covering
+codes, arXiv:2511.02542 (2025).
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,61 @@
+'R453.main' depends on axioms: [propext, Quot.sound]
+'R453f.main' depends on axioms: [propext, Quot.sound]
+'R553.main' depends on axioms: [propext, Quot.sound]
+'R463.main' depends on axioms: [propext, Quot.sound]
+Main79.lean:576:64: warning: This simp argument is unused:
+  beq_iff_eq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.all_eq_true, List.mem_range, Bool.or_eq_true, Bool.not_eq_true', Bool.and_eq_false_iff,
+    decide_eq_false_iff_not] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Main79.lean:589:64: warning: This simp argument is unused:
+  beq_iff_eq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.all_eq_true, List.mem_range, Bool.or_eq_true, Bool.not_eq_true', Bool.and_eq_false_iff,
+    decide_eq_false_iff_not] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'R554.main' depends on axioms: [propext, Quot.sound]
+Main79.lean:982:64: warning: This simp argument is unused:
+  beq_iff_eq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.all_eq_true, List.mem_range, Bool.or_eq_true, Bool.not_eq_true', Bool.and_eq_false_iff,
+    decide_eq_false_iff_not] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Main79.lean:995:64: warning: This simp argument is unused:
+  beq_iff_eq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.all_eq_true, List.mem_range, Bool.or_eq_true, Bool.not_eq_true', Bool.and_eq_false_iff,
+    decide_eq_false_iff_not] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'R564.main' depends on axioms: [propext, Quot.sound]
+	Command being timed: "~/claude_math/elan/toolchains/leanprover--lean4---v4.35.0/bin/lean Main79.lean"
+	User time (seconds): 1909.19
+	System time (seconds): 91.17
+	Percent of CPU this job got: 45%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:13:45
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10989180
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 46286541
+	Voluntary context switches: 49557
+	Involuntary context switches: 144200
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

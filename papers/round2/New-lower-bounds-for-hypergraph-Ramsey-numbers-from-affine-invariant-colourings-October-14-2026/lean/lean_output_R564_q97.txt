@@ -1,0 +1,40 @@
+R564_Tree97.lean:419:64: warning: This simp argument is unused:
+  beq_iff_eq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.all_eq_true, List.mem_range, Bool.or_eq_true, Bool.not_eq_true', Bool.and_eq_false_iff,
+    decide_eq_false_iff_not] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+R564_Tree97.lean:432:64: warning: This simp argument is unused:
+  beq_iff_eq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [List.all_eq_true, List.mem_range, Bool.or_eq_true, Bool.not_eq_true', Bool.and_eq_false_iff,
+    decide_eq_false_iff_not] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'R564.main' depends on axioms: [propext, Quot.sound]
+	Command being timed: "~/claude_math/elan/toolchains/leanprover--lean4---v4.35.0/bin/lean R564_Tree97.lean"
+	User time (seconds): 4132.27
+	System time (seconds): 190.78
+	Percent of CPU this job got: 64%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:51:04
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 13691896
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 95394726
+	Voluntary context switches: 76553
+	Involuntary context switches: 180331
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

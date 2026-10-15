@@ -1,0 +1,575 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array,longtable}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{xcolor}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,breaklines=true,
+  literate={≠}{{$\neq$}}1 {→}{{$\to$}}1 {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {¬}{{$\neg$}}1
+           {∈}{{$\in$}}1 {∧}{{$\wedge$}}1 {∨}{{$\vee$}}1 {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\F}{\mathbb F}
+\newcommand{\GF}{\mathrm{GF}}
+\DeclareMathOperator{\supp}{supp}
+\newcommand{\sds}[4]{\mathrm{SDS}(#1,#2,#3,[#4])}
+\newcommand{\certrow}[5]{#1 & #2 & #3 & {\scriptsize #4} & {\scriptsize #5}\\[2pt]}
+\title{Settling small open cases of signed difference sets}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={Settling small open cases of signed difference sets},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+A $(v,k,\lambda)$ signed difference set in a finite abelian group $G$ of order $v$ is a group-ring
+element $D=\sum_g s_g g$ with $s_g\in\{-1,0,1\}$, exactly $k$ nonzero coefficients, and
+$DD^{(-1)}=(k-\lambda)1_G+\lambda G$. Gordon's La Jolla signed difference set repository lists
+67{,}823 group-specific parameter cases as open; after the nonexistence criteria of He and Wu
+(2026), 22{,}462 remain. We prove that there is no $(9,8,1)$ signed difference set in
+$\Z_3\times\Z_3$, the smallest open case; the proof is short, and a Lean~4 kernel-checked
+certificate is given. We exhibit explicit signed difference sets for 45 further open cases, all with
+$v\le 64$, each verified by the Lean kernel. To our knowledge, as of October 8, 2026, 26 of these are
+new. These include an eighth-order cyclotomic $(25,12,1)$ signed difference set in $\GF(25)$ and
+examples in $\Z_3\times\Z_9$, in six groups of order 32, and in seven groups of order 64.
+Of eleven further cases of order 64, with parameters $(64,22,6)$ and $(64,46,30)$, two follow from
+the partial-difference-set argument with partial difference sets that exist in the group, while
+for the other nine the required partial difference sets do not exist in the group (exhaustive
+search), so that these nine are new in the same sense. Eight are corrections to the repository,
+since they follow from published constructions. Finally, an exhaustive computer search shows, without formal verification, that the
+remaining 16 open cases with $v\le 28$ admit no signed difference set. Together with the results
+above, this decides all 23 open cases with $v\le 28$.
+\end{abstract}
+\tableofcontents
+
+%======================================================================
+\section{Introduction}
+
+Signed difference sets were introduced by Gordon~\cite{Gordon2023} as a common generalization of
+difference sets (all coefficients $+1$) and group-invariant weighing matrices ($\lambda=0$).
+Equivalently, in the cyclic case they are ternary periodic sequences with two-level autocorrelation.
+Gordon gave several constructions, ran multiplier-based computer searches, and set up the
+\emph{La Jolla Signed Difference Set Repository}~\cite{GordonSDSrepo}. For every admissible
+triple $(v,k,\lambda)$ and every isomorphism type of abelian group of order $v<500$, the repository
+records whether a signed difference set is known, known not to exist, or open. He, Chen and
+Ge~\cite{HeChenGe2024} gave further constructions from Paley-type partial difference sets,
+product constructions in $3$-groups, and fourth-order cyclotomy. Version~1.2 of the repository
+(April 24, 2026) incorporates their Paley-type examples (entries marked ``PDS construction of He,
+Chen and Ge''), but not their $(3^{2m+1},3^{2m}+1,1)$ family: $\sds{243}{82}{1}{3,3,3,3,3}$ is
+still listed as open. Versions~1.0 (December 2022) and 1.1 (March 2023) of the repository covered
+essentially only cyclic groups (1951 and 6719 entries, of which 1 and 28 are noncyclic); the
+group-specific entries for noncyclic abelian groups, and with them every case treated in this
+paper, were added in version~1.2, which lists $67{,}823$ group-specific cases as open. He and Wu~\cite{HeWu2026} proved four nonexistence criteria. Applied cumulatively, the
+criteria exclude $45{,}361$ of the open cases and leave $22{,}462$. He and Wu also gave three new
+existence results. We reran their verification script~\cite{HeScript}, and all published counts
+were reproduced. The smallest remaining open cases are
+\[
+ \sds{9}{8}{1}{3,3},\ \sds{20}{11}{2}{2,10},\ \sds{20}{17}{8}{2,10},\ \sds{24}{18}{2}{2,12},\ \dots
+\]
+Here $[a_1,\dots,a_r]$ denotes $\Z_{a_1}\times\dots\times\Z_{a_r}$.
+
+\paragraph{Results.} The results fall into five groups.
+\begin{enumerate}
+\item[(d)] \textbf{Nonexistence, Lean-certified.} There is no $(9,8,1)$ signed difference set in
+$\Z_3\times\Z_3$ (\cref{thm:981}). The proof is a short intersection-number argument. The
+statement is also checked by the Lean kernel by exhaustive enumeration, without symmetry
+reductions.
+\item[(a)] \textbf{New existence results.} \Cref{thm:new} gives explicit signed difference sets for 26
+open cases. To our knowledge, as of October 8, 2026, none of them is implied by a published
+construction.
+\item[(b)] \textbf{Existence, order 64, with a partial-difference-set analysis.} For 11 open cases of
+order 64 we give certified examples. Such cases could in principle follow from the
+partial-difference-set argument of \cref{lem:pds} applied to Latin-square-type or
+negative-Latin-square-type partial difference sets. An exhaustive search shows that the required
+partial difference sets exist in only two of the eleven groups, so nine of these cases cannot
+arise in this way (\cref{prop:maybe}).
+\item[(c)] \textbf{Database corrections.} Eight cases listed as open follow from published
+constructions or from routine variants of them (\cref{prop:known}). We do not claim them as new.
+One of them is He and Wu's own $(64,22,6)$ in $\Z_2^6$.
+\item[(e)] \textbf{Computer-only nonexistence.} An exhaustive search, which is \emph{not} formally
+verified, shows that the remaining 16 open cases with $v\le 28$ have no signed difference set
+(\cref{sec:nonex}). Two of them also have a short parity proof (\cref{prop:parity}).
+\end{enumerate}
+Consequently, all 23 open cases with $v\le 28$ are now decided: 6 exist and 17 do not
+(\cref{tab:small}). All 45 existence certificates are listed in \cref{app:certs} and in the
+file \texttt{data/certificates.json}. The Lean development is described in \cref{sec:lean}.
+It uses Lean~4.34.1 with core only and no Mathlib, and its proofs depend only on the standard
+axioms \texttt{propext} and \texttt{Quot.sound}.
+
+\paragraph{How the examples were found.} The search used simulated annealing over all 710 open
+cases with $v\le100$ (\cref{sec:methods}). It succeeded only for $v\le 64$. For the $(25,12,1)$
+example we then found an algebraic description, as a signed union of eighth-order cyclotomic
+classes of $\GF(25)$.
+
+%======================================================================
+\section{Preliminaries}\label{sec:prelim}
+
+Let $G$ be a finite abelian group of order $v$, written additively, and let $\Z[G]$ be its group
+ring. For $A=\sum_g a_g g$ put $A^{(-1)}=\sum_g a_g(-g)$. We identify a subset $S\subseteq G$ with
+$\sum_{g\in S}g$.
+
+\begin{definition}[\cite{Gordon2023}]
+Let $D=\sum_{g\in G}s_g g$ with $s_g\in\{-1,0,1\}$. Put $P=\{g:s_g=1\}$, $N=\{g:s_g=-1\}$ and
+$k=|P|+|N|$. Then $D=P-N$ is a \emph{$(v,k,\lambda)$ signed difference set} (SDS) in $G$ if
+\begin{equation}\label{eq:sds}
+DD^{(-1)}=(k-\lambda)\cdot 0_G+\lambda G .
+\end{equation}
+\end{definition}
+
+The coefficient of $y$ in $DD^{(-1)}$ is the periodic autocorrelation
+$C_D(y)=\sum_{g\in G}s_g s_{g+y}$. The coefficient at $y=0$ is $\sum_g s_g^2=k$ automatically.
+So \eqref{eq:sds} is equivalent to
+\begin{equation}\label{eq:autocorr}
+C_D(y)=\sum_{g\in G}s_gs_{g+y}=\lambda\qquad\text{for all }y\in G\setminus\{0\}.
+\end{equation}
+
+\begin{lemma}[basic facts]\label{lem:basic}
+Let $D=P-N$ be a $(v,k,\lambda)$ SDS in $G$.
+\begin{enumerate}
+\item $s^2=k+\lambda(v-1)$, where $s=|P|-|N|$~\cite{Gordon2023}.
+\item $-D$, every translate $g+D$, and every image $\alpha(D)$ under an automorphism $\alpha$ of $G$
+are again $(v,k,\lambda)$ SDSs.
+\item (Support parity.) Let $S=P\cup N$ and $c_y=|S\cap(S-y)|$. Then $C_D(y)$ is a sum of $c_y$ terms
+$\pm1$. Hence $|\lambda|\le c_y$ and $c_y\equiv\lambda\pmod 2$ for all $y\ne0$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(1) Apply the principal character to \eqref{eq:sds}. (2) The products $(-D)(-D)^{(-1)}$,
+$(g+D)(g+D)^{(-1)}$ and $\alpha(D)\alpha(D)^{(-1)}=\alpha(DD^{(-1)})$ are all equal to
+$(k-\lambda)\cdot0_G+\lambda G$. (3) The nonzero terms of $C_D(y)$ are those with $g\in S$ and
+$g+y\in S$.
+\end{proof}
+
+We use the quotient method in the form of He and Wu~\cite[Lemma~4.1]{HeWu2026}. Let $H\le G$ with
+$|H|=h$. For each coset $x$ of $H$ put $A_x=|P\cap x|-|N\cap x|$ and $K_x=|P\cap x|+|N\cap x|$.
+Then
+\begin{equation}\label{eq:quot}
+A_x\equiv K_x\pmod 2,\qquad \sum_{x\in G/H}A_x^2=(k-\lambda)+\lambda h .
+\end{equation}
+This follows by mapping \eqref{eq:sds} to $\Z[G/H]$ and reading off the coefficient of the
+identity.
+
+\begin{lemma}[PDS argument; cf.\ the proof of {\cite[Thm.~5.3]{HeWu2026}}]\label{lem:pds}
+Let $P\subseteq G\setminus\{0\}$ be a regular $(v,k_P,\lambda_P,\mu_P)$ partial difference set,
+that is, $P=-P$ and $PP^{(-1)}=k_P\cdot 0_G+\lambda_PP+\mu_P(G-P-0_G)$. If $\lambda_P-\mu_P=2$,
+then $D=P-\{0\}$ is a $(v,k_P+1,\mu_P)$ SDS.
+\end{lemma}
+\begin{proof}
+Using $P^{(-1)}=P$ we get $DD^{(-1)}=P^2-2P+0_G=(k_P-\mu_P+1)\cdot0_G+(\lambda_P-\mu_P-2)P+\mu_P G$.
+The middle term vanishes, so $D$ is an SDS with $\lambda=\mu_P$ and $k-\lambda=k_P-\mu_P+1$.
+\end{proof}
+
+%======================================================================
+\section{There is no \texorpdfstring{$(9,8,1)$}{(9,8,1)} SDS in \texorpdfstring{$\Z_3\times\Z_3$}{Z3 x Z3}}\label{sec:981}
+
+\begin{theorem}\label{thm:981}
+There is no $(9,8,1)$ signed difference set in $\Z_3\times\Z_3$.
+\end{theorem}
+\begin{proof}
+Suppose $D=P-N$ is one. By \cref{lem:basic}(1), $s^2=8+8=16$, so $|P|-|N|=\pm4$. Replacing
+$D$ by $-D$ if necessary, we may assume $|P|=6$ and $|N|=2$. Exactly one element has coefficient
+$0$. After a translation (\cref{lem:basic}(2)) we may assume this element is $0$.
+
+Let $H$ be any of the four subgroups of order~$3$, and apply \eqref{eq:quot} with $h=3$. This
+gives $A_H^2+A_{x}^2+A_{x'}^2=7+3=10$, where $x,x'$ are the other two cosets. The coset $H$
+contains the zero coefficient, so $K_H=2$, while $K_x=K_{x'}=3$. Hence $A_H$ is even and
+$A_x,A_{x'}$ are odd. If $A_H=\pm2$ then $A_x^2+A_{x'}^2=6$, which is impossible because odd
+squares lie in $\{1,9,25,\dots\}$. Therefore $A_H=0$. The two nonzero elements of $H$ thus carry
+opposite signs, and exactly one of them lies in $N$. The four subgroups of order~$3$ partition
+$G\setminus\{0\}$, so $|N|=4$, which contradicts $|N|=2$.
+\end{proof}
+
+\begin{remark}
+The case is not covered by the criteria of He and Wu. In their near-full-support test
+\cite[Thm.~4.4]{HeWu2026}, with $h=q=3$, one gets $v-1+\lambda(h-1)=10\equiv 2\equiv q-1\pmod 8$,
+which is allowed. The small-defect test \cite[Thm.~4.7]{HeWu2026} gives the same congruence. The
+self-conjugacy test does not apply because $n=k-\lambda=7$ and $7\equiv1\pmod 3$. The
+Lean proof in \cref{sec:lean} uses no symmetry reduction: it enumerates all $3^9$ coefficient
+vectors.
+\end{remark}
+
+%======================================================================
+\section{Existence results}\label{sec:exist}
+
+The certificates in this section are explicit pairs $(P,N)$. Each is listed in \cref{app:certs},
+in the file \texttt{data/\allowbreak certificates.json}, and verbatim in \texttt{lean/\allowbreak Main.lean}. Checking
+\eqref{eq:autocorr} is a finite computation: $v\le 64$ products for each of the $v-1$ nonzero shifts.
+For every certificate it was carried out in three ways: (i) by the Lean kernel (\cref{sec:lean});
+(ii) by an independent Python script (\texttt{data/\allowbreak verify\_\allowbreak certificates.py}), which works with
+coordinate tuples rather than the Lean encoding; (iii) during the search itself.
+
+\subsection{New cases}
+
+\begin{theorem}\label{thm:new}
+In each of the following 26 groups there is an SDS with the stated parameters. The certificates
+are in \cref{tab:certs} (tier~a).
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+$(v,k,\lambda)$ & groups\\ \midrule
+$(25,12,1)$ & $\Z_5^2$\\
+$(27,10,1)$ & $\Z_3\times\Z_9$\\
+$(27,14,5)$ & $\Z_3\times\Z_9$\\
+$(32,20,4)$ & $\Z_2^5,\ \Z_2^3\times\Z_4,\ \Z_2^2\times\Z_8,\ \Z_2\times\Z_4^2,\ \Z_2\times\Z_{16},\ \Z_4\times\Z_8$\\
+$(32,28,12)$ & $\Z_2\times\Z_4^2,\ \Z_4\times\Z_8$\\
+$(36,11,2)$ & $\Z_3\times\Z_{12}$\\
+$(48,24,8)$ & $\Z_2^3\times\Z_6,\ \Z_2^2\times\Z_{12},\ \Z_4\times\Z_{12}$\\
+$(48,32,16)$ & $\Z_2^3\times\Z_6,\ \Z_2^2\times\Z_{12},\ \Z_4\times\Z_{12}$\\
+$(54,46,10)$ & $\Z_3^2\times\Z_6$\\
+$(64,18,2)$ & $\Z_2^6,\ \Z_2^4\times\Z_4,\ \Z_2^3\times\Z_8,\ \Z_2^2\times\Z_4^2,\ \Z_2\times\Z_4\times\Z_8,\ \Z_4^3,\ \Z_8^2$\\
+\bottomrule
+\end{tabular}
+\end{center}
+All 26 cases are listed as open in the repository~\cite{GordonSDSrepo}, and none is excluded by
+\cite{HeWu2026}. To our knowledge, as of October 8, 2026, none of them follows from the
+constructions in \cite{Gordon2023,HeChenGe2024,HeWu2026} or from \cref{lem:pds}.
+\end{theorem}
+\begin{proof}
+For each case, the certificate in \cref{app:certs} satisfies \eqref{eq:autocorr}, which is a
+finite computation, verified as described above.
+\end{proof}
+
+\begin{proposition}[an eighth-order cyclotomic SDS]\label{prop:cyc25}
+Let $\GF(25)=\F_5[x]/(x^2+2)$, let $w=1+x$ (a primitive element), and let
+$C_i=w^i\langle w^8\rangle$ for $0\le i<8$, the eighth-order cyclotomic classes ($|C_i|=3$). Then
+\[
+D=C_0-C_2+C_3+C_4
+\]
+is a $(25,12,1)$ SDS in $(\GF(25),+)\cong\Z_5^2$.
+\end{proposition}
+\begin{proof}
+In the basis $\{1,x\}$ this $D$ is exactly the certificate of the Lean theorem
+\texttt{sds\_25\_12\_1\_G5x5}, so \eqref{eq:autocorr} holds by finite computation. Since
+$D$ is invariant under multiplication by $\langle w^8\rangle$, $C_D$ is constant on each class
+$C_i$. It therefore suffices to check the eight values $C_D(w^i)$, $0\le i<8$, which all equal~1.
+\end{proof}
+
+\begin{remark}
+He, Chen and Ge classified fourth-order cyclotomic SDSs~\cite{HeChenGe2024}. Gordon's cyclic
+sporadic $(89,33,1)$~\cite{Gordon2023} is also a signed union of eighth-order cyclotomic classes
+of $\GF(89)$. A search over all signed unions of eighth-order classes, possibly together with
+$\pm\{0\}$, in $\GF(q)$ for $q\in\{9,17,25,41,49,73,89,97,113,121\}$ finds, apart from the trivial
+parameters $(q,q-1,q-2)$ and the Paley-type $(q,q-1,-1)$ sets, only $(73,9,1)$ and its complement
+$(73,64,56)$ (difference sets), $(73,64,0)$ (a circulant weighing matrix), $(73,36,4)$ and
+$(89,33,1)$ (both in Gordon's table), and the new $(25,12,1)$. The local-search example for $(25,12,1)$ has
+affine stabilizer of order~3 in $\mathrm{AGL}(2,5)$, and this is what led to the cyclotomic
+description.
+\end{remark}
+
+\begin{remark}[structure of other examples]
+(1) An exhaustive search shows that $\Z_3\times\Z_9$ contains no $(27,13,6)$ difference set.
+So the route via Gordon's Prop.~2.3 (a skew Hadamard difference set plus $N=\{0\}$) is not
+available for $(27,14,5)$ in $\Z_3\times\Z_9$, unlike in $\Z_3^3$ (see \cref{prop:known}).
+(2) In both $(32,28,12)$ examples the zero set is a coset of a subgroup of order~4, namely of
+$\{0,(0,0,2),(0,2,0),(0,2,2)\}$ in $\Z_2\times\Z_4^2$ and of $\{0,(0,4),(2,0),(2,4)\}$ in
+$\Z_4\times\Z_8$; so after a translation the support is the complement of a subgroup of order~4.
+(3) In $\Z_2^6$, the support of our $(64,18,2)$ example, translated by $(0,1,0,0,1,0)$ so that
+it avoids $0$, is a $(64,18,2,6)$ partial difference set; it carries $15$ plus signs and $3$ minus
+signs.
+(4) The families $(32,20,4)$, $(48,24,8)$, $(48,32,16)$, $(64,18,2)$, $(64,22,6)$ and
+$(64,46,30)$ all have $n=k-\lambda=16$. We do not know a uniform construction for them.
+\end{remark}
+
+\subsection{Cases of order 64 and the partial-difference-set route}
+
+\begin{proposition}\label{prop:maybe}
+SDSs exist in the following 11 cases (\cref{tab:certs}, tier~b):
+$(64,22,6)$ in $\Z_2^4\times\Z_4$, $\Z_2^3\times\Z_8$, $\Z_2\times\Z_4\times\Z_8$, $\Z_4^3$,
+$\Z_4\times\Z_{16}$; and $(64,46,30)$ in $\Z_2^4\times\Z_4$, $\Z_2^3\times\Z_8$,
+$\Z_2^2\times\Z_4^2$, $\Z_2\times\Z_4\times\Z_8$, $\Z_4^3$, $\Z_8^2$.
+\end{proposition}
+By \cref{lem:pds}, the $(64,22,6)$ cases would follow from a regular Latin-square-type
+$(64,21,8,6)$ partial difference set in the group, and the $(64,46,30)$ cases from the complement
+of a regular negative-Latin-square-type $(64,18,2,6)$ partial difference set. An exhaustive search
+over all symmetric subsets of the right size (a pseudo-Boolean formulation solved with z3,
+\texttt{data/pds\_z3.py}; every nonexistence verdict was cross-checked by an independent
+backtracking program, \texttt{data/pds\_ex.c} and \texttt{data/pds\_ex2.c}, with logs in
+\texttt{data/}) shows that, among the eleven abelian groups
+of order 64, regular $(64,21,8,6)$ partial difference sets and regular $(64,18,2,6)$ partial
+difference sets exist in exactly the same three groups, $\Z_2^6$, $\Z_2^2\times\Z_4^2$ and
+$\Z_8^2$, and in no other abelian group of order 64. (For $\Z_8^2$ both kinds appear, up to complementation, in the
+enumeration of all regular partial difference sets in $C_8\times C_8$ by Malandro and
+Smith~\cite[Table~5]{MalandroSmith2020}; for $\Z_2^6$ and $H\times H$ the Latin-square-type sets
+are the partial congruence partitions of \cref{prop:known}.)
+Consequently, the $(64,46,30)$ cases in $\Z_2^2\times\Z_4^2$ and in $\Z_8^2$ do follow from
+\cref{lem:pds}, and we do not claim them as new, whereas the remaining nine cases of this
+proposition cannot arise from \cref{lem:pds}; to our knowledge they are new in the same sense as
+the cases of \cref{thm:new}. We keep them in a separate tier because the search for the partial
+difference sets is a computation of a different kind from the rest of the paper. Our certificates
+settle all eleven cases independently of this discussion.
+
+\subsection{Database corrections}
+
+\begin{proposition}\label{prop:known}
+The following eight cases are listed as open in the repository, but follow from published
+constructions or from their routine variants. We do not claim them as new; Lean-certified
+examples are in \cref{tab:certs} (tier~c).
+\begin{enumerate}
+\item $(27,14,5)$ in $\Z_3^3$. Use \cite[Prop.~2.3]{Gordon2023}: $P$ is the Paley $(27,13,6)$
+difference set of $\GF(27)$ and $N=\{0\}$. The group is $(\GF(27),+)\cong\Z_3^3$.
+\item $(27,17,8)$ in $\Z_3^3$. Use \cite[Thm.~4.1]{Gordon2023} with $q=3$, $r=9$, so
+$G=\GF(3)\oplus\GF(9)\cong\Z_3^3$. The repository attaches the comment ``Prime Power Pair'' to
+the $\Z_3\times\Z_9$ entry. A $(27,17,8)$ SDS does also exist in $\Z_3\times\Z_9$; our
+exhaustive search finds 1836 normalized ones.
+\item $(27,10,1)$ in $\Z_3^3$. Take the product construction of \cite[Thm.~4.1]{HeChenGe2024}
+with $m=1$, where it is stated only for even $m$. With $G=\Z_3\times\Z_3\times\Z_3$, take
+$D'=\{1\}-\{2\}$, the $(3,2,-1)$ SDS of \cite[Prop.~2.2]{Gordon2023}, and set
+$D=(1,0,\Z_3)+(0,\Z_3,0)+(0,D',D')$ (the parameter $x_1$ of \cite{HeChenGe2024} taken to be $0$).
+The character computation of \cite{HeChenGe2024} applies verbatim, and we also checked it
+directly.
+\item $(36,11,2)$ in $\Z_6^2$. Apply \cref{lem:pds} to the rook-graph partial difference set
+$(\Z_6\times0\cup 0\times\Z_6)\setminus\{0\}$ with parameters $(36,10,4,2)$. In $\Z_3\times\Z_{12}$
+no $(36,10,4,2)$ partial difference set exists (exhaustive search), and that case is in
+\cref{thm:new}.
+\item $(64,22,6)$ in $\Z_2^6$. This is \cite[Thm.~5.3, Ex.~5.4]{HeWu2026}; it is not yet
+reflected in the repository snapshot.
+\item[6--7.] $(64,22,6)$ in $\Z_2^2\times\Z_4^2$ and in $\Z_8^2$. Apply \cref{lem:pds} to the
+partial congruence partition partial difference set $(H\times0\cup0\times H\cup\{(h,h)\})\setminus\{0\}$
+with parameters $(64,21,8,6)$ in $H\times H$, for $H=\Z_2\times\Z_4$ and $H=\Z_8$ respectively.
+\item[8.] $(64,46,30)$ in $\Z_2^6$. Let $S$ be the set of nonzero vectors of $\GF(4)^3$ that
+lie on the six points of a hyperoval of $\mathrm{PG}(2,4)$. Then $S$ is a $(64,18,2,6)$ partial
+difference set. Its complement $G\setminus(S\cup\{0\})$ is a $(64,45,32,30)$ partial difference
+set, and \cref{lem:pds} gives the SDS. We verified this computationally
+(\texttt{data/hyperoval.py}). Our search independently found an example of exactly this
+shape.
+\end{enumerate}
+\end{proposition}
+
+%======================================================================
+\section{Nonexistence for the remaining cases with \texorpdfstring{$v\le 28$}{v <= 28}}\label{sec:nonex}
+
+\begin{proposition}[parity]\label{prop:parity}
+Let $k=v-2$ with $v\ge 4$. If $v\not\equiv\lambda\pmod 2$, then no $(v,k,\lambda)$ SDS exists in
+any abelian group of order $v$. In particular, no $(27,25,16)$ SDS exists in $\Z_{27}$ or in
+$\Z_3\times\Z_9$.
+\end{proposition}
+\begin{proof}
+Let $\{a,b\}$ be the zero set and take $y\notin\{0,a-b,b-a\}$. The pairs $(g,g+y)$ with both
+coefficients nonzero are exactly those with $g\notin\{a,b,a-y,b-y\}$, and these four elements are
+distinct. So $C_D(y)$ is a sum of $v-4$ terms $\pm1$, and $C_D(y)\equiv v\pmod 2$.
+\end{proof}
+He and Wu's small-defect criterion~\cite[Thm.~4.7]{HeWu2026} excludes $(27,25,16)$ only in
+$\Z_3^3$.
+
+\begin{proposition}[computer search, not formally verified]\label{prop:computer}
+There is no SDS in any of the following 16 cases:
+$(20,11,2)$ and $(20,17,8)$ in $\Z_2\times\Z_{10}$;
+$(24,18,2)$ in $\Z_2\times\Z_{12}$ and in $\Z_2^2\times\Z_6$;
+$(27,17,4)$, $(27,22,3)$ and $(27,22,9)$ in $\Z_3^3$ and in $\Z_3\times\Z_9$;
+$(27,17,8)$ in $\Z_{27}$;
+$(27,25,16)$ in $\Z_{27}$ and in $\Z_3\times\Z_9$;
+$(28,13,4)$, $(28,19,10)$ and $(28,27,2)$ in $\Z_2\times\Z_{14}$.
+\end{proposition}
+
+The search is described in \cref{sec:methods}, and the log is \texttt{data/ex\_small.txt}. Each
+case took between $0.01$ and $101$ seconds. \Cref{tab:small} summarizes all 23 open cases with
+$v\le28$.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{lll}
+\toprule
+case & status & source\\\midrule
+$(9,8,1)$, $\Z_3^2$ & none & \cref{thm:981} (Lean)\\
+$(20,11,2)$, $(20,17,8)$, $\Z_2\times\Z_{10}$ & none & \cref{prop:computer}\\
+$(24,18,2)$, $\Z_2\times\Z_{12}$ and $\Z_2^2\times\Z_6$ & none & \cref{prop:computer}\\
+$(25,12,1)$, $\Z_5^2$ & exists & \cref{prop:cyc25} (Lean)\\
+$(27,10,1)$, $\Z_3\times\Z_9$; $(27,14,5)$, $\Z_3\times\Z_9$ & exist & \cref{thm:new} (Lean)\\
+$(27,10,1)$, $(27,14,5)$, $(27,17,8)$, $\Z_3^3$ & exist & \cref{prop:known} (Lean)\\
+$(27,17,4)$, $(27,22,3)$, $(27,22,9)$, $\Z_3^3$ and $\Z_3\times\Z_9$ & none & \cref{prop:computer}\\
+$(27,17,8)$, $\Z_{27}$ & none & \cref{prop:computer}\\
+$(27,25,16)$, $\Z_{27}$ and $\Z_3\times\Z_9$ & none & \cref{prop:parity}, \cref{prop:computer}\\
+$(28,13,4)$, $(28,19,10)$, $(28,27,2)$, $\Z_2\times\Z_{14}$ & none & \cref{prop:computer}\\
+\bottomrule
+\end{tabular}
+\caption{All 23 group-specific cases with $v\le 28$ that are open after \cite{HeWu2026}.}
+\label{tab:small}
+\end{table}
+
+%======================================================================
+\section{Search methods}\label{sec:methods}
+
+\paragraph{Local search.} We store $s:G\to\{-1,0,1\}$ with $|P|=(k+s)/2$ and $|N|=(k-s)/2$
+fixed, and minimize $\sum_{y\ne0}(C(y)-\lambda)^2$ by simulated annealing. Each move swaps two
+coefficients. Changing $s_g$ by $d$ changes $C(y)$ by $d(s_{g+y}+s_{g-y})$, so an update costs
+$O(v)$ (\texttt{data/sds\_ls.c}). All 710 open cases with $v\le 100$ were run for 4 CPU-seconds
+each. Parameter triples that succeeded in at least one group of their order were retried for
+20 seconds in the remaining groups.
+
+\paragraph{Exhaustive search.} By \cref{lem:basic}(2) we may assume that $0\in S=\supp D$ and that
+$s_0=+1$. We enumerate supports $S\ni 0$ of size $k$ and keep those satisfying the support parity
+condition of \cref{lem:basic}(3). For each surviving support we then assign signs by
+backtracking. For each shift $y$, the number of equal-sign pairs among the $c_y$ ordered pairs must
+be $(c_y+\lambda)/2$ and the number of opposite-sign pairs $(c_y-\lambda)/2$. Partial counts are
+pruned against these targets (\texttt{data/sds\_ex.c}). As a validation, the program finds
+solutions in every case we tested where an SDS is known to exist: Gordon's $(18,13,4)$ in
+$\Z_2\times\Z_3^2$, cyclic $(20,11,2)$, $(13,4,1)$ and $(7,6,-1)$, and our $(25,12,1)$,
+$(27,10,1)$, $(27,14,5)$ and $(27,17,8)$. It reports none for the cases recorded as nonexistent,
+namely $(18,13,4)$ in $\Z_{18}$ and $(9,8,1)$ in $\Z_9$ (\texttt{data/validate\_ex.txt}).
+
+%======================================================================
+\section{Formal verification}\label{sec:lean}
+
+The file \texttt{lean/Main.lean} is self-contained and uses Lean~4.34.1 with core only, no
+Mathlib. The group $\Z_{m_1}\times\dots\times\Z_{m_r}$ (moduli list \texttt{ms}, $v=\prod m_i$)
+is modelled on $\{0,\dots,v-1\}$ by mixed-radix coordinates, most significant first. The group
+law is componentwise addition modulo $m_i$:
+\begin{lstlisting}
+def coords : List Nat → Nat → List Nat
+  | [], _ => []
+  | m :: ms, x => (x / ms.prod) % m :: coords ms x
+def ofCoords : List Nat → List Nat → Nat
+  | [], _ => 0
+  | _ :: ms, c => c.headD 0 * ms.prod + ofCoords ms c.tail
+def addCoords : List Nat → List Nat → List Nat → List Nat
+  | m :: ms, a :: as, b :: bs => (a + b) % m :: addCoords ms as bs
+  | _, _, _ => []
+def gadd (ms : List Nat) (x y : Nat) : Nat :=
+  ofCoords ms (addCoords ms (coords ms x) (coords ms y))
+
+def IsSDS (ms : List Nat) (k : Nat) (lam : Int) (D : Nat → Int) : Prop :=
+  (∀ g ∈ List.range ms.prod, D g = -1 ∨ D g = 0 ∨ D g = 1) ∧
+  ((List.range ms.prod).filter (fun g => D g ≠ 0)).length = k ∧
+  ∀ y ∈ List.range ms.prod, y ≠ 0 →
+    ((List.range ms.prod).map (fun g => D g * D (gadd ms g y))).sum = lam
+\end{lstlisting}
+The main statements are as follows; there is one existence theorem for each of the 45 cases:
+\begin{lstlisting}
+theorem no_SDS_9_8_1_Z3xZ3 : ¬ ∃ D : Nat → Int, IsSDS [3,3] 8 1 D
+theorem sds_25_12_1_G5x5   : ∃ D : Nat → Int, IsSDS [5, 5] 12 (1) D
+theorem sds_27_10_1_G3x9   : ∃ D : Nat → Int, IsSDS [3, 9] 10 (1) D
+...                        -- 45 theorems sds_v_k_lambda_G..., see Appendix A
+theorem model_G5x5 : GroupModelOK [5, 5]   -- one sanity lemma per group (23 groups)
+\end{lstlisting}
+
+\paragraph{Statement audit.}
+\texttt{GroupModelOK ms} states two things. First, \texttt{coords} maps $\{0,\dots,v-1\}$ into
+valid tuples and has left inverse \texttt{ofCoords}. Second, \texttt{ofCoords} maps every tuple
+of the Cartesian product $[0,m_1)\times\dots\times[0,m_r)$ into $\{0,\dots,v-1\}$ and has left
+inverse \texttt{coords}. So \texttt{coords} is a bijection. Since \texttt{gadd} is defined as
+transported componentwise addition, $(\{0,\dots,v-1\},\texttt{gadd ms})$ is exactly the group
+with invariant factors \texttt{ms}, which is the repository label. \texttt{IsSDS} says three
+things: the coefficients lie in $\{-1,0,1\}$; exactly $k$ of them are nonzero; and
+\eqref{eq:autocorr} holds for every nonzero $y\in G$, with every sum running once over all of
+$G$. This is exactly \eqref{eq:sds}. The existence theorems are proved by exhibiting $D$, built
+from the explicit lists $P,N$ of coordinate tuples, followed by \texttt{decide +kernel}. Whether
+the helper \texttt{signedOf} that builds $D$ is correct does not matter, because the predicate
+is checked on the resulting function itself.
+
+The nonexistence theorem quantifies over \emph{all} $D:\mathbb N\to\Z$. Its proof has three
+steps. First, the three blocks $[D\,0,D\,1,D\,2]$, $[D\,3,D\,4,D\,5]$ and $[D\,6,D\,7,D\,8]$ lie in
+the list of all 27 ternary words of length~3. Second, \texttt{IsSDS [3,3]} depends only on these
+nine values. Third, 27 kernel-checked lemmas exclude all $3^9=19683$ coefficient vectors. No
+translation or negation normalization is used.
+
+\paragraph{Axioms and resources.} \texttt{lean/lean\_output.txt} contains 69 \texttt{\#print axioms}
+lines. The output is:
+\begin{lstlisting}
+'no_SDS_9_8_1_Z3xZ3' depends on axioms: [propext, Quot.sound]
+'model_G5x5' depends on axioms: [propext]        -- same for all 23 model lemmas
+'sds_25_12_1_G5x5' depends on axioms: [propext, Quot.sound]
+                                                 -- same for all 45 existence theorems
+leanchk: wall=1221.58s maxrss=5790648kB exit=0
+\end{lstlisting}
+There is no \texttt{sorryAx}, no \texttt{native\_decide} (no \texttt{Lean.ofReduceBool}), and
+there are no \texttt{axiom} declarations, errors or warnings. The last line is the resource log
+of the wrapper that ran Lean. To reproduce, run \texttt{lean Main.lean} in the directory
+\texttt{lean/} with a Lean~4.34.1 toolchain; no project file and no Mathlib are needed. The
+recorded run took 1222 seconds of wall time and 5.8\,GB of memory; an independent re-run during
+review (same file, SHA-256
+\texttt{5a0ae726\dots3ce4e27}) took 587 seconds and 5.8\,GB and produced identical output.
+
+%======================================================================
+\section{Limitations and open questions}\label{sec:limits}
+
+\begin{itemize}
+\item \emph{Novelty.} ``New'' means: open in the repository (v1.2) and after \cite{HeWu2026},
+and not implied by any construction we could identify in
+\cite{Gordon2023,HeChenGe2024,HeWu2026} or by \cref{lem:pds}. For \cref{lem:pds} the question is
+settled by exhaustive search in all abelian groups of order 64 (\cref{prop:maybe}); the only
+other certificates with $|N|=1$ are $(27,14,5)$ in $\Z_3\times\Z_9$ and $(36,11,2)$ in
+$\Z_3\times\Z_{12}$, and there \cref{lem:pds} cannot apply either: a $(27,13,7,5)$ partial
+difference set would be a strongly regular graph with non-integral eigenvalue multiplicities
+($6f=39$), and no $(36,10,4,2)$ partial difference set exists in $\Z_3\times\Z_{12}$
+(\cref{prop:known}). We did not survey the partial difference set or Hadamard difference set
+literature exhaustively, so some 2-group examples might still follow from constructions there.
+Finally, the group-specific open cases themselves date only from version~1.2 of the repository
+(April 2026); earlier versions covered essentially only cyclic groups.
+\item \cref{prop:computer} is the output of a C program, validated as described in
+\cref{sec:methods}. It is not formally verified. Only \cref{thm:981} and the 45 existence
+results are Lean-certified.
+\item Local search found nothing for the 455 open cases with $65\le v\le100$. Nothing should be
+inferred from this.
+\item Open questions. Is there a uniform construction behind the $n=16$ families of
+\cref{thm:new}? Do $(32,20,4)$ and $(32,28,12)$ exist in the remaining groups of order~32
+(including $\Z_{32}$)? Do $(48,24,8)$ and $(48,32,16)$ exist in $\Z_2\times\Z_{24}$ and $\Z_{48}$?
+Are there further eighth-order cyclotomic SDSs in $\GF(p^2)$?
+\end{itemize}
+
+%======================================================================
+\begin{thebibliography}{9}
+\bibitem{Gordon2023}
+D.~M.~Gordon, \emph{Signed difference sets}, Des.\ Codes Cryptogr.\ \textbf{91} (2023), no.~5, 2107--2115;
+\href{https://arxiv.org/abs/2212.10630}{arXiv:2212.10630}.
+\bibitem{GordonSDSrepo}
+D.~M.~Gordon, \emph{La Jolla Signed Difference Set Repository}, version 1.2 (April 24, 2026),
+\texttt{sds.json}, Zenodo, concept \href{https://doi.org/10.5281/zenodo.7473882}{doi:10.5281/zenodo.7473882},
+version \href{https://doi.org/10.5281/zenodo.19741004}{doi:10.5281/zenodo.19741004};
+source \url{https://github.com/dmgordo/signed-difference-sets}; see also
+\url{https://dmgordon.org/signed-difference-sets/}. Versions 1.0 (December 20, 2022) and 1.1
+(March 9, 2023) are \href{https://doi.org/10.5281/zenodo.7473883}{doi:10.5281/zenodo.7473883} and
+\href{https://doi.org/10.5281/zenodo.7713113}{doi:10.5281/zenodo.7713113}.
+\bibitem{HeChenGe2024}
+Z.~He, T.~Chen, G.~Ge, \emph{New constructions of signed difference sets}, Des.\ Codes Cryptogr.\
+\textbf{92} (2024), no.~8, 2323--2340; \href{https://arxiv.org/abs/2306.05631}{arXiv:2306.05631}.
+\bibitem{HeWu2026}
+Z.~He, J.~Wu, \emph{Nonexistence results and constructions for signed difference sets},
+\href{https://arxiv.org/abs/2608.22936}{arXiv:2608.22936v2} (September 20, 2026).
+\bibitem{HeScript}
+Z.~He, \emph{SDS Open-Case Verification} (Python code and data),
+\url{https://github.com/zhiwenhe94/sds-open-case-verification}, accessed October 8, 2026.
+\bibitem{MalandroSmith2020}
+M.~E.~Malandro, K.~W.~Smith, \emph{Partial difference sets in $C_{2^n}\times C_{2^n}$}, Discrete
+Math.\ \textbf{343} (2020), no.~4, 111744; \href{https://arxiv.org/abs/1811.11223}{arXiv:1811.11223}.
+\end{thebibliography}
+
+%======================================================================
+\appendix
+\section{All certificates}\label{app:certs}
+
+Elements of $\Z_{m_1}\times\dots\times\Z_{m_r}$ are written as mixed-radix indices: the tuple
+$(x_1,\dots,x_r)$ with $0\le x_i<m_i$ is the integer
+$x=x_1 m_2\cdots m_r+x_2m_3\cdots m_r+\dots+x_r$. For example, in $\Z_3\times\Z_9$ the index $16$
+is $(1,7)$. The same tuples, together with the indices, are in \texttt{data/certificates.json},
+and the tuples appear verbatim in \texttt{lean/Main.lean}. Tier: a = new (\cref{thm:new});
+b = order-64 cases of \cref{prop:maybe} (nine of them cannot come from \cref{lem:pds}, two do);
+c = database correction (\cref{prop:known}).
+
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}l l c p{7.2cm} p{2.6cm}@{}}
+\caption{Explicit signed difference sets $D=P-N$ (indices of $P$ and of $N$).}\label{tab:certs}\\
+\toprule
+$(v,k,\lambda)$ & group & tier & $P$ & $N$\\\midrule
+\endfirsthead
+\toprule
+$(v,k,\lambda)$ & group & tier & $P$ & $N$\\\midrule
+\endhead
+\bottomrule
+\endfoot
+\input{certtable}
+\end{longtable}
+}
+
+\end{document}

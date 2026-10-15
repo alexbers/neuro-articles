@@ -1,0 +1,38 @@
+\section{What is not verified; open questions}\label{sec:limitations}
+
+\paragraph{Not formally verified.}
+The following are proved on paper only.
+\begin{itemize}
+\item Proposition~\ref{prop:forced}, including the reduction from line arrangements to wiring diagrams.
+\item Lemma~\ref{lem:percycle}, the sweep argument.
+\item Lemma~\ref{lem:A}, which relies on the Matsumoto--Tits theorem~\cite{Matsumoto1964}.
+\item Hence Theorem~\ref{thm:parity}, Corollary~\ref{cor:main}, and the upper bounds $M(7)\le18$ and $M(9)\le33$.
+\end{itemize}
+
+An attempt to certify Lemma~\ref{lem:A} for $n=7$ in Lean, by a kernel-evaluated breadth-first search over
+the sweep states of all $5040$ permutations, ran out of kernel memory. We chose not to fall back on
+\texttt{native\_decide}.
+
+\paragraph{Computational evidence.} This is not a proof. The sweep process in the proof of
+Lemma~\ref{lem:percycle} defines a finite-state dynamic program. We validated it against direct component
+counts of $G$ on random reduced words for $n=3,5,\dots,11$, and then ran it over \emph{all} reduced
+words of $w_0$ for $n\le 9$. For $n=7$ and $n=9$ the graph $G$ is never a single cycle; it has $2$ or at
+least $3$ components. In every case $\#A$ had the same parity for all words, as Lemma~\ref{lem:A} predicts.
+
+On $2000$ random reduced words for each odd $n\le 19$, the parity of the number of components always
+equalled $(n^2-1)/8\bmod 2$. On $2500$ random words (500 for each $n=5,7,9,11,13$), every cycle
+contained an odd number of $A$-crossings. Random real arrangements of $7$ lines produced $2$, $4$ or
+$6$ components, never an odd number.
+
+\paragraph{Open questions.}
+\begin{enumerate}
+\item Is $M(n)=\binom n2$ for every $n\equiv\pm3\pmod 8$? We confirmed this for $n=3,5,11,13$. Brief
+  searches for $n=19$ and $n=21$ (four runs of $10^6$ annealing steps each) reached $3$ components but
+  not $1$.
+\item Is $M(n)=\binom n2-3$ for every $n\equiv\pm1\pmod 8$? We confirmed this for $n=7$ and $n=9$.
+\item What is $M(n)$ for even $n$? The closed-trail bound is $n(n-2)/2$, and DSM's $24$-gon on $8$
+  lines attains it for $n=8$. We have not studied even $n$.
+\item Is there a proof of Lemma~\ref{lem:A} that avoids the Matsumoto--Tits theorem, for example via an
+  explicit potential function on permutations? A linear-algebra search over $\mathrm{GF}(2)$ suggests
+  that such potentials exist.
+\end{enumerate}

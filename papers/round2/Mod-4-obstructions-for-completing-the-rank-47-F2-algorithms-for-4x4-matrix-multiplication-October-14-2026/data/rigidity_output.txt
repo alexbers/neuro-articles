@@ -1,0 +1,6 @@
+data/at444_f2_r47.txt: plus transitions 6486, distinct rank-48 components 971, states 37848, max component 1506, reduced schemes different from S0: 0 (ranks []), 9s
+data/at444_47_z2.txt: plus transitions 6486, distinct rank-48 components 981, states 34209, max component 635, reduced schemes different from S0: 0 (ranks []), 8s
+state limit reached: component not complete
+runs_local/w47/fmt/3x3x3_m23_c164_iteration0_Z2.txt: plus transitions 4, distinct rank-24 components 2, states 41748, max component 27924, reduced schemes different from S0: 143 (ranks [23]), 6s
+data/at444_f2_r47.txt rank 47 per-mode rank distributions (1,2,3,4): [(20, 12, 15, 0), (20, 12, 15, 0), (9, 24, 13, 1)] sorted: [(9, 24, 13, 1), (20, 12, 15, 0), (20, 12, 15, 0)] flip pairs: 0
+data/at444_47_z2.txt rank 47 per-mode rank distributions (1,2,3,4): [(20, 12, 15, 0), (11, 24, 11, 1), (19, 12, 16, 0)] sorted: [(11, 24, 11, 1), (19, 12, 16, 0), (20, 12, 15, 0)] flip pairs: 0

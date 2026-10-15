@@ -1,0 +1,6 @@
+'bigCheck_true' depends on axioms: [propext, Quot.sound, bigCheck_true._native.native_decide.ax_1_1]
+'no_three_consecutive_septic_residues' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ bigCheck_true._native.native_decide.ax_1_1]
+leanchk: wall=165.46s maxrss=539680kB exit=0

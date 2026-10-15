@@ -1,0 +1,29 @@
+# Lean check of Main.lean (sha256 20251d5cb88aa970b1d612839717a8f072e3869ed4bdef8ea44b06859a387f4f)
+# Lean 4.34.1 core only, command (via ./runmon.sh Main.lean 10800 9000 ...):
+#   timeout 10800 nice -n 10 attempts/toolchain/lean-4.34.1-linux/bin/lean -j1 Main.lean   (RSS watchdog 9000 MB)
+# Reason for not using ../bin/leanchk: under its 'ulimit -v 16000000' Lean aborts at start-up with
+#   'failed to create thread: Resource temporarily unavailable' (full log: leanchk_attempt.txt).
+# Full output follows (no errors, no warnings):
+'W2_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W2_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W4_12' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W5_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_6' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_9' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_10' depends on axioms: [propext, Classical.choice, Quot.sound]
+'W6_11' depends on axioms: [propext, Classical.choice, Quot.sound]
+runmon: wall=2310s peakrss=3629MB exit=0

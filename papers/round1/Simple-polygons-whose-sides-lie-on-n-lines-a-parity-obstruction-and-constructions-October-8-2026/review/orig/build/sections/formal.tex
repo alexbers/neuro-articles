@@ -1,0 +1,69 @@
+\section{Formal verification of the constructions}\label{sec:formal}
+
+The file \texttt{lean/Main.lean} is self-contained and was checked with Lean~4.34.1 using only the core
+library and Std; Mathlib is not used. The check took $37$--$53$\,s of wall time and about $2$\,GB of
+memory. The main statement is the following.
+
+\lstinputlisting{sections/leanthm.lean}
+
+The theorems \texttt{mo513798\_n13}, \texttt{mo513798\_n7} and \texttt{mo513798\_n9} have the same
+form, with $(n,k)=(13,78)$, $(7,18)$ and $(9,33)$. All Boolean checks are discharged by
+\texttt{decide +kernel}, i.e.\ by evaluation in the kernel. No \texttt{sorry}, \texttt{axiom},
+\texttt{admit} or \texttt{native\_decide} occurs. The verbatim output of \texttt{\#print axioms}
+(\texttt{lean/lean\_output.txt}) is:
+\begin{verbatim}
+'mo513798_n11' depends on axioms: [propext]
+'mo513798_n13' depends on axioms: [propext]
+'mo513798_n7' depends on axioms: [propext]
+'mo513798_n9' depends on axioms: [propext]
+\end{verbatim}
+\texttt{propext} is a standard axiom of Lean. It enters through core decidability instances.
+
+\paragraph{Definitions used by the statement} (verbatim, doc-comments removed):
+\lstinputlisting{sections/leandefs.lean}
+
+\paragraph{Statement audit.} We explain why the Lean statement means exactly ``there are $n$ lines and a
+simple polygon with $k$ sides, every side lying on one of the lines''.
+\begin{itemize}
+\item \emph{Points.} A point is an integer triple $(x,y,w)$; it represents $(x/w,y/w)\in\Q^2$.
+  \texttt{isSimplePolygon} checks $w>0$ for every vertex.
+\item \emph{Lines.} \texttt{onLine} tests $ax+by=cw$, which is $a\frac xw+b\frac yw=c$ multiplied by
+  $w>0$. \texttt{genuineLines} excludes the degenerate equation $0x+0y=c$, which would contain every
+  point when $c=0$.
+\item \emph{Orientation.} \texttt{orient} is the $3\times3$ determinant of the homogeneous coordinates.
+  It equals $p_wq_wr_w\cdot\bigl((q-p)\times(r-p)\bigr)$ for the affine points. Since the weights are
+  positive, its sign is the orientation of $(p,q,r)$, and it vanishes iff the points are collinear.
+\item \emph{Segment intersection.} \texttt{segInter} is the standard exact test for closed segments
+  \cite[\S33.1]{CLRS}: a proper crossing, or an endpoint of one segment lying on the other. The box
+  test \texttt{inBox} is used only when an orientation is $0$, i.e.\ for collinear points. In that case
+  ``lies in the bounding box'' is equivalent to ``lies on the segment''. \texttt{fle} compares fractions
+  with positive denominators.
+\item \emph{Simple polygon.} Vertex $j$ is \texttt{P[j mod k]}. \texttt{isSimplePolygon} requires:
+  \begin{itemize}
+  \item $k\ge 3$;
+  \item every triple of consecutive vertices is non-collinear;
+  \item for $i<j$, the sides $i$ and $j$ are disjoint whenever $i+2\le j$ and $j+2\le k+i$.
+  \end{itemize}
+  The last condition ranges over exactly the non-adjacent pairs of sides; the adjacent pairs are
+  $j=i+1$ and $(i,j)=(0,k-1)$. Non-collinearity of consecutive triples makes consecutive vertices
+  distinct and makes adjacent sides meet only in their common vertex. It also forbids two collinear
+  consecutive sides, so the polygon has exactly $k$ genuine sides. These conditions say exactly that
+  the boundary is a Jordan polygon with $k$ sides, as in the definition in \cref{sec:reduction}.
+\item \emph{Sides on lines.} \texttt{sidesOnLines} asks that both endpoints of each side lie on a
+  common line of the list. Then the whole side lies on that line. The two length conditions fix $n$
+  and $k$. If two listed lines coincided, the statement would only become stronger. In fact the listed
+  lines are pairwise distinct and in general position; this was checked separately in exact rational
+  arithmetic.
+\item \emph{Checker sanity.} \texttt{Main.lean} also contains \texttt{example}s showing that the checker
+  behaves as intended:
+  \begin{itemize}
+  \item it accepts a unit square;
+  \item it rejects a bow-tie, three collinear consecutive vertices, and a polygon that touches itself;
+  \item collinear segments are treated correctly whether they overlap or are disjoint.
+  \end{itemize}
+\end{itemize}
+
+\paragraph{Reproduction.}
+Run \texttt{attempts/bin/leanchk lean/Main.lean} (the guarded wrapper around the Lean binary).
+Independently of Lean, the Python scripts in the accompanying directory \texttt{A09-polygon-lines/}
+recheck simplicity with exact rationals.

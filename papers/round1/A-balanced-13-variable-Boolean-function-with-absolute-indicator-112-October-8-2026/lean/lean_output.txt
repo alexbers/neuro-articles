@@ -1,0 +1,4 @@
+'A12.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A12.main_statement' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A12.zhang_zheng_fails_n13' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanchk: wall=124.31s maxrss=2369432kB exit=0

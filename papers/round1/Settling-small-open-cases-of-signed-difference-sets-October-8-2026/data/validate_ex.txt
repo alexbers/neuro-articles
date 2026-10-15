@@ -1,0 +1,23 @@
+== 25 12 1 5 5
+DONE v=25 k=12 lam=1 supports=2496144 surviving=4800 solutions(sign at 0 = +1, support containing 0)=1920
+== 27 10 1 3 9
+DONE v=27 k=10 lam=1 supports=3124550 surviving=5720 solutions(sign at 0 = +1, support containing 0)=3420
+== 27 14 5 3 9
+DONE v=27 k=14 lam=5 supports=10400600 surviving=17108 solutions(sign at 0 = +1, support containing 0)=3024
+== 18 13 4 2 3 3
+DONE v=18 k=13 lam=4 supports=6188 surviving=260 solutions(sign at 0 = +1, support containing 0)=468
+== 18 13 4 3 6
+DONE v=18 k=13 lam=4 supports=6188 surviving=260 solutions(sign at 0 = +1, support containing 0)=468
+== 18 13 4 18
+DONE v=18 k=13 lam=4 supports=6188 surviving=104 solutions(sign at 0 = +1, support containing 0)=0
+== 20 11 2 20
+DONE v=20 k=11 lam=2 supports=92378 surviving=418 solutions(sign at 0 = +1, support containing 0)=22
+== 13 4 1 13
+DONE v=13 k=4 lam=1 supports=220 surviving=16 solutions(sign at 0 = +1, support containing 0)=16
+== 7 6 -1 7
+DONE v=7 k=6 lam=-1 supports=6 surviving=6 solutions(sign at 0 = +1, support containing 0)=6
+== 9 8 1 9
+DONE v=9 k=8 lam=1 supports=8 surviving=8 solutions(sign at 0 = +1, support containing 0)=0
+== 27 17 8 3 9 (repository says Yes, 'Prime Power Pair')
+SOL P=[[0,0],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[1,0],[1,1],[1,2],[1,3],[1,5],[1,6],[2,1],[2,2],[2,5]] N=[[0,1]]
+DONE v=27 k=17 lam=8 supports=5311735 surviving=9724 solutions(sign at 0 = +1, support containing 0)=1836

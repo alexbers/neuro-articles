@@ -1,0 +1,5 @@
+'Q8.GF8_is_field' does not depend on any axioms
+'Q8.main8' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Q9.GF9_is_field' depends on axioms: [propext]
+'Q9.main9' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanchk: wall=436.45s maxrss=3865576kB exit=0

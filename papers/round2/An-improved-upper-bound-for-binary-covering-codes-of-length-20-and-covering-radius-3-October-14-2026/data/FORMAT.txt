@@ -1,0 +1,11 @@
+Word encoding: a binary word (x_0, ..., x_{n-1}) is stored as the integer sum_i x_i 2^i.
+
+C_n20_R3_M1984.txt   the 1984 codewords of the length-20 code (covering radius 3), one integer per line.
+B_n14_R2_M248.txt    the 248 codewords of the normal length-14 code B (covering radius 2), one per line;
+                     B is normal w.r.t. coordinate 0 (bit 0), the coordinate used for amalgamation.
+B_syndromes_S62.txt  line 1: '# cols: ...' = the 14 parity-check columns of H (12-bit integers,
+                     bit j = row j); then the 62 syndromes s in S; B = { x : H x in S }.
+verify_cov.c         brute-force checker: gcc -O3 -o verify_cov verify_cov.c && ./verify_cov 20 3 C_n20_R3_M1984.txt
+                     (prints the number of codewords, duplicates, and words farther than R from the code).
+The amalgamated direct sum is C = { (u mod 64) + 64 v : u in A, v in B, floor(u/64) = v mod 2 },
+A = [7,4] Hamming code {0,7,25,30,42,45,51,52,75,76,82,85,97,102,120,127} (bit 6 is the amalgamated coordinate).

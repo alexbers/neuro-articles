@@ -1,0 +1,716 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{construction}[theorem]{Construction}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newcommand{\N}{\mathbb N}
+\crefname{construction}{Construction}{Constructions}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{proposition}{Proposition}{Propositions}
+\crefname{conjecture}{Conjecture}{Conjectures}
+\crefname{example}{Example}{Examples}
+\crefname{remark}{Remark}{Remarks}
+\crefname{definition}{Definition}{Definitions}
+\crefname{corollary}{Corollary}{Corollaries}
+
+\lstdefinelanguage{lean}{
+  morekeywords={def,theorem,lemma,by,fun,let,in,if,then,else,match,with,structure,where,namespace,end,open,abbrev,exact,rw,intro},
+  sensitive=true,
+  morecomment=[l]{--},
+  morecomment=[s]{/-}{-/},
+  morestring=[b]",
+}
+\lstset{
+  language=lean,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{blue!50!black},
+  commentstyle=\itshape\color{green!35!black},
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  frame=single,
+  framerule=0.3pt,
+  rulecolor=\color{black!30},
+  xleftmargin=2pt,
+  extendedchars=true,
+  inputencoding=utf8,
+  literate=
+    {↔}{{$\leftrightarrow$}}1
+    {∃}{{$\exists$}}1
+    {∀}{{$\forall$}}1
+    {∈}{{$\in$}}1
+    {∧}{{$\wedge$}}1
+    {≠}{{$\neq$}}1
+    {≤}{{$\le$}}1
+    {≥}{{$\ge$}}1
+    {…}{{$\dots$}}1
+    {⟨}{{$\langle$}}1
+    {⟩}{{$\rangle$}}1
+    {·}{{$\cdot$}}1
+    {→}{{$\to$}}1,
+}
+
+\title{Proof of Sun's conjecture on coprime adjacent sums\\ (OEIS A228886)}
+\author{Claude (AI model by Anthropic)\\ \small run and submitted by Aleksandr Bersenev}
+\date{October 8, 2026\\[3pt]\footnotesize Produced autonomously by Claude (Opus 5.5) agents in Claude Code; run and submitted by Aleksandr Bersenev.\\ \footnotesize Not an official Anthropic publication. Not peer reviewed.}
+\hypersetup{pdftitle={Proof of Sun's conjecture on coprime adjacent sums (OEIS A228886)},pdfauthor={Claude (AI model by Anthropic); submitted by Aleksandr Bersenev}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For $n\ge 1$ let $a(n)$ be the number of permutations $(i_0,i_1,\dots,i_n)$ of $\{0,1,\dots,n\}$ with
+$i_0=0$ and $i_n=n$ such that all $n+1$ cyclic adjacent sums
+$i_0+i_1,\ i_1+i_2,\ \dots,\ i_{n-1}+i_n,\ i_n+i_0$ are coprime to both $n-1$ and $n+1$
+(OEIS A228886). In 2013 Zhi-Wei Sun conjectured that $a(n)>0$ for every $n\ge1$ except $n=2,4$,
+and proved this for odd $n$. We give explicit permutations for all even $n\ge 6$, which completes
+the proof: $a(n)>0$ if and only if $n\notin\{2,4\}$. We also settle Sun's companion question in which
+$n\pm1$ is replaced by $2n\pm1$: a permutation with all cyclic adjacent sums coprime to $2n-1$ and
+$2n+1$ exists if and only if $n\neq 2$. In particular the formulation ``for any positive integer $n$''
+given in the OEIS entry fails exactly at $n=2$. Both statements, including Sun's odd case and the
+impossibility for the exceptional $n$, are formally verified in Lean~4 using the core library only.
+\end{abstract}
+
+\tableofcontents
+
+%======================================================================
+\section{Introduction}\label{sec:intro}
+
+Sun's 2013 preprint \emph{Some new problems in additive combinatorics}~\cite{Sun1309} contains a
+collection of problems asking for permutations or circular arrangements whose adjacent sums or
+differences satisfy arithmetic restrictions. Many of them are recorded in the OEIS. One of them is
+the following.
+
+\begin{conjecture}[Sun, 2013-09-07; {\cite[Conjecture~3.9]{Sun1309}}, {\cite{A228886}}]\label{conj:sun}
+For every positive integer $n\neq 2,4$ there is a permutation $i_0,i_1,\dots,i_n$ of $0,1,\dots,n$ with
+$i_0=0$ and $i_n=n$ such that all the $n+1$ adjacent sums
+\[
+  i_0+i_1,\quad i_1+i_2,\quad\dots,\quad i_{n-1}+i_n,\quad i_n+i_0
+\]
+are coprime to both $n-1$ and $n+1$.
+\end{conjecture}
+
+The number of such permutations is OEIS sequence A228886~\cite{A228886}. Its known values begin
+$1,0,1,0,1,8,3,24,78,1164,34,\dots$ for $n=1,2,\dots$, and the entry now lists terms up to $n=26$, all of them positive except
+$a(2)=a(4)=0$.
+Equivalently, consider the graph on $\{0,\dots,n\}$ in which $i$ and $j$ are joined when $i+j$ is
+coprime to $n^2-1$; the conjecture asks for a Hamiltonian cycle of this graph through the edge
+$\{0,n\}$.
+
+\paragraph{What was known.}
+Sun proved Conjecture~\ref{conj:sun} for all odd $n$ on 2013-09-10, by explicit permutations
+\cite[Remark~3.9(ii)]{Sun1309}; see also the comments in~\cite{A228886}. We reproduce his
+permutations in \cref{sec:odd}. The even case was left open:
+\begin{itemize}
+  \item the OEIS entry, edited as recently as July 2026, records only the odd case as proved; its
+  attached file lists all permutations for $n\le10$, but no general construction for even $n$;
+  \item in a 2020 lecture~\cite{SunTalk2020}, Sun lists the conjecture with the remark ``I have
+  proved this for any positive odd integer $n$''.
+\end{itemize}
+
+Two related results should not be confused with this one. The analogous problem for permutations of
+$1,\dots,n$ whose sums are coprime to $n$ (OEIS A228860~\cite{A228860}) was proved by H.-Q.~Cao and
+H.~Pan in 2013, according to that entry. Recent progress on other permutation problems of Sun, such as
+the prime circle problem for large $n$ and the Hou--Sun problem on primitive-sum graphs over finite
+fields~\cite{She2609}, or the residues of $\sum_k k^2\tau(k)^2$ modulo $2n+1$~\cite{She2606},
+does not address A228886.
+
+In Remark~3.9(i) of~\cite{Sun1309}, Sun also guesses that $n\pm1$ in Conjecture~\ref{conj:sun} can be
+replaced by $2n\pm1$. The comments of~\cite{A228886} state this companion version as: for any
+positive integer $n$ there is such a permutation with all sums coprime to both $2n-1$ and $2n+1$.
+
+\paragraph{Results.}
+We prove the even case of Conjecture~\ref{conj:sun} by an explicit construction
+(\cref{sec:even}). Together with Sun's odd case and a short argument for $n=2,4$, this gives the
+following theorem.
+
+\begin{theorem}\label{thm:main}
+For $n\ge1$, a permutation as in Conjecture~\ref{conj:sun} exists if and only if $n\notin\{2,4\}$.
+Equivalently, $\mathrm{A228886}(n)>0$ if and only if $n\notin\{2,4\}$.
+\end{theorem}
+
+\begin{theorem}\label{thm:companion}
+For $n\ge1$, there is a permutation $i_0,\dots,i_n$ of $0,\dots,n$ with $i_0=0$, $i_n=n$ and all
+$n+1$ cyclic adjacent sums coprime to both $2n-1$ and $2n+1$ if and only if $n\neq2$.
+\end{theorem}
+
+For $n=2$ the only candidate is $(0,1,2)$, and $1+2=3=2n-1$. So the OEIS wording of the companion
+conjecture (``for any positive integer $n$'') is false at $n=2$ and true for every other $n$. The
+wording in~\cite{Sun1309} inherits the exceptions $n\ne2,4$ of Conjecture~\ref{conj:sun} and is
+therefore true.
+
+Both theorems are formally verified in Lean~4 (\cref{sec:lean}). The verification covers the odd
+case, the even case, the companion problem and the impossibility at the exceptional values.
+
+\paragraph{Novelty.}
+To our knowledge, as of October 8, 2026, neither the even case of Conjecture~\ref{conj:sun} nor the
+companion conjecture had been proved. Our search covered:
+\begin{itemize}
+  \item the OEIS entry and related entries;
+  \item the latest arXiv version (v9, March 2020) of~\cite{Sun1309}, in which Conjecture~3.9 and
+  Remark~3.9 still record only the odd case, and Sun's 2020 slides~\cite{SunTalk2020};
+  \item web and arXiv searches with several phrasings, in English and Chinese;
+  \item the OEIS problem list of the \emph{formal-conjectures} project~\cite{FormalConj}, which
+  does not contain A228886, and the lists of OEIS conjectures reported in 2026 as proved by AI
+  agents~\cite{AI2605,AI2608}, which do not mention it either.
+\end{itemize}
+We could \emph{not} consult Sun's 2021 Chinese-language book of conjectures~\cite{SunBook}. If the
+even case was settled there or anywhere else, our contribution reduces to the companion result and
+the formal verification. The constructions are short and elementary. The even case seems to have
+stayed open for lack of attention rather than difficulty.
+
+%======================================================================
+\section{Definitions and notation}\label{sec:defs}
+
+Throughout, $n\ge1$ is an integer, and $\gcd(s,0)=s$, so that being coprime to $0$ means being $1$.
+
+\begin{definition}
+Let $A,B\ge0$ be integers. An \emph{$(A,B)$-cycle of order $n$} is a sequence
+$p=(p(0),p(1),\dots,p(n))$ such that:
+\begin{enumerate}
+  \item $p$ is a permutation of $\{0,1,\dots,n\}$;
+  \item $p(0)=0$ and $p(n)=n$;
+  \item every cyclic adjacent sum
+  \[
+    s_i:=p(i)+p(i+1)\quad(0\le i\le n-1),\qquad s_n:=p(n)+p(0)=n,
+  \]
+  is coprime to both $A$ and $B$.
+\end{enumerate}
+\end{definition}
+
+In this language, Theorem~\ref{thm:main} concerns $(n-1,n+1)$-cycles and Theorem~\ref{thm:companion} concerns
+$(2n-1,2n+1)$-cycles. We call an integer $s$ \emph{admissible} when it is coprime to both moduli.
+Permutations are written as their value sequences $(p(0),\dots,p(n))$.
+
+The following triviality is used repeatedly. If $d$ divides $a$ and $b$, then $d$ divides every
+integer combination $xa+yb$. In particular $\gcd(a,a+k)$ divides $k$.
+
+%======================================================================
+\section{Admissible sums}\label{sec:admissible}
+
+\begin{lemma}[moduli $n\pm1$]\label{lem:adm1}
+Let $n\ge1$. The following sums are coprime to both $n-1$ and $n+1$:
+\begin{enumerate}
+  \item $1$ and $n$, always;
+  \item $n+3$, if $n$ is even; and $n-3$, if $n$ is even and $n\ge4$;
+  \item $n+2$, if $n\not\equiv1\pmod 3$;
+  \item $n-2$ (for $n\ge3$) and $2n-1$, if $n\not\equiv2\pmod 3$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+\emph{(1)} For $1$ this is clear. For $n$, note $\gcd(n,n\pm1)\mid 1$.
+
+\emph{(2)} If $n$ is even, then $n\pm1$ and $n\pm3$ are odd. Now $\gcd(n+3,n+1)\mid 2$ and
+$\gcd(n+3,n-1)\mid4$; since all four numbers are odd, both gcds are $1$. Similarly
+$\gcd(n-3,n-1)\mid2$ and $\gcd(n-3,n+1)\mid 4$.
+
+\emph{(3)} We have $\gcd(n+2,n+1)=1$ and $\gcd(n+2,n-1)\mid 3$. If $3\mid n+2$ then $n\equiv1$, so for
+$n\not\equiv1\pmod3$ the second gcd is $1$.
+
+\emph{(4)} We have $\gcd(n-2,n-1)=1$ and $\gcd(n-2,n+1)\mid3$, and $3\nmid n-2$ when
+$n\not\equiv2$. Also $2n-1=2(n-1)+1$ gives $\gcd(2n-1,n-1)=1$. Finally $2(n+1)-(2n-1)=3$ gives
+$\gcd(2n-1,n+1)\mid3$, and $3\mid 2n-1$ iff $n\equiv2\pmod 3$.
+\end{proof}
+
+\begin{lemma}[moduli $2n\pm1$]\label{lem:adm2}
+Let $n\ge1$. The following sums are coprime to both $2n-1$ and $2n+1$:
+\begin{enumerate}
+  \item $n$ and $4$, always; and $2n-3$, if $n\ge2$;
+  \item $n/2$, if $n$ is even;
+  \item $n+1$, and $(n+1)/2$ for odd $n$, if $n\not\equiv2\pmod3$;
+  \item $n-1$ (for $n\ge2$), and $(n-1)/2$ for odd $n$, if $n\not\equiv1\pmod 3$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Both moduli are odd.
+
+\emph{(1)} $\gcd(n,2n\pm1)\mid 1$. The number $4$ is coprime to odd numbers.
+$\gcd(2n-3,2n-1)\mid2$ and $\gcd(2n-3,2n+1)\mid 4$, and $2n-3$ is odd.
+
+\emph{(2)} With $m=n/2$: $\gcd(m,4m\pm1)\mid1$.
+
+\emph{(3)} $\gcd(n+1,2n+1)\mid 2(n+1)-(2n+1)=1$. Also $\gcd(n+1,2n-1)\mid 3$, and $3\mid n+1$ iff
+$n\equiv2$. For odd $n$ put $x=(n+1)/2$, so $2n-1=4x-3$ and $2n+1=4x-1$. Then $\gcd(x,4x-1)=1$ and
+$\gcd(x,4x-3)\mid3$. Moreover $3\mid x$ iff $n\equiv5\pmod 6$, which for odd $n$ means
+$n\equiv2\pmod3$.
+
+\emph{(4)} $\gcd(n-1,2n-1)\mid (2n-1)-2(n-1)=1$. Also $\gcd(n-1,2n+1)\mid3$, and $3\mid n-1$ iff
+$n\equiv1$. For odd $n$ put $y=(n-1)/2$, so $2n-1=4y+1$ and $2n+1=4y+3$. Then $\gcd(y,4y+1)=1$ and
+$\gcd(y,4y+3)\mid3$. Moreover $3\mid y$ iff $n\equiv1\pmod6$, which for odd $n$ means
+$n\equiv1\pmod 3$.
+\end{proof}
+
+%======================================================================
+\section{Proof of \texorpdfstring{Theorem~\ref{thm:main}}{Theorem 1.2}}\label{sec:proof1}
+
+\subsection{The exceptional values \texorpdfstring{$n=2,4$}{n = 2, 4}}
+
+\begin{proposition}\label{prop:24}
+There is no $(n-1,n+1)$-cycle of order $2$ or of order $4$.
+\end{proposition}
+\begin{proof}
+For $n=2$ the only permutation with $p(0)=0$ and $p(2)=2$ is $(0,1,2)$. Its sum $1+2=3$ is not
+coprime to $n+1=3$.
+
+For $n=4$ write the permutation as $(0,a,b,c,4)$ with $\{a,b,c\}=\{1,2,3\}$; the moduli are $3$
+and $5$. The sum $c+4$ must avoid $5$ and $6$, so $c=3$. Then $\{a,b\}=\{1,2\}$, and $a+b=3$ is
+not coprime to $3$.
+\end{proof}
+
+\subsection{Odd \texorpdfstring{$n$}{n} (Sun's permutations)}\label{sec:odd}
+
+The following two families are due to Sun~\cite[Remark~3.9(ii)]{Sun1309}. We record them with
+their sums.
+
+\begin{construction}[Sun]\label{con:oddA}
+Let $n$ be odd with $n\not\equiv2\pmod3$. Define
+\[
+  p(i)=\begin{cases} i & i \text{ even},\ i\le n-1,\\ n-1-i & i\text{ odd},\\ n & i=n.\end{cases}
+\]
+This gives $(0,\,n-2,\,2,\,n-4,\,4,\,\dots,\,1,\,n-1,\,n)$. The sums are:
+\begin{itemize}
+  \item $i+(n-2-i)=n-2$ for even $i<n-1$;
+  \item $(n-1-i)+(i+1)=n$ for odd $i$;
+  \item $s_{n-1}=(n-1)+n=2n-1$ and $s_n=n$.
+\end{itemize}
+\end{construction}
+
+\begin{construction}[Sun]\label{con:oddB}
+Let $n\ge3$ be odd with $n\not\equiv1\pmod3$. Define $p(0)=0$, $p(n)=n$, $p(i)=i$ for odd $i$, and
+$p(i)=n+1-i$ for even $2\le i\le n-1$. This gives $(0,\,1,\,n-1,\,3,\,n-3,\,\dots,\,n-2,\,2,\,n)$.
+The sums are:
+\begin{itemize}
+  \item $s_0=1$;
+  \item $n$ for odd $i$;
+  \item $n+2$ for even $2\le i\le n-1$;
+  \item $s_n=n$.
+\end{itemize}
+\end{construction}
+
+Both maps are permutations. In Construction~\ref{con:oddA} even positions carry even values and
+odd positions carry odd values; in Construction~\ref{con:oddB} even positions $i\ge2$ carry the even
+values $n+1-i$. By Lemma~\ref{lem:adm1}(1),(3),(4) all sums are admissible. This proves Theorem~\ref{thm:main}
+for odd $n$, including $n=1$, where the permutation is $(0,1)$ with sums $1,1$.
+
+\subsection{Even \texorpdfstring{$n$}{n} (new)}\label{sec:even}
+
+Let $n=2m$ be even. Sun's zig-zag $i\mapsto i$ ($i$ odd), $i\mapsto n+1-i$ ($i$ even) has adjacent sums
+alternating between $n$ and $n+2$. For even $n$ it cannot end at $p(n)=n$, because it sends the even
+position $n$ to the value $1$. Our permutations therefore switch, in the middle, to the opposite
+phase $i\mapsto i$ ($i$ even), $i\mapsto n+1-i$ ($i$ odd), using a short gadget whose sums are
+$n\pm3$, which are always admissible for even $n$ (Lemma~\ref{lem:adm1}(2)).
+
+\begin{construction}[$n\equiv0\pmod4$, $n\ge8$]\label{con:evenA}
+Let $m=n/2$, which is even. Define
+\[
+p(i)=\begin{cases}
+0 & i=0,\\
+i & 1\le i\le m-3,\ i\text{ odd},\\
+n+1-i & 1\le i\le m-3,\ i \text{ even},\\
+m,\ m+3,\ m-1,\ m+1 & i=m-2,\ m-1,\ m,\ m+1 \text{ respectively},\\
+i & m+2\le i\le n,\ i\text{ even},\\
+n+1-i & m+2\le i\le n,\ i\text{ odd}.
+\end{cases}
+\]
+That is, $p$ is the sequence
+\[
+\begin{gathered}0,\ 1,\ n-1,\ 3,\ n-3,\ \dots,\ m+5,\ m-3,\ \big|\ m,\ m+3,\ m-1,\ m+1\ \big|\\ m+2,\ m-2,\ m+4,\ m-4,\ \dots,\ n-2,\ 2,\ n.\end{gathered}
+\]
+\end{construction}
+
+\begin{construction}[$n\equiv2\pmod4$, $n\ge10$]\label{con:evenB}
+Let $m=n/2$, which is odd. Define
+\[
+p(i)=\begin{cases}
+0 & i=0,\\
+i & 1\le i\le m-1,\ i\text{ odd},\\
+n+1-i & 1\le i\le m-1,\ i \text{ even},\\
+m+1,\ m-1,\ m+3,\ m,\ m-3 & i=m,\ m+1,\ m+2,\ m+3,\ m+4 \text{ respectively},\\
+i & m+5\le i\le n,\ i\text{ even},\\
+n+1-i & m+5\le i\le n,\ i\text{ odd}.
+\end{cases}
+\]
+That is, $p$ is the sequence
+\[
+0,\ 1,\ n-1,\ 3,\ n-3,\ \dots,\ m-2,\ m+2,\ \big|\ m+1,\ m-1,\ m+3,\ m,\ m-3\ \big|\ m+5,\ m-5,\ \dots,\ n-2,\ 2,\ n.
+\]
+\end{construction}
+
+\begin{lemma}\label{lem:evenAB}
+Constructions~\ref{con:evenA} and~\ref{con:evenB} define permutations of $\{0,\dots,n\}$ with $p(0)=0$ and $p(n)=n$. All
+their cyclic adjacent sums lie in $\{1,\ n,\ n+2,\ n+3,\ n-3\}$. Precisely:
+\begin{itemize}
+  \item Construction~\ref{con:evenA}:
+  \begin{itemize}
+    \item $s_0=1$;
+    \item $s_i=n$ ($i$ odd) and $s_i=n+2$ ($i$ even) for $1\le i\le m-4$;
+    \item $(s_{m-3},s_{m-2},s_{m-1},s_m,s_{m+1})=(n-3,\,n+3,\,n+2,\,n,\,n+3)$;
+    \item $s_i=n$ ($i$ even) and $s_i=n+2$ ($i$ odd) for $m+2\le i\le n-1$;
+    \item $s_n=n$.
+  \end{itemize}
+  \item Construction~\ref{con:evenB}:
+  \begin{itemize}
+    \item $s_0=1$;
+    \item $s_i=n$ ($i$ odd) and $s_i=n+2$ ($i$ even) for $1\le i\le m-2$;
+    \item $(s_{m-1},\dots,s_{m+4})=(n+3,\,n,\,n+2,\,n+3,\,n-3,\,n+2)$;
+    \item $s_i=n$ ($i$ even) and $s_i=n+2$ ($i$ odd) for $m+5\le i\le n-1$;
+    \item $s_n=n$.
+  \end{itemize}
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+\emph{Permutation, Construction~\ref{con:evenA}.} Here $m$ is even. We list the values taken by each block.
+\begin{itemize}
+  \item First block, $1\le i\le m-3$. The odd positions take the odd values $1,3,\dots,m-3$. The even
+  positions $2\le i\le m-4$ take the values $n+1-i$, which are the odd values $m+5,\dots,n-1$.
+  \item Gadget. It takes $m$ and the odd values $m-1,m+1,m+3$.
+  \item Last block, $m+2\le i\le n$. The even positions take the even values $m+2,\dots,n$. The odd
+  positions $m+3\le i\le n-1$ take the values $n+1-i$, which are the even values $2,\dots,m-2$.
+\end{itemize}
+Together with $p(0)=0$ every odd value in $[1,n-1]$ and every even value in $[0,n]$ occurs exactly
+once.
+
+\emph{Permutation, Construction~\ref{con:evenB}.} Here $m$ is odd and $m\ge5$.
+\begin{itemize}
+  \item First block, $1\le i\le m-1$. It takes the odd values $1,\dots,m-2$ and, at even positions,
+  the odd values $n+1-i\in\{m+2,\dots,n-1\}$.
+  \item Gadget. It takes the odd value $m$ and the even values $m-3,m-1,m+1,m+3$.
+  \item Last block, $m+5\le i\le n$. Here $m+5$ is even. It takes the even values $m+5,\dots,n$
+  and, at odd positions, the even values $n+1-i\in\{2,\dots,m-5\}$.
+\end{itemize}
+Again every value in $[0,n]$ occurs exactly once.
+
+\emph{Sums.} Inside a block of the first phase, an odd position $i$ gives
+$i+\big(n+1-(i+1)\big)=n$ and an even position gives $(n+1-i)+(i+1)=n+2$. The same holds with the
+parities exchanged in a block of the second phase.
+
+For Construction~\ref{con:evenA}, the transitions around the gadget are
+\[
+\begin{gathered}(m-3)+m=n-3,\quad m+(m+3)=n+3,\quad (m+3)+(m-1)=n+2,\\ (m-1)+(m+1)=n,\quad (m+1)+(m+2)=n+3.\end{gathered}
+\]
+For Construction~\ref{con:evenB} they are
+\[
+\begin{gathered}
+(m+2)+(m+1)=n+3,\quad (m+1)+(m-1)=n,\quad (m-1)+(m+3)=n+2,\\
+(m+3)+m=n+3,\quad m+(m-3)=n-3,\quad (m-3)+(m+5)=n+2.
+\end{gathered}
+\]
+Here $p(m-1)=n+1-(m-1)=m+2$, because $m-1$ is even. Finally $s_0=0+1=1$ and $s_n=n+0=n$.
+\end{proof}
+
+\begin{lemma}[mirror]\label{lem:mirror}
+If $p$ is a permutation of $\{0,\dots,n\}$ with $p(0)=0$ and $p(n)=n$, then so is
+$q(i):=n-p(n-i)$. Its adjacent sums are
+\[
+q(i)+q(i+1)=2n-s_{n-1-i}\quad(0\le i\le n-1),\qquad q(n)+q(0)=n .
+\]
+\end{lemma}
+\begin{proof}
+The map $i\mapsto n-i$ reverses the order and the map $v\mapsto n-v$ reflects the values; both are
+involutions. We have $q(0)=n-p(n)=0$ and $q(n)=n-p(0)=n$. The sum formula is immediate:
+\[
+q(i)+q(i+1)=2n-\big(p(n-i)+p(n-i-1)\big)=2n-s_{n-1-i}. \qedhere
+\]
+\end{proof}
+
+\begin{proposition}\label{prop:even}
+For every even $n\ge6$ there is an $(n-1,n+1)$-cycle of order $n$.
+\end{proposition}
+\begin{proof}
+For $n=6$ take $(0,1,2,4,5,3,6)$. Its cyclic sums are $1,3,6,9,8,9,6$, all coprime to $5$ and $7$.
+
+Let $n\ge8$ be even, and let $p$ be Construction~\ref{con:evenA} if $4\mid n$ and Construction~\ref{con:evenB} otherwise.
+\begin{itemize}
+  \item If $n\not\equiv1\pmod3$, all sums of $p$ lie in $\{1,n,n+2,n\pm3\}$ by Lemma~\ref{lem:evenAB}.
+  These are admissible by Lemma~\ref{lem:adm1}(1)--(3).
+  \item If $n\equiv1\pmod3$, use the mirror $q$ of $p$ (Lemma~\ref{lem:mirror}). Its sums lie in
+  $\{2n-1,\,n,\,n-2,\,n\mp3\}$. These are admissible by Lemma~\ref{lem:adm1}(1),(2),(4), because
+  $n\not\equiv2\pmod 3$. \qedhere
+\end{itemize}
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Combine Proposition~\ref{prop:24}, Sun's odd constructions (\cref{sec:odd}) and Proposition~\ref{prop:even}.
+\end{proof}
+
+\begin{example}\label{ex:even}
+The permutations produced by the proof for small even $n$ are listed below. For $n=10$ and $n=16$
+the mirror is used, because $n\equiv1\pmod3$.
+\begin{center}\footnotesize
+\begin{tabular}{@{}rll@{}}
+\toprule
+$n$ & permutation $(p(0),\dots,p(n))$ & cyclic sums $(s_0,\dots,s_n)$\\
+\midrule
+6 & $0,1,2,4,5,3,6$ & $1,3,6,9,8,9,6$\\
+8 & $0,1,4,7,3,5,6,2,8$ & $1,5,11,10,8,11,8,10,8$\\
+10 & $0,8,5,2,6,4,3,7,1,9,10$ & $8,13,7,8,10,7,10,8,10,19,10$\\
+12 & $0,1,11,3,6,9,5,7,8,4,10,2,12$ & $1,12,14,9,15,14,12,15,12,14,12,14,12$\\
+14 & $0,1,13,3,11,5,9,8,6,10,7,4,12,2,14$ & $1,14,16,14,16,14,17,14,16,17,11,16,14,16,14$\\
+16 & $0,14,2,12,4,10,6,7,9,5,8,11,3,13,1,15,16$ & $14,16,14,16,14,16,13,16,14,13,19,14,16,14,16,31,16$\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{example}
+
+\begin{remark}[how the construction was found]
+Put $t=v-m\in[-m,m]$. A sum $v+w=n+c$ becomes $t+t'=c$. The always-admissible sums $n$ and $n\pm3$
+correspond to the reflections $t\mapsto -t$ and $t\mapsto\pm3-t$. Adding $n+2$, which corresponds to
+$t\mapsto 2-t$, makes the two zig-zags $0,2,-2,4,-4,\dots$ and $1,-1,3,-3,\dots$ available. They are
+glued near $t=0$ by the gadget $2,1,-1,3,0,-3,5$, and closed near $t=\pm m$ by the sum $v+w=1$. The
+mirror $t\mapsto-t$ exchanges $n+2$ with $n-2$, which covers the residue class $n\equiv1\pmod 3$. An exhaustive search shows that for $n=8$ there is no admissible cycle using only the sums $n$,
+$n\pm3$ and powers of two, so these universally admissible sums alone do not suffice.
+\end{remark}
+
+%======================================================================
+\section{Proof of \texorpdfstring{Theorem~\ref{thm:companion}}{Theorem 1.3}}\label{sec:companion}
+
+Now the moduli are $2n-1$ and $2n+1$.
+
+\begin{construction}[$n\not\equiv2\pmod3$, $n$ even]\label{con:C1}
+Let $m=n/2$, $p(0)=0$ and $p(n)=n$. For $1\le i\le n-1$ put
+$p(i)=m-\tfrac{i-1}{2}$ for odd $i$ and $p(i)=m+\tfrac i2$ for even $i$. This gives
+\[
+(0,\ m,\ m+1,\ m-1,\ m+2,\ m-2,\ \dots,\ n-1,\ 1,\ n).
+\]
+The odd positions take $\{1,\dots,m\}$ and the even positions $2\le i\le n-2$ take
+$\{m+1,\dots,n-1\}$. The sums are:
+\begin{itemize}
+  \item $s_0=m$;
+  \item $s_i=n+1$ for odd $i\le n-3$ and $s_i=n$ for even $2\le i\le n-2$;
+  \item $s_{n-1}=1+n$ and $s_n=n$.
+\end{itemize}
+\end{construction}
+
+\begin{construction}[$n\not\equiv2\pmod3$, $n$ odd]\label{con:C2}
+Let $m=(n-1)/2$, $p(0)=0$ and $p(n)=n$. For $1\le i\le n-1$ put
+$p(i)=m+1+\tfrac{i-1}2$ for odd $i$ and $p(i)=m+1-\tfrac i2$ for even $i$. This gives
+\[
+(0,\ m+1,\ m,\ m+2,\ m-1,\ \dots,\ n-1,\ 1,\ n).
+\]
+The odd positions take $\{m+1,\dots,n-1\}$ and the even positions take $\{1,\dots,m\}$. The sums are:
+\begin{itemize}
+  \item $s_0=(n+1)/2$;
+  \item $s_i=n$ for odd $i$ and $s_i=n+1$ for even $2\le i\le n-3$;
+  \item $s_{n-1}=n+1$ and $s_n=n$.
+\end{itemize}
+For $n=1$ this is $(0,1)$.
+\end{construction}
+
+\begin{construction}[$n\equiv2\pmod3$, $n\ge8$]\label{con:C3}
+Let $m=\lfloor n/2\rfloor$ and $p(0)=0$. For $1\le i\le n-6$ put:
+\begin{itemize}
+  \item if $n$ is even: $p(i)=m+\tfrac{i-1}2$ for odd $i$, and $p(i)=m-\tfrac i2$ for even $i$;
+  \item if $n$ is odd: $p(i)=m-\tfrac{i-1}2$ for odd $i$, and $p(i)=m+\tfrac i2$ for even $i$.
+\end{itemize}
+Finally put $(p(n-5),p(n-4),\dots,p(n))=(1,\,n-1,\,n-2,\,2,\,n-3,\,n)$. So $p$ is
+\[
+0,\ \underbrace{m,\ m\mp1,\ m\pm1,\ \dots,\ 4,\ n-4,\ 3}_{\text{positions }1,\dots,n-6},\ 1,\ n-1,\ n-2,\ 2,\ n-3,\ n,
+\]
+with the upper signs for even $n$. The zig-zag block takes exactly the values $\{3,\dots,n-4\}$. The sums are:
+\begin{itemize}
+  \item $s_0=m$;
+  \item along the zig-zag, $n-1$ and $n$ alternately;
+  \item $s_{n-6}=3+1=4$;
+  \item then $n,\ 2n-3,\ n,\ n-1,\ 2n-3$;
+  \item $s_n=n$.
+\end{itemize}
+\end{construction}
+
+\begin{proof}[Verification of Construction~\ref{con:C3}]
+\emph{$n$ even.} The odd positions $1,3,\dots,n-7$ take the values $m,m+1,\dots,m+\frac{n-8}2=n-4$.
+The even positions $2,\dots,n-6$ take the values $m-1,\dots,m-\frac{n-6}2=3$. An odd position
+$i=2k+1$ gives $(m+k)+(m-k-1)=n-1$, and an even position $i=2k$ gives $(m-k)+(m+k)=n$.
+
+\emph{$n$ odd.} Here $n=2m+1$. The odd positions take $m,m-1,\dots,3$ and the even positions take
+$m+1,\dots,n-4$. The zig-zag sums are $(m-k)+(m+k+1)=n$ and $(m+k)+(m-k)=n-1$.
+
+In both cases the last zig-zag value is $p(n-6)=3$, and the tail gives the sums listed.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:companion}]
+For $n=2$ the only candidate $(0,1,2)$ has the sum $3=2n-1$, so no such permutation exists.
+
+For $n=5$ take $(0,1,4,3,2,5)$. Its sums $1,5,7,5,7,5$ are coprime to $9$ and $11$.
+
+For all other $n$ we use the constructions above.
+\begin{itemize}
+  \item If $n\not\equiv2\pmod 3$, use Construction~\ref{con:C1} or Construction~\ref{con:C2}. All sums lie in
+  $\{n/2,\,n,\,n+1\}$ or $\{(n+1)/2,\,n,\,n+1\}$, which are admissible by Lemma~\ref{lem:adm2}(1)--(3).
+  \item If $n\equiv2\pmod 3$ and $n\ge8$, use Construction~\ref{con:C3}. All sums lie in
+  $\{m,\,n-1,\,n,\,4,\,2n-3\}$, which are admissible by Lemma~\ref{lem:adm2}(1),(2),(4). Here, for odd $n$,
+  $m=(n-1)/2$ and $n\not\equiv1\pmod 3$. \qedhere
+\end{itemize}
+\end{proof}
+
+\begin{example}
+For $n=4$, which the arXiv formulation of the companion conjecture excludes,
+Construction~\ref{con:C1} gives $(0,2,3,1,4)$ with sums $2,5,4,5,4$
+(moduli $7,9$). Further examples:
+\begin{itemize}
+  \item $n=8$: $(0,4,3,1,7,6,2,5,8)$, with sums $4,7,4,8,13,8,7,13,8$ (moduli $15,17$);
+  \item $n=11$: $(0,5,6,4,7,3,1,10,9,2,8,11)$, with sums $5,11,10,11,10,4,11,19,11,10,19,11$
+  (moduli $21,23$).
+\end{itemize}
+\end{example}
+
+%======================================================================
+\section{Formal verification}\label{sec:lean}
+
+All results above are verified in a single self-contained Lean~4~\cite{Lean4} file, \texttt{lean/Main.lean}
+(about 830 lines). It uses Lean version 4.34.1 with the core library only: no Mathlib and no
+external dependencies. It contains no \texttt{sorry}, \texttt{axiom}, \texttt{admit} or
+\texttt{native\_decide}.
+
+\paragraph{Statement.}
+The two main theorems are stated as follows. Their definitions appear directly above them in the
+file and are reproduced here verbatim.
+\lstinputlisting{sections/leandefs.lean}
+\lstinputlisting{sections/leanthm.lean}
+
+\paragraph{Axioms and resources.}
+\texttt{\#print axioms} reports:
+\begin{lstlisting}[language={}]
+'A228886.sun_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
+'A228886.sun_companion' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}
+These are the standard axioms of Lean's foundations.
+\begin{itemize}
+  \item The check takes about 480\,s of wall-clock time (about 352\,s of CPU time) with a peak
+  memory of about 1.6\,GB, on a shared machine.
+  \item The file sets \texttt{set\_option Elab.async false}, because asynchronous elaboration failed
+  to create threads under that machine's resource limits. The option has no logical effect.
+\end{itemize}
+
+\paragraph{Statement audit.}
+\begin{itemize}
+  \item \texttt{List.range (n + 1)} is $[0,1,\dots,n]$. So \texttt{l.Perm (List.range (n + 1))}
+  says that $l$ lists $0,\dots,n$, each exactly once.
+  \item \texttt{l.head? = some 0} and \texttt{l.getLast? = some n} say $i_0=0$ and $i_n=n$.
+  \item For a list of length $n+1$, \texttt{cyclicSums l} is the list of
+  $l[i]+l[(i+1)\bmod(n+1)]$ for $i=0,\dots,n$, that is $i_0+i_1,\dots,i_{n-1}+i_n,i_n+i_0$. Both
+  indices are always smaller than the length, so the default value $0$ of \texttt{getD} is never
+  used.
+  \item \texttt{Nat.gcd s A = 1} is coprimality. Under the hypothesis $1\le n$ the natural-number
+  subtractions $n-1$ and $2n-1$ are exact. For $n=1$, $\gcd(s,0)=s$, matching the OEIS value
+  $a(1)=1$.
+  \item The theorems are equivalences for every $n\ge1$, which is the offset of A228886. They include
+  the non-existence statements at $n=2,4$ (respectively $n=2$).
+  \item The file also contains \texttt{decide}-checked examples. They show that a correct
+  permutation is accepted, and that a list violating the gcd condition, a rotated cycle (same cyclic
+  sums but $i_0\neq0$), and a non-permutation are all rejected.
+\end{itemize}
+
+\paragraph{Proof structure in Lean.}
+\begin{itemize}
+  \item An equivalent function form \texttt{SunFun n A B p} is used, in which
+  $p:\N\to\N$ is injective on $\{0,\dots,n\}$ with values in $\{0,\dots,n\}$. The lemma
+  \texttt{exists\_list\_iff} transfers between the list and function forms, using a pigeonhole
+  lemma \texttt{surj\_of\_inj} proved by induction.
+  \item Each construction of \cref{sec:proof1,sec:companion} is a Lean function defined by a cascade
+  of \texttt{if}s: \texttt{oddA}, \texttt{oddB}, \texttt{evenA}, \texttt{evenB}, the mirror,
+  \texttt{compA}, \texttt{compB}, \texttt{compC}, and the explicit cases $n=5,6$.
+  \item Bounds, injectivity and the list of adjacent sums are proved by splitting all branches and
+  calling \texttt{omega}; injectivity is checked over all pairs of branches.
+  \item The admissibility lemmas of \cref{sec:admissible} are reduced, by Euclid-type rewriting, to
+  $\gcd(r,k)=1$ with $k\le 4$, which is settled by \texttt{decide}.
+  \item The impossibility at $n=2,4$ is a short case analysis.
+\end{itemize}
+
+\paragraph{Independent numerical check.}
+The script \texttt{data/verify\_constructions.py} transcribes the Lean definitions into Python. It
+confirms every construction for $n\le 3000$ and recomputes $\mathrm{A228886}(1..11)$ by brute force, in
+agreement with the OEIS data. This check is not part of the proof.
+
+%======================================================================
+\section{Limitations and open questions}\label{sec:limits}
+
+\begin{itemize}
+\item \textbf{Novelty.} The claim of novelty rests on a literature and web search, as described in
+\cref{sec:intro}. In particular we could not check Sun's 2021 book~\cite{SunBook}.
+\item \textbf{Depth.} The proofs are elementary. They give existence only and say nothing about the
+size of $\mathrm{A228886}(n)$, which grows irregularly (for instance $a(11)=34$ while
+$a(12)=4021156$). Its dependence on the factorisation of $n^2-1$ is not addressed.
+\item \textbf{Squares.} Sun's variant A229130~\cite{A229130} uses $i_k^2+i_{k+1}$ in place of
+$i_k+i_{k+1}$. It conjectures existence for all $n\notin\{2,5,11\}$, and more generally that the
+exceptional sets $E(k)$ for $i_k^{\,k}+i_{k+1}$ are finite. It remains open as far as we know.
+The linear zig-zag method used here does not apply directly.
+\item \textbf{Other problems in~\cite{Sun1309}.} Other circular-permutation problems there involve
+primes (twin primes, Sophie Germain primes, prime circles) or primitive roots. They are of a
+different nature, and most remain open.
+\end{itemize}
+
+\begin{thebibliography}{99}
+\bibitem{A228886}
+OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, sequence A228886
+(Z.-W. Sun, Sep 07 2013; terms to $a(26)$ by M. Alekseyev, Jul 07 2026).
+\url{https://oeis.org/A228886}.
+
+\bibitem{A228860}
+OEIS Foundation Inc., sequence A228860 (Z.-W. Sun, Sep 05 2013).
+\url{https://oeis.org/A228860}.
+
+\bibitem{A229130}
+OEIS Foundation Inc., sequence A229130 (Z.-W. Sun, Sep 15 2013).
+\url{https://oeis.org/A229130}.
+
+\bibitem{Sun1309}
+Z.-W. Sun, \emph{Some new problems in additive combinatorics}, Nanjing Univ. J. Math. Biquarterly
+36 (2019), 134--155; arXiv:1309.1679 [math.NT], v9 (March 2, 2020) consulted.
+\url{https://arxiv.org/abs/1309.1679}.
+
+\bibitem{SunTalk2020}
+Z.-W. Sun, \emph{Introduction to Combinatorial Number Theory (VI): Permutations, Determinants and
+Permanents}, on-line talk slides, June 26, 2020.
+\url{http://maths.nju.edu.cn/~zwsun/CNT-talk6.pdf}.
+
+\bibitem{SunBook}
+Z.-W. Sun, \emph{New Conjectures in Number Theory and Combinatorics} (in Chinese), Harbin Institute
+of Technology Press, 2021. (Not consulted for this work.)
+
+\bibitem{She2606}
+Y.-F. She and X.-Q. Luo, \emph{Proof of a conjecture on permutations}, arXiv:2606.18311, 2026.
+
+\bibitem{She2609}
+Y.-F. She, \emph{Hamiltonicity in graphs defined by primes and primitive elements},
+arXiv:2609.19114, 2026.
+
+\bibitem{FormalConj}
+Google DeepMind, \emph{formal-conjectures} (OEIS folder),
+\url{https://github.com/google-deepmind/formal-conjectures}, accessed October 8, 2026.
+
+\bibitem{AI2605}
+G. Tsoukalas, A. Kovsharov, S. Shirobokov, A. Surina, M. Firsching, G. B\'erczi, F. J. R. Ruiz,
+A. Suggala, A. Z. Wagner, E. Wieser, L. Yu, A. Huang, et al., \emph{Advancing mathematics research
+with AI-driven formal proof search}, arXiv:2605.22763, 2026.
+
+\bibitem{AI2608}
+T. Adamczewski, \emph{OEIS Open: How many conjectures can language models turn into theorems?},
+arXiv:2608.11941, 2026.
+
+\bibitem{Lean4}
+L.~de Moura and S.~Ullrich, \emph{The Lean 4 theorem prover and programming language}, in
+Automated Deduction -- CADE 28, Lecture Notes in Computer Science 12699, Springer, 2021, 625--635.
+\end{thebibliography}
+
+\end{document}

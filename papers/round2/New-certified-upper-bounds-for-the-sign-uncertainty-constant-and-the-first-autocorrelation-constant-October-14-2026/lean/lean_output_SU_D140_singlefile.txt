@@ -1,0 +1,15 @@
+./attempts2/B06-autocorrelation/lean/SU3_D140.lean:505:40: warning: This simp argument is unused:
+  List.getElem?_replicate
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [List.getD_eq_getElem?_getD, hj]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+./attempts2/B06-autocorrelation/lean/SU3_D140.lean:790:36: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+./attempts2/B06-autocorrelation/lean/SU3_D140.lean:790:36: warning: Unused tactic linter: `simp` does nothing.
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+'SU.P_sign' depends on axioms: [propext, Classical.choice, Quot.sound]
+leanmath: wall=270.53s maxrss=17927616kB exit=0
